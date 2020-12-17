@@ -1,0 +1,41 @@
+{
+  "name": "holiday-API",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/index.js",
+  "scripts": {
+    "tsc": "tsc",
+    "dev": "nodemon --exec ts-node src/index.ts",
+    "prod": "tsc && cd build && node index.js",
+    "start": "rm -rf build && tsc && node build/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/bcrypt": "^3.0.0",
+    "@types/cors": "^2.8.9",
+    "@types/express": "^4.17.9",
+    "@types/express-useragent": "^1.0.0",
+    "@types/jsonwebtoken": "^8.5.0",
+    "@types/morgan": "^1.9.2",
+    "@types/node": "^14.14.14",
+    "@types/nodemailer": "^6.4.0",
+    "nodemon": "^2.0.6",
+    "tslint": "^5.12.1",
+    "typescript": "^3.3.3"
+  },
+  "dependencies": {
+    "bcrypt": "^5.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-useragent": "^1.0.15",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.11.8",
+    "morgan": "^1.10.0",
+    "nodemailer": "^6.4.17",
+    "reflect-metadata": "^0.1.13",
+    "ts-node": "^9.1.1"
+  }
+}
