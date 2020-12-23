@@ -2,36 +2,38 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UsersModule } from './users/users.module';
-import { ConfigModule } from '@nestjs/config';
-import { MeetingPlaceModule } from './meeting-place/meeting-place.module';
-import { ZoneModule } from './zone/zone.module';
-import { ScreenModule } from './screen/screen.module';
-import { LocationModule } from './location/location.module';
-import { ChatModule } from './chat/chat.module';
-import { MessageModule } from './message/message.module';
-import { RolModule } from './rol/rol.module';
-import { GroupModule } from './group/group.module';
-import { SearchGroupModule } from './search-group/search-group.module';
+import { UsersModule } from './modules/users/users.module';
+import { MeetingPlaceModule } from './modules/meeting-place/meeting-place.module';
+import { ZoneModule } from './modules/zone/zone.module';
+import { ImageModule } from './modules/image/image.module';
+import { LocationModule } from './modules/location/location.module';
+import { ChatModule } from './modules/chat/chat.module';
+import { MessageModule } from './modules/message/message.module';
+import { RolModule } from './modules/rol/rol.module';
+import { GroupModule } from './modules/group/group.module';
+import { NotificationModule } from './modules/notification/notification.module';
+import { CommentModule } from './modules/comment/comment.module';
+import { LikesModule } from './modules/likes/likes.module';
+import { ParticipantsModule } from './modules/participants/participants.module';
 
 @Module({
-    imports: [
-        ConfigModule.forRoot({
-            envFilePath: process.env.NODE_ENV ? `.${process.env.NODE_ENV}.env` : `.development.env`
-        }),
-        MongooseModule.forRoot(`mongodb://${process.env.MONGO_DB_DATABASE_URL}`, { useNewUrlParser: true }),
-        UsersModule,
-        MeetingPlaceModule,
-        ZoneModule,
-        ScreenModule,
-        LocationModule,
-        ChatModule,
-        MessageModule,
-        RolModule,
-        GroupModule,
-        SearchGroupModule
-    ],
-    controllers: [AppController],
-    providers: [AppService]
+  imports: [
+    MongooseModule.forRoot(`mongodb://${process.env.DB_HOST}/${process.env.DB_NAME}`, { useNewUrlParser: true }),
+    UsersModule,
+    MeetingPlaceModule,
+    ZoneModule,
+    ImageModule,
+    LocationModule,
+    ChatModule,
+    MessageModule,
+    RolModule,
+    GroupModule,
+    NotificationModule,
+    CommentModule,
+    LikesModule,
+    ParticipantsModule
+  ],
+  controllers: [AppController],
+  providers: [AppService]
 })
 export class AppModule {}
