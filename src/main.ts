@@ -5,6 +5,8 @@ import { globalConfig } from './config/global';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors();
   await app.listen(globalConfig.port);
 }
+
 bootstrap();
