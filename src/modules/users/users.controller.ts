@@ -1,25 +1,11 @@
-import { Controller, Get, Post, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException } from '@nestjs/common';
-import { CreateUserDTO } from './dto/users.dto';
+import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post } from '@nestjs/common';
 import { UsersService } from './users.service';
-4;
-@Controller('users')
+import { LoginDTO } from '../auth/dto/login.dto';
+import { IUser } from './interfaces/users.interface';
+
+@Controller('/users')
 export class UsersController {
   constructor(private userService: UsersService) {}
-
-  @Post('/')
-  async createPost(@Res() res, @Body() createUserDTO: CreateUserDTO) {
-    try {
-      const user = await this.userService.createUser(createUserDTO);
-      return res.status(HttpStatus.OK).json({
-        message: 'Success',
-        user
-      });
-    } catch (err) {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        err: err.message
-      });
-    }
-  }
 
   @Get('/')
   async getUsers(@Res() res) {
@@ -36,10 +22,15 @@ export class UsersController {
     }
   }
 
+  @Get('/getUserByEmail')
+  async getOneUserEmail(@Res() res, @Body() data: LoginDTO) {
+    return await this.userService.getUserByEmail(data.email);
+  }
+
   @Get('/:userID')
   async getUser(@Res() res, @Param('userID') userID) {
     try {
-      const user = await this.userService.getOneUser(userID);
+      const user = await this.userService.getUserById(userID);
       if (!user) throw new NotFoundException('User does not exists');
       return res.status(HttpStatus.OK).json(user);
     } catch (err) {
@@ -49,34 +40,14 @@ export class UsersController {
     }
   }
 
-  @Delete('/delete')
-  async deleteUser(@Res() res, @Query('userID') userID) {
+  /* @Post('/register')
+  async createUser(@Res() res,@Body() user: User): Promise<User | Object> {
     try {
-      const user = await this.userService.deleteUser(userID);
-      if (!user) throw new NotFoundException('User does not exists');
-      return res.status(HttpStatus.OK).json({
-        message: 'User deleted succesfully'
-      });
+      return await this.userService.createUser(user);
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         err: err.message
-      });
+      })
     }
-  }
-
-  @Put('/update')
-  async updateUser(@Res() res, @Body() createUserDTO: CreateUserDTO, @Query('userID') userID) {
-    try {
-      const user = await this.userService.updateUser(userID, createUserDTO);
-      if (!user) throw new NotFoundException('User does not exists');
-      return res.status(HttpStatus.OK).json({
-        message: 'Product updated succesfully',
-        user
-      });
-    } catch (err) {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        err: err.message
-      });
-    }
-  }
+  } */
 }

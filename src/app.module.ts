@@ -15,10 +15,11 @@ import { NotificationModule } from './modules/notification/notification.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { LikesModule } from './modules/likes/likes.module';
 import { ParticipantsModule } from './modules/participants/participants.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(`mongodb://${process.env.DB_HOST}/${process.env.DB_NAME}`, { useNewUrlParser: true }),
+    MongooseModule.forRoot(`mongodb://${process.env.DB_HOST}/${process.env.DB_NAME}`),
     UsersModule,
     MeetingPlaceModule,
     ZoneModule,
@@ -31,7 +32,8 @@ import { ParticipantsModule } from './modules/participants/participants.module';
     NotificationModule,
     CommentModule,
     LikesModule,
-    ParticipantsModule
+    ParticipantsModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService]
