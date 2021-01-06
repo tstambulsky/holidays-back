@@ -1,17 +1,14 @@
-import { Schema, Document } from 'mongoose';
-import { IsString } from 'class-validator';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import * as mongoose from 'mongoose';
+import { User } from '../../users/schema/users.schema';
 
 export class LoginDTO {
-  @IsString() readonly email: string;
-  @IsString() readonly password: string;
+  email: string;
+  password: string;
 }
 
 export class LoginResDTO {
-  @IsString() readonly token: string;
-  readonly user: [
-    {
-      type: Schema.Types.ObjectId;
-      ref: 'Users';
-    }
-  ];
+  token: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  user: User;
 }

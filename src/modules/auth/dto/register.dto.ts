@@ -1,4 +1,6 @@
-import { Schema } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import * as mongoose from 'mongoose';
+import { User } from '../../users/schema/users.schema';
 
 export class RegisterDTO {
   readonly name: string;
@@ -7,7 +9,7 @@ export class RegisterDTO {
 
   readonly DNI: number;
 
-  readonly email: string;
+  email: string;
 
   readonly birthDate: Date;
 
@@ -26,11 +28,7 @@ export class RegisterDTO {
 }
 
 export class RegisterResDTO {
-  readonly response: string;
-  readonly user?: [
-    {
-      type: Schema.Types.ObjectId;
-      ref: 'Users';
-    }
-  ];
+  response: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  user: User;
 }

@@ -1,5 +1,6 @@
 import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { LoginDTO } from '../auth/dto/login.dto';
 import { IUser } from './interfaces/users.interface';
 
 @Controller('/users')
@@ -22,8 +23,8 @@ export class UsersController {
   }
 
   @Get('/getUserByEmail')
-  async getOneUserEmail(@Res() res, @Body() email: string) {
-    return await this.userService.getUserByEmail(email);
+  async getOneUserEmail(@Res() res, @Body() data: LoginDTO) {
+    return await this.userService.getUserByEmail(data.email);
   }
 
   @Get('/:userID')

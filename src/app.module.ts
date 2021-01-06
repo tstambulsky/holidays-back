@@ -19,14 +19,7 @@ import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
-    MongooseModule.forRootAsync({
-      useFactory: () => ({
-        uri: `mongodb://${process.env.DB_HOST}/${process.env.DB_NAME}`,
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        useCreateIndex: true
-      })
-    }),
+    MongooseModule.forRoot(`mongodb://${process.env.DB_HOST}/${process.env.DB_NAME}`),
     UsersModule,
     MeetingPlaceModule,
     ZoneModule,

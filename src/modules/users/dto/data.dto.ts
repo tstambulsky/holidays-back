@@ -9,6 +9,6 @@ export class UserDTO {
   readonly password: string;
   readonly addressStreet: string;
   readonly addressNumber: number;
-  readonly addressFloor: number;
-  readonly addressApartment: string;
+  readonly addressFloor?: number;
+  readonly addressApartment?: string;
 }

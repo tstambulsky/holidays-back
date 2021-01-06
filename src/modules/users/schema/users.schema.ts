@@ -1,43 +1,33 @@
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+
 import * as mongoose from 'mongoose';
 
-export const UserSchema = new mongoose.Schema({
-  name: String,
+export type UserDocument = User & mongoose.Document;
 
-  lastName: String,
+@Schema()
+export class User {
+  @Prop({ required: true })
+  name: string;
+  @Prop({ required: true })
+  lastName: string;
+  @Prop({ required: true })
+  DNI: number;
+  @Prop({ required: true })
+  email: string;
+  @Prop({ required: true })
+  phoneNumber: number;
+  @Prop({ required: true })
+  birthDate: Date;
+  @Prop({ required: true })
+  password: string;
+  @Prop({ required: true })
+  addressStreet: string;
+  @Prop({ required: true })
+  addressNumber: number;
+  @Prop()
+  addressFloor?: number;
+  @Prop()
+  addressApartment?: string;
+}
 
-  DNI: Number,
-
-  email: String,
-
-  phoneNumber: Number,
-
-  birthDate: Date,
-
-  password: String,
-  /* 
-  @Prop({ type:[Types.ObjectId], ref: 'City'})
-  city: string;
-  */
-  addressStreet: String,
-
-  addressNumber: Number,
-
-  addressFloor: Number,
-
-  addressApartment: String,
-
-  createdAt: Date,
-
-  updatedAt: Date
-
-  /*
-  @Prop({ type: [Types.ObjectId], ref: 'Screen' })
-  screen: string;
-  
-  @Prop({ type: [Types.ObjectId], ref: 'Rol' })
-  rol: string;
-}]*/
-});
-
-
-export default mongoose.model('User', UserSchema);
+export const UserSchema = SchemaFactory.createForClass(User);

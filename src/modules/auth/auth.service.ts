@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { hash, compare } from 'bcrypt';
+import { hashSync, compare } from 'bcrypt';
 import { UsersService } from '../users/users.service';
 import { LoginDTO } from './dto/login.dto';
+import { LoginResDTO } from './dto/login.dto';
 import { RegisterDTO } from './dto/register.dto';
-import User from '../users/schema/users.schema';
+import { RegisterResDTO } from './dto/register.dto';
+import { User } from '../users/schema/users.schema';
 
 @Injectable()
 export class AuthService {
@@ -22,7 +24,7 @@ export class AuthService {
     const { email, password } = data;
     try {
       const userLoged = await this.validateUser(email, password);
-      const payload = { email: userLoged.email, id: userLoged._id };
+      const payload = { email: userLoged.email };
       return {
         token: this.jwtService.sign(payload),
         user: userLoged
@@ -32,43 +34,40 @@ export class AuthService {
     }
   }
 
-  async registerUser(data: RegisterDTO) {
+  async registerUser(data: RegisterDTO){
     try {
       const {
-      name,
-      lastName,
-      DNI,
-      email,
-      birthDate,
-      phoneNumber,
-      password,
-      addressStreet,
-      addressNumber,
-      addressFloor,
-      addressApartment
-    } = data;
-
-    const userExist = await this.userService.getUserByEmail(email);
-    if (userExist) return { response: 'User already exist' };
-    const hashPassword = await hash(password, 12);
-    const user = new User({
-      name,
-      lastName,
-      DNI,
-      email,
-      birthDate,
-      phoneNumber,
-      password: hashPassword,
-      addressStreet,
-      addressNumber,
-      addressFloor,
-      addressApartment
-    });
-    await user.save();
-    console.log(user);
-    return user;
-  }catch (err) {
-     throw new Error(err.message)
-   }
-}
+        name,
+        lastName,
+        DNI,
+        email,
+        birthDate,
+        phoneNumber,
+        password,
+        addressStreet,
+        addressNumber,
+        addressFloor,
+        addressApartment
+      } = data;
+      const userExist = await this.userService.getUserByEmail(email);
+      if (userExist) return { response: 'User already exist' };
+      const hashPassword = await hashSync(password, 12);
+      const user = await this.userService.createUser({
+        name,
+        lastName,
+        DNI,
+        email,
+        birthDate,
+        phoneNumber,
+        password: hashPassword,
+        addressStreet,
+        addressNumber,
+        addressFloor,
+        addressApartment
+      });
+      return user;
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
 }
