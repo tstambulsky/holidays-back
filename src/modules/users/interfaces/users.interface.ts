@@ -13,6 +13,8 @@ export interface IUser extends Document {
   readonly addressNumber: number;
   readonly addressFloor: number;
   readonly addressApartment: string;
+  readonly passwordRecover?: string;
+  readonly confirmPasswordRecover?: boolean;
   //readonly screen: any;
   // readonly rol: any;
 }

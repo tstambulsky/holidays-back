@@ -28,6 +28,9 @@ export class User {
   addressFloor?: number;
   @Prop()
   addressApartment?: string;
+  @Prop({ required: false })
+  passwordRecover?: string;
+  @Prop({ default: false, required: false })
+  confirmPasswordRecover?: boolean;
 }
-
 export const UserSchema = SchemaFactory.createForClass(User);

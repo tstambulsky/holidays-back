@@ -22,9 +22,13 @@ export class RegisterDTO {
 
   readonly addressNumber: number;
 
-  readonly addressFloor: number;
+  readonly addressFloor?: number;
 
-  readonly addressApartment: string;
+  readonly addressApartment?: string;
+
+  readonly passwordRecover?: string;
+
+  readonly confirmPasswordRecover?: boolean;
 }
 
 export class RegisterResDTO {

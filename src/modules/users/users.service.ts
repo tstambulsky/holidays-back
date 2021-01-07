@@ -17,18 +17,28 @@ export class UsersService {
     return users;
   }
 
-  async getUserByEmail(email: string): Promise<User> {
-    const user = await this.userModel.findOne({ email: email }, (err, obj) => {
-      if (err) return console.log(err);
-      console.log(obj);
-    });
-    return user;
+  async getUserByEmail(email: string): Promise<any> {
+    try {
+      const user = await this.userModel.findOne({ email: email }, (err, obj) => {
+        if (err) console.log(err);
+      });
+      if (!user) throw new NotFoundException('Not user exist');
+      return user;
+    } catch (err) {
+      console.log(err);
+      throw new Error(err.message);
+    }
   }
 
   async getUserById(userID: string): Promise<User> {
-    const user = await this.userModel.findById(userID);
-    console.log(user);
-    return user;
+    try {
+      const user = await this.userModel.findById(userID);
+      console.log(user);
+      return user;
+    } catch (err) {
+      console.log(err);
+      throw new Error(err.message);
+    }
   }
 
   async createUser(userDTO: UserDTO): Promise<User> {

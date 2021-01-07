@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { hashSync, compare } from 'bcrypt';
+import { hash, compare } from 'bcrypt';
 import { UsersService } from '../users/users.service';
 import { LoginDTO } from './dto/login.dto';
 import { LoginResDTO } from './dto/login.dto';
@@ -34,7 +34,7 @@ export class AuthService {
     }
   }
 
-  async registerUser(data: RegisterDTO){
+  async registerUser(data: RegisterDTO) {
     try {
       const {
         name,
@@ -51,7 +51,7 @@ export class AuthService {
       } = data;
       const userExist = await this.userService.getUserByEmail(email);
       if (userExist) return { response: 'User already exist' };
-      const hashPassword = await hashSync(password, 12);
+      const hashPassword = await hash(password, 12);
       const user = await this.userService.createUser({
         name,
         lastName,

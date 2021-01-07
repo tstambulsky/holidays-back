@@ -12,21 +12,22 @@ export class AuthController {
   @Post('/login')
   async login(@Res() res, @Body() data: LoginDTO): Promise<LoginResDTO> {
     try {
-    const userLogin = await this.authService.login(data);
-     return res.status(HttpStatus.OK).json({
+      const userLogedd = await this.authService.login(data);
+      return res.status(HttpStatus.OK).json({
         message: 'User has been logged',
-        userLogin
+        userLogedd
       });
-  } catch (err) {
-     return res.status(HttpStatus.BAD_REQUEST).json({
-        message: 'Error: User was unable to login!',
-        status: 400
+    } catch (err) {
+      console.log('Error in login');
+      return res.status(HttpStatus.NOT_FOUND).json({
+        message: 'Error: User not logged!',
+        status: 404
       });
-  }
+    }
   }
 
   @Post('/register')
-  async registerUser(@Res() res, @Body() registerDTO: RegisterDTO){
+  async registerUser(@Res() res, @Body() registerDTO: RegisterDTO) {
     try {
       const createUser = await this.authService.registerUser(registerDTO);
       return res.status(HttpStatus.OK).json({

@@ -11,4 +11,6 @@ export class UserDTO {
   readonly addressNumber: number;
   readonly addressFloor?: number;
   readonly addressApartment?: string;
+  readonly passwordRecover?: string;
+  readonly confirmPasswordRecover?: boolean;
 }
