@@ -6,12 +6,14 @@ import { AuthController } from './auth.controller';
 import { tokenConfig } from '../../config/token';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { UsersModule } from '../users/users.module';
+import { EmailModule } from '../email/email.module';
 //import { LocalStrategy } from './strategies/local.strategy';
 
 @Module({
   imports: [
     UsersModule,
     PassportModule,
+    EmailModule,
     JwtModule.register({
       secret: tokenConfig.secretKey,
       signOptions: { expiresIn: tokenConfig.expirationDay }

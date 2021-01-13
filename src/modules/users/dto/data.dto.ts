@@ -1,3 +1,5 @@
+import { City } from '../../zone/schema/city.schema';
+
 export class UserDTO {
   readonly name: string;
   readonly lastName: string;
@@ -5,7 +7,7 @@ export class UserDTO {
   readonly email: string;
   readonly birthDate: Date;
   readonly phoneNumber: number;
-  // readonly city: any;
+  readonly city: City;
   readonly password: string;
   readonly addressStreet: string;
   readonly addressNumber: number;

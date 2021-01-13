@@ -1,4 +1,5 @@
 import { Document } from 'mongoose';
+import { City } from '../../zone/schema/city.schema';
 
 export interface IUser extends Document {
   readonly name: string;
@@ -7,7 +8,7 @@ export interface IUser extends Document {
   readonly email: string;
   readonly birthDate: Date;
   readonly phoneNumber: number;
-  //readonly city: any;
+  readonly city: City;
   readonly password: string;
   readonly addressStreet: string;
   readonly addressNumber: number;

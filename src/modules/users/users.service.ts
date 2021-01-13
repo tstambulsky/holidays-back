@@ -45,4 +45,13 @@ export class UsersService {
     const user = await new this.userModel(userDTO);
     return user.save();
   }
+
+  async findOneUser(data: any) {
+    try {
+      const search = await this.userModel.findOne(data);
+      return search;
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
 }

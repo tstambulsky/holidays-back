@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-
 import * as mongoose from 'mongoose';
+
+import { City } from '../../zone/schema/city.schema';
 
 export type UserDocument = User & mongoose.Document;
 
@@ -20,6 +21,8 @@ export class User {
   birthDate: Date;
   @Prop({ required: true })
   password: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'City', required: true })
+  city: City;
   @Prop({ required: true })
   addressStreet: string;
   @Prop({ required: true })

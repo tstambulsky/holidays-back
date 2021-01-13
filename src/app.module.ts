@@ -16,6 +16,7 @@ import { CommentModule } from './modules/comment/comment.module';
 import { LikesModule } from './modules/likes/likes.module';
 import { ParticipantsModule } from './modules/participants/participants.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { EmailModule } from './modules/email/email.module';
 
 @Module({
   imports: [
@@ -33,7 +34,8 @@ import { AuthModule } from './modules/auth/auth.module';
     CommentModule,
     LikesModule,
     ParticipantsModule,
-    AuthModule
+    AuthModule,
+    EmailModule
   ],
   controllers: [AppController],
   providers: [AppService]
