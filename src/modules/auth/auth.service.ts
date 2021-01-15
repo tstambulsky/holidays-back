@@ -1,19 +1,22 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpService, HttpException } from '@nestjs/common';
+import { AxiosResponse } from 'axios';
+import { AccessTokenDto } from './dto/accessToken.dto';
+import { RefreshAccessTokenDto } from './dto/refreshAccessToken.dto';
 import { JwtService } from '@nestjs/jwt';
 import { hash, compare } from 'bcrypt';
 import { UsersService } from '../users/users.service';
 import { LoginDTO } from './dto/login.dto';
-import { LoginResDTO } from './dto/login.dto';
 import { RegisterDTO } from './dto/register.dto';
-import { RegisterResDTO } from './dto/register.dto';
-import { User } from '../users/schema/users.schema';
-import { tokenConfig } from '../../config/token';
 import { EmailService } from '../email/email.service';
-import { ForgotPasswordDTO } from './dto/Password.dto';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly userService: UsersService, private readonly emailService: EmailService, readonly jwtService: JwtService) {}
+  constructor(
+    private readonly userService: UsersService,
+    private readonly emailService: EmailService,
+    readonly jwtService: JwtService,
+    private httpService: HttpService
+  ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.userService.getUserByEmail(email);
@@ -39,20 +42,7 @@ export class AuthService {
 
   async registerUser(data: RegisterDTO) {
     try {
-      const {
-        name,
-        lastName,
-        DNI,
-        email,
-        birthDate,
-        phoneNumber,
-        password,
-        city,
-        addressStreet,
-        addressNumber,
-        addressFloor,
-        addressApartment
-      } = data;
+      const { name, lastName, DNI, email, phoneNumber, password, address } = data;
       /*const userExist = await this.userService.getUserByEmail(email);
       if (userExist) { return { response: 'User already exist' } };*/
       const hashPassword = await hash(password, 12);
@@ -61,18 +51,41 @@ export class AuthService {
         lastName,
         DNI,
         email,
-        birthDate,
         phoneNumber,
         password: hashPassword,
-        city,
-        addressStreet,
-        addressNumber,
-        addressFloor,
-        addressApartment
+        address
       });
       return user;
     } catch (err) {
       throw new Error(err.message);
+    }
+  }
+
+  async accessToken(accessTokenDto: AccessTokenDto): Promise<AxiosResponse> {
+    try {
+      const response = await this.httpService
+        .get('access_token', {
+          params: accessTokenDto
+        })
+        .toPromise();
+      return response.data;
+    } catch (error) {
+      const { status, statusText } = error.response;
+      throw new HttpException(statusText, status);
+    }
+  }
+
+  async refreshAccessToken(refreshAccesTokenDto: RefreshAccessTokenDto): Promise<AxiosResponse> {
+    try {
+      const response = await this.httpService
+        .get('refresh_access_token', {
+          params: RefreshAccessTokenDto
+        })
+        .toPromise();
+      return response.data;
+    } catch (error) {
+      const { status, statusText } = error.response;
+      throw new HttpException(statusText, status);
     }
   }
 
@@ -103,7 +116,6 @@ export class AuthService {
       const tokenCode = await this.jwtService.verify(code);
       if (!tokenCode) throw new Error('Expired Code');
       const user = await this.userService.findOneUser({ passwordRecover: code });
-      console.log(user);
       if (!user) throw new Error('The code is wrong');
       user.confirmPasswordRecover = true;
       await user.save();
@@ -115,7 +127,6 @@ export class AuthService {
   }
 
   async changePassword(email: string, password: string) {
-    console.log(email);
     try {
       const user = await this.userService.findOneUser({ email: email });
       if (!user) throw new Error('User does not exist');

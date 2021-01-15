@@ -8,7 +8,7 @@ export class CreateCityDTO {
   @Prop({ required: true })
   readonly name: string;
   @Prop({ required: true })
-  readonly State: State;
+  readonly state: State;
   @Prop({ default: true, required: true })
   readonly active?: boolean;
 }
@@ -19,7 +19,7 @@ export class UpdateCityDTO {
   @Prop({ required: false })
   readonly name?: string;
   @Prop({ required: false })
-  readonly State?: State;
+  readonly state?: State;
   @Prop({ default: true, required: false })
   readonly active?: boolean;
 }
@@ -28,7 +28,7 @@ export class CreateStateDTO {
   @Prop({ required: true })
   readonly name: string;
   @Prop({ required: true })
-  readonly Country: Country;
+  readonly country: Country;
   @Prop({ default: true, required: true })
   readonly active: boolean;
 }
@@ -37,7 +37,7 @@ export class UpdateStateDTO {
   @Prop({ required: false })
   readonly name?: string;
   @Prop({ required: false })
-  readonly Country?: Country;
+  readonly country?: Country;
   @Prop({ default: true, required: false })
   readonly active?: boolean;
 }

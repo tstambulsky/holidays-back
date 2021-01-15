@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -17,10 +18,17 @@ import { LikesModule } from './modules/likes/likes.module';
 import { ParticipantsModule } from './modules/participants/participants.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { EmailModule } from './modules/email/email.module';
+import { AppleModule } from './modules/login/apple/apple.module';
+import { FacebookModule } from './modules/login/facebook/facebook.module';
+import { InstagramModule } from './modules/login/instagram/instagram.module';
+import { OauthModule } from './modules/oauth/oauth.module';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(`mongodb://${process.env.DB_HOST}/${process.env.DB_NAME}`),
+    MongooseModule.forRoot(`mongodb://${process.env.DB_HOST}/${process.env.DB_NAME}`, {
+      useCreateIndex: true
+    }),
+    ConfigModule.forRoot(),
     UsersModule,
     MeetingPlaceModule,
     ZoneModule,
@@ -35,7 +43,11 @@ import { EmailModule } from './modules/email/email.module';
     LikesModule,
     ParticipantsModule,
     AuthModule,
-    EmailModule
+    EmailModule,
+    AppleModule,
+    FacebookModule,
+    InstagramModule,
+    OauthModule
   ],
   controllers: [AppController],
   providers: [AppService]

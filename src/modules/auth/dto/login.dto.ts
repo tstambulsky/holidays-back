@@ -12,3 +12,7 @@ export class LoginResDTO {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   user: User;
 }
+
+export class AppleLoginDTO {
+  readonly token: string;
+}

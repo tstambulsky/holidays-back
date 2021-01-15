@@ -41,6 +41,29 @@ export class UsersService {
     }
   }
 
+  async findOrCreate(accessToken: any, refreshToken: any, profile: any, done: any) {
+    try {
+      const user = await this.userModel.findOne({ provider_id: profile.id }, (err, user) => {
+        if (err) throw err;
+        if (!err && user != null) return done(null, user);
+        const createdUser = new this.userModel({
+          provider_id: profile.id,
+          provider: profile.provider,
+          name: profile.name.givenName,
+          lastName: profile.name.familyName,
+          email: profile.emails[0].value,
+          photo: profile.photos[0].value
+        });
+        return createdUser.save(function (err) {
+          if (err) throw err;
+          done(null, user);
+        });
+      });
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
   async createUser(userDTO: UserDTO): Promise<User> {
     const user = await new this.userModel(userDTO);
     return user.save();

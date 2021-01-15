@@ -11,8 +11,8 @@ export class City {
   postalCode: number;
   @Prop({ required: true })
   name: string;
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'State' })
-  State: State;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'State', required: true })
+  state: State;
   @Prop({ default: true })
   active: boolean;
 }
