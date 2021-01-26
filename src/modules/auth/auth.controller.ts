@@ -64,17 +64,7 @@ export class AuthController {
     };
   }
 
-  @Get('/access_token')
-  accessToken(@Query(ValidationPipe) accessTokenDto: AccessTokenDto): Promise<AxiosResponse> {
-    return this.authService.accessToken(accessTokenDto);
-  }
-
-  @Get('/refresh_access_token')
-  refreshAccessToken(@Query(ValidationPipe) refreshAccessTokenDto: RefreshAccessTokenDto): Promise<AxiosResponse> {
-    return this.authService.refreshAccessToken(refreshAccessTokenDto);
-  }
-
-  /*@Get('/auth/instagram/login')
+  @Get('/auth/instagram/login')
   @UseGuards(AuthGuard('instagram'))
   async getTokenAfterInstagramSignIn(@Req() req) {
     console.log(req.user);
@@ -87,36 +77,17 @@ export class AuthController {
       statusCode: HttpStatus.OK,
       data: req.user
     };
-  }*/
-
-  /* @Post('/login/apple')
-  async appleAuth(@Res() res, @Body() token: string) {
-    const appleToken = token;
-    try {
-      const apple = await AppleAuth.accessToken(appleToken);
-      const appleData = jwt.decode(apple.id_token);
-
-      const { sub: appleId } = appleData;
-
-      const user = await this.appleService.UpdateOne(
-        { appleId },
-        { $inc: { nbOfConnections: 1 } },
-        { upsert: true, new: true, useFindAndModify: false }
-      );
-      return res.status(HttpStatus.OK).json({ user });
-    } catch (err) {
-      return res.status(HttpStatus.BAD_REQUEST).json({ message: err.message || err });
-    }
-  }*/
+  }
 
   @Post('/api/register')
   async registerUser(@Res() res, @Body() registerDTO: RegisterDTO) {
     try {
       const createUser = await this.authService.registerUser(registerDTO);
-      return res.status(HttpStatus.OK).json({
-        message: 'User has been created successfully',
-        createUser
-      });
+      if (createUser) {
+        return res.status(HttpStatus.OK).json({
+          createUser
+        });
+      }
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         message: 'Error: User not created!',

@@ -14,8 +14,8 @@ export class InstagramStrategy extends PassportStrategy(Strategy, 'instagram') {
     });
   }
   async validate(accessToken: string, refreshToken: string, profile: Profile, done: any) {
-    const user = await this.userService.findOrCreate(accessToken, refreshToken, profile, done);
     console.log(profile);
+    const user = await this.userService.findOrCreateInstagram(accessToken, refreshToken, profile, done);
     return done(null, user);
   }
 }

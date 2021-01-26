@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { AlertModule } from './modules/alert/alert.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './modules/users/users.module';
-import { MeetingPlaceModule } from './modules/meeting-place/meeting-place.module';
+import { MeetingPlaceModule } from './modules/meeting-place/meetingPlace.module';
 import { ZoneModule } from './modules/zone/zone.module';
 import { ImageModule } from './modules/image/image.module';
 import { LocationModule } from './modules/location/location.module';
@@ -15,21 +15,22 @@ import { GroupModule } from './modules/group/group.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { LikesModule } from './modules/likes/likes.module';
-import { ParticipantsModule } from './modules/participants/participants.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { EmailModule } from './modules/email/email.module';
 import { AppleModule } from './modules/login/apple/apple.module';
 import { FacebookModule } from './modules/login/facebook/facebook.module';
 import { InstagramModule } from './modules/login/instagram/instagram.module';
-import { OauthModule } from './modules/oauth/oauth.module';
+import { InterGroupModule } from './modules/inter-group/inter-group.module';
 
 @Module({
   imports: [
     MongooseModule.forRoot(`mongodb://${process.env.DB_HOST}/${process.env.DB_NAME}`, {
-      useCreateIndex: true
+      useCreateIndex: true,
+      useFindAndModify: false
     }),
     ConfigModule.forRoot(),
     UsersModule,
+    AlertModule,
     MeetingPlaceModule,
     ZoneModule,
     ImageModule,
@@ -41,15 +42,14 @@ import { OauthModule } from './modules/oauth/oauth.module';
     NotificationModule,
     CommentModule,
     LikesModule,
-    ParticipantsModule,
     AuthModule,
     EmailModule,
     AppleModule,
     FacebookModule,
     InstagramModule,
-    OauthModule
+    InterGroupModule
   ],
   controllers: [AppController],
-  providers: [AppService]
+  providers: []
 })
 export class AppModule {}

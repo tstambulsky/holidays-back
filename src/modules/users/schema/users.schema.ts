@@ -13,18 +13,20 @@ export class User {
   provider?: string;
   @Prop({ required: false, unique: true })
   provider_id?: string;
+  @Prop({ required: false, unique: true })
+  apple_id?: string;
   @Prop({ required: false })
   photo?: string;
-  @Prop()
-  DNI: number;
-  @Prop({ required: true })
-  email: string;
-  @Prop()
-  phoneNumber: number;
-  @Prop()
-  password: string;
-  @Prop()
-  address: string;
+  @Prop({ required: false })
+  DNI?: number;
+  @Prop({ required: false })
+  email?: string;
+  @Prop({ required: false })
+  phoneNumber?: number;
+  @Prop({ required: false })
+  password?: string;
+  @Prop({ required: false })
+  address?: string;
   @Prop({ required: false })
   passwordRecover?: string;
   @Prop({ default: false, required: false })
@@ -35,3 +37,5 @@ export class User {
   updatedAt: Date;
 }
 export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.set('timestamps', true);

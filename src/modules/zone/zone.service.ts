@@ -45,9 +45,10 @@ export class ZoneService {
 
   async updateCity(cityID: any, data: UpdateCityDTO): Promise<City | undefined> {
     try {
-      await this.cityModel.update(cityID, { ...data });
-      const city = await this.cityModel.findOne(cityID);
-      return city;
+      const city = await this.cityModel.findOne({ _id: cityID });
+      const updatedCity = await city.updateOne({ ...data });
+      const cityUpdated = await this.cityModel.findOne({ _id: cityID });
+      return cityUpdated;
     } catch (err) {
       throw new Error(err.message);
     }
@@ -55,7 +56,7 @@ export class ZoneService {
 
   async deleteCity(cityID: any): Promise<string> {
     try {
-      await this.cityModel.remove(cityID);
+      await this.cityModel.deleteOne({ _id: cityID });
       return 'City deleted';
     } catch (err) {
       throw new Error(err.message);
@@ -107,9 +108,10 @@ export class ZoneService {
 
   async updateState(stateID: any, data: UpdateStateDTO): Promise<State | undefined> {
     try {
-      await this.stateModel.update(stateID, { ...data });
-      const state = await this.stateModel.findOne(stateID);
-      return state;
+      const state = await this.stateModel.findOne({ _id: stateID });
+      const updatedState = await state.updateOne({ ...data });
+      const stateUpdated = await this.stateModel.findOne({ _id: stateID });
+      return stateUpdated;
     } catch (err) {
       throw new Error(err.message);
     }
@@ -117,7 +119,7 @@ export class ZoneService {
 
   async deleteState(stateID: any): Promise<string> {
     try {
-      await this.stateModel.remove(stateID);
+      await this.stateModel.deleteOne({ _id: stateID });
       return 'State deleted';
     } catch (err) {
       throw new Error(err.message);
@@ -176,9 +178,10 @@ export class ZoneService {
 
   async updateCountry(countryID: any, data: UpdateCountryDTO): Promise<Country | undefined> {
     try {
-      await this.countryModel.update(countryID, { ...data });
-      const country = await this.countryModel.findOne(countryID);
-      return country;
+      const country = await this.countryModel.findOne({ _id: countryID });
+      const updatedCountry = await country.updateOne({ ...data });
+      const countryUpdated = await this.countryModel.findOne({ _id: countryID });
+      return countryUpdated;
     } catch (err) {
       throw new Error(err.message);
     }
@@ -186,7 +189,7 @@ export class ZoneService {
 
   async deleteCountry(countryID: any): Promise<string> {
     try {
-      await this.countryModel.remove(countryID);
+      await this.countryModel.deleteOne({ _id: countryID });
       return 'Country deleted';
     } catch (err) {
       throw new Error(err.message);
