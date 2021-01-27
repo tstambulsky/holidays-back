@@ -18,8 +18,8 @@ export class Group {
   endTime?: Date;
   @Prop({ required: true })
   typeOfActivity: string;
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-  integrants: [User];
+  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'User' })
+  integrants: User;
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Meeting' })
   meetingPlaceOne: Meeting;
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Meeting' })
