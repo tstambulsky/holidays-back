@@ -10,12 +10,11 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
       clientID: facebookConfig.FACEBOOK_APP_ID,
       clientSecret: facebookConfig.FACEBOOK_APP_SECRET,
       callbackURL: facebookConfig.FACEBOOK_CALLBACK,
-      profileFields: ['id', 'displayName', /*'provider',*/ 'photos', 'name', 'emails']
+      profileFields: ['id', 'displayName', /*'provider'*/, 'photos', 'name', 'emails']
     });
   }
   async validate(accessToken: string, refreshToken: string, profile: Profile, done: any) {
-    const user = await this.userService.findOrCreate(accessToken, refreshToken, profile, done);
-    console.log(profile);
+    const user = await this.userService.findOrCreateFB(accessToken, refreshToken, profile, done);
     return done(null, user);
   }
 }

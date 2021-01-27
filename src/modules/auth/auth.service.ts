@@ -1,7 +1,4 @@
-import { Injectable, HttpService, HttpException } from '@nestjs/common';
-import { AxiosResponse } from 'axios';
-import { AccessTokenDto } from './dto/accessToken.dto';
-import { RefreshAccessTokenDto } from './dto/refreshAccessToken.dto';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { hash, compare } from 'bcrypt';
 import { UsersService } from '../users/users.service';
@@ -11,12 +8,7 @@ import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private readonly userService: UsersService,
-    private readonly emailService: EmailService,
-    readonly jwtService: JwtService,
-    private httpService: HttpService
-  ) {}
+  constructor(private readonly userService: UsersService, private readonly emailService: EmailService, readonly jwtService: JwtService) {}
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.userService.getUserByEmail(email);
@@ -41,10 +33,10 @@ export class AuthService {
   }
 
   async registerUser(data: RegisterDTO) {
+    const { name, lastName, DNI, email, phoneNumber, password, address } = data;
     try {
-      const { name, lastName, DNI, email, phoneNumber, password, address } = data;
-      /*const userExist = await this.userService.getUserByEmail(email);
-      if (userExist) { return { response: 'User already exist' } };*/
+      const userExist = await this.userService.getUserByEmail(email);
+      if (userExist) return { response: 'User already exist' };
       const hashPassword = await hash(password, 12);
       const user = await this.userService.createUser({
         name,
@@ -58,34 +50,6 @@ export class AuthService {
       return user;
     } catch (err) {
       throw new Error(err.message);
-    }
-  }
-
-  async accessToken(accessTokenDto: AccessTokenDto): Promise<AxiosResponse> {
-    try {
-      const response = await this.httpService
-        .get('access_token', {
-          params: accessTokenDto
-        })
-        .toPromise();
-      return response.data;
-    } catch (error) {
-      const { status, statusText } = error.response;
-      throw new HttpException(statusText, status);
-    }
-  }
-
-  async refreshAccessToken(refreshAccesTokenDto: RefreshAccessTokenDto): Promise<AxiosResponse> {
-    try {
-      const response = await this.httpService
-        .get('refresh_access_token', {
-          params: RefreshAccessTokenDto
-        })
-        .toPromise();
-      return response.data;
-    } catch (error) {
-      const { status, statusText } = error.response;
-      throw new HttpException(statusText, status);
     }
   }
 

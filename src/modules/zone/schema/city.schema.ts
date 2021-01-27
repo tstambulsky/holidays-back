@@ -16,7 +16,6 @@ export class City {
   @Prop({ default: true })
   active: boolean;
 }
-{
-  timestamps: true;
-}
 export const CitySchema = SchemaFactory.createForClass(City);
+
+CitySchema.set('timestamps', true);

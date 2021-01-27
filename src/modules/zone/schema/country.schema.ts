@@ -11,7 +11,7 @@ export class Country {
   @Prop({ default: true })
   active: boolean;
 }
-{
-  timestamps: true;
-}
+
 export const CountrySchema = SchemaFactory.createForClass(Country);
+
+CountrySchema.set('timestamps', true);

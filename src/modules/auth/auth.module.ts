@@ -1,4 +1,4 @@
-import { Module, HttpModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthService } from './auth.service';
@@ -25,11 +25,6 @@ import { InstagramModule } from '../login/instagram/instagram.module';
     JwtModule.register({
       secret: tokenConfig.secretKey,
       signOptions: { expiresIn: tokenConfig.expirationDay }
-    }),
-    HttpModule.register({
-      timeout: 5000,
-      maxRedirects: 5,
-      baseURL: 'https://graph.instagram.com'
     })
   ],
   controllers: [AuthController],
