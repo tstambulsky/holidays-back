@@ -21,7 +21,7 @@ import { InterGroupModule } from './modules/inter-group/inter-group.module';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(`mongodb://${process.env.DB_HOST}/${process.env.DB_NAME}`, {
+    MongooseModule.forRoot(`mongodb://${process.env.MONGODB_URI}`, {
       useCreateIndex: true,
       useFindAndModify: false
     }),
