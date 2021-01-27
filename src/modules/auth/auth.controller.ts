@@ -23,7 +23,6 @@ import { LoginDTO, AppleLoginDTO } from './dto/login.dto';
 import { RegisterDTO } from './dto/register.dto';
 import { AuthService } from './auth.service';
 import { ForgotPasswordDTO, ChangePasswordDTO, TokenCodeDTO } from './dto/Password.dto';
-import AppleAuth from '../login/apple/utils/appleAuth';
 import * as jwt from 'jsonwebtoken';
 import { AppleService } from '../login/apple/apple.service';
 import { AuthGuard } from '@nestjs/passport';

@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Meeting } from '../../meeting-place/schema/meetingPlace.schema';
+import { User } from '../../users/schema/users.schema';
 
 import * as mongoose from 'mongoose';
 
@@ -17,6 +18,8 @@ export class Group {
   endTime?: Date;
   @Prop({ required: true })
   typeOfActivity: string;
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  integrants: [User];
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Meeting' })
   meetingPlaceOne: Meeting;
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Meeting' })
