@@ -6,5 +6,4 @@ export const databaseConfig: IDatabaseConfig = {
 interface IDatabaseConfig {
   port: number;
   name: string;
-  host: string;
 }
