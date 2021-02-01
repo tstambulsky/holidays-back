@@ -1,14 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { hash, compare } from 'bcrypt';
+import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../users/users.service';
 import { LoginDTO } from './dto/login.dto';
 import { RegisterDTO } from './dto/register.dto';
 import { EmailService } from '../email/email.service';
+import { TokenPayload } from './interfaces/tokenPayload.interface';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly userService: UsersService, private readonly emailService: EmailService, readonly jwtService: JwtService) {}
+  constructor(
+    private readonly userService: UsersService,
+    private readonly emailService: EmailService,
+    readonly jwtService: JwtService,
+    private readonly configService: ConfigService
+  ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.userService.getUserByEmail(email);
@@ -29,6 +36,15 @@ export class AuthService {
       };
     } catch (err) {
       throw new Error(err.message);
+    }
+  }
+
+  public async getUserFromAuthenticationToken(token: string) {
+    const payload: TokenPayload = this.jwtService.verify(token, {
+      secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET')
+    });
+    if (payload.userId) {
+      return this.userService.getUserById(payload.userId);
     }
   }
 

@@ -54,8 +54,8 @@ export class AuthController {
     console.log(req.user);
   }
 
-  @Get('/facebook/redirect')
   @UseGuards(AuthGuard('facebook'))
+  @Get('/facebook/redirect')
   async facebookAuthRedirect(@Req() req: Request) {
     return {
       statusCode: HttpStatus.OK,

@@ -8,9 +8,9 @@ export type MessageDocument = Message & mongoose.Document;
 @Schema()
 export class Message {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, length: 255 })
-  sender: User;
+  author: User;
   @Prop({ required: true, length: 255 })
-  message: string;
+  content: string;
   @Prop({ default: Date.now })
   date: Date;
 }

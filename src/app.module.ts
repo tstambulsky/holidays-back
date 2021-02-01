@@ -18,6 +18,7 @@ import { AppleModule } from './modules/login/apple/apple.module';
 import { FacebookModule } from './modules/login/facebook/facebook.module';
 import { InstagramModule } from './modules/login/instagram/instagram.module';
 import { InterGroupModule } from './modules/inter-group/inter-group.module';
+import { ContactsModule } from './modules/contacts/contacts.module';
 
 @Module({
   imports: [
@@ -41,7 +42,8 @@ import { InterGroupModule } from './modules/inter-group/inter-group.module';
     AppleModule,
     FacebookModule,
     InstagramModule,
-    InterGroupModule
+    InterGroupModule,
+    ContactsModule
   ],
   controllers: [AppController],
   providers: []
