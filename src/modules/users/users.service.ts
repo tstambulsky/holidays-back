@@ -42,7 +42,6 @@ export class UsersService {
   async findOrCreateFB(accessToken: any, refreshToken: any, profile: any, done: any) {
     try {
       const user = await this.userModel.findOne({ provider_id: profile.id });
-      if (!user) {
         const createUser = new this.userModel({
           provider: profile.provider,
           provider_id: profile.provider.id,
@@ -52,7 +51,6 @@ export class UsersService {
           photo: profile.photos[0].value
         });
         return createUser.save();
-      }
     } catch (err) {
       console.log(err);
       throw new Error(err.message);
