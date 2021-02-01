@@ -14,7 +14,6 @@ export class InstagramStrategy extends PassportStrategy(Strategy, 'instagram') {
       clientID: instagramConfig.INSTAGRAM_APP_ID,
       clientSecret: instagramConfig.INSTAGRAM_APP_SECRET,
       callbackURL: instagramConfig.INSTAGRAM_CALLBACK,
-      scope: ['user_friends', 'emails'],
       profileFields: ['id', 'displayName', /*'provider',*/ 'photos', 'name', 'emails']
     });
   }
