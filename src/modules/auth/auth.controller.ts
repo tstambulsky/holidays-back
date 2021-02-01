@@ -95,7 +95,7 @@ export class AuthController {
     }
   }
 
-  @Post('/api//send-recover')
+  @Post('/api/send-recover')
   async sendRecoverPassword(@Res() res, @Body() forgotPasswordDTO: ForgotPasswordDTO) {
     const { email } = forgotPasswordDTO;
     try {
@@ -106,7 +106,7 @@ export class AuthController {
     }
   }
 
-  @Post('/api//confirm-recover')
+  @Post('/api/confirm-recover')
   async confirmRecoverPassword(@Res() res, @Body() token: TokenCodeDTO) {
     const { code } = token;
     try {
@@ -118,7 +118,7 @@ export class AuthController {
     }
   }
 
-  @Post('/api//change-password')
+  @Post('/api/change-password')
   async changePassword(@Res() res, @Body() changePasswordDTO: ChangePasswordDTO) {
     const { email, password } = changePasswordDTO;
     try {
