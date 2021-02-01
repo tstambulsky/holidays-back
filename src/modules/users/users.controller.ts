@@ -74,7 +74,7 @@ export class UsersController {
     try {
       await this.userService.deleteUser(userID);
       return res.status(HttpStatus.OK).json({
-        message: 'User deleted'
+        message: 'Your user has been deleted and do not exist in the APP.'
       });
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({
