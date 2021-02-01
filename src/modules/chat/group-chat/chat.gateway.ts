@@ -1,31 +1,32 @@
-import { SubscribeMessage, WebSocketGateway, OnGatewayInit, WebSocketServer, MessageBody, ConnectedSocket } from '@nestjs/websockets';
-import { Socket, Server } from 'socket.io';
-import { Logger } from '@nestjs/common';
+import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer, OnGatewayConnection, ConnectedSocket } from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
+import { ChatService } from './chat.service';
 
-@WebSocketGateway({ namespace: '/Groupchat' })
-export class ChatGateway implements OnGatewayInit {
-  @WebSocketServer() wss: Server;
+@WebSocketGateway()
+export class ChatGateway implements OnGatewayConnection {
+  @WebSocketServer()
+  server: Server;
 
-  private logger: Logger = new Logger('ChatGateway');
+  constructor(private readonly chatService: ChatService) {}
 
-  afterInit(server: Server) {
-    this.logger.log('Initialized!');
+  async handleConnection(socket: Socket) {
+    await this.chatService.getUserFromSocket(socket);
   }
 
-  @SubscribeMessage('chatToServer')
-  handleMessage(@ConnectedSocket() client: Socket, @MessageBody() message: { sender: string; room: string; message: string }) {
-    this.wss.to(message.room).emit('chatToClient', message);
+  @SubscribeMessage('send_message')
+  async listenForMessages(@MessageBody() content: string, @ConnectedSocket() socket: Socket) {
+    const author = await this.chatService.getUserFromSocket(socket);
+    const message = await this.chatService.saveMessage(content, author);
+
+    this.server.sockets.emit('receive_message', message);
   }
 
-  @SubscribeMessage('joinRoom')
-  handleJoinRoom(@ConnectedSocket() client: Socket, room: string) {
-    client.join(room);
-    client.emit('joinedRoom', room);
-  }
+  @SubscribeMessage('request_all_messages')
+  async requestAllMessages(
+    @ConnectedSocket() socket: Socket) {
+    await this.chatService.getUserFromSocket(socket);
+    const messages = await this.chatService.getAllMessages();
 
-  @SubscribeMessage('leaveRoom')
-  handleLeaveRoom(@ConnectedSocket() client: Socket, room: string) {
-    client.leave(room);
-    client.emit('leftRoom', room);
+    socket.emit('send_all_mesages', messages);
   }
 }

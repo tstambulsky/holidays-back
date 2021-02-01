@@ -1,4 +1,6 @@
-export class UserDTO {
+import { Document } from 'mongoose';
+
+export interface UserDTO extends Document {
   readonly name: string;
   readonly lastName: string;
   readonly DNI: number;

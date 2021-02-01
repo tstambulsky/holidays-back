@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  ForbiddenException,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, ForbiddenException } from '@nestjs/common';
 import { AppleService } from './apple.service';
 
 @Controller()
