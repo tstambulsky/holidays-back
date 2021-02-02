@@ -42,7 +42,7 @@ export class UsersService {
   async findOrCreateFB(accessToken: any, refreshToken: any, profile: any, done: any) {
     try {
       const user = await this.userModel.findOne({ provider_id: profile.id });
-        const createUser = new this.userModel({
+        const createUser = await new this.userModel({
           provider: profile.provider,
           provider_id: profile.provider.id,
           name: profile.name.givenName,
@@ -60,7 +60,7 @@ export class UsersService {
   async findOrCreateInstagram(accessToken: any, refreshToken: any, profile: any, done: any) {
     try {
       const user = await this.userModel.findOne({ provider_id: profile.id });
-      const createUser = new this.userModel({
+      const createUser = await new this.userModel({
         provider: profile.provider,
         provider_id: profile.provider.id,
         name: profile.name.givenName,
