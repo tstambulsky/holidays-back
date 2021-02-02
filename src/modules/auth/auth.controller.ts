@@ -51,7 +51,7 @@ export class AuthController {
   @Get('/auth/facebook/login')
   @UseGuards(AuthGuard('facebook'))
   async getTokenAfterFacebookSignIn(@Req() req) {
-    console.log(req.user);
+    return HttpStatus.OK;
   }
 
   @Get('/facebook/redirect')
@@ -66,7 +66,7 @@ export class AuthController {
   @Get('/auth/instagram/login')
   @UseGuards(AuthGuard('instagram'))
   async getTokenAfterInstagramSignIn(@Req() req) {
-    console.log(req.user);
+      return HttpStatus.OK;
   }
 
   @Get('/instagram/redirect')
