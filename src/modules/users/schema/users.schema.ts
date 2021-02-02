@@ -31,6 +31,8 @@ export class User {
   passwordRecover?: string;
   @Prop({ default: false, required: false })
   confirmPasswordRecover?: boolean;
+  @Prop()
+  accessToken?: string;
 }
 export const UserSchema = SchemaFactory.createForClass(User);
 

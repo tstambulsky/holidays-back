@@ -6,7 +6,7 @@ import { UsersService } from '../users/users.service';
 import { LoginDTO } from './dto/login.dto';
 import { RegisterDTO } from './dto/register.dto';
 import { EmailService } from '../email/email.service';
-import { TokenPayload } from './interfaces/tokenPayload.interface';
+import { TokenPayload } from './interfaces/facebook-config.interface';
 
 @Injectable()
 export class AuthService {
@@ -67,6 +67,26 @@ export class AuthService {
     } catch (err) {
       throw new Error(err.message);
     }
+  }
+
+  async facebookLogin(req) {
+    if (!req.user) {
+      return 'No user from Facebook';
+    }
+    return {
+      message: 'User info from Facebook',
+      user: req.user
+    };
+  }
+
+  async instagramLogin(req) {
+    if (!req.user) {
+      return 'No user from Instagram';
+    }
+    return {
+      message: 'User info from Instagram',
+      user: req.user
+    };
   }
 
   async recoverToken(email: string) {

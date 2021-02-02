@@ -7,10 +7,7 @@ import { AuthModule } from '../../auth/auth.module';
 import { UsersModule } from '../../users/users.module';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: Message.name, schema: MessageSchema }]), 
-  AuthModule,
-  UsersModule
-  ],
+  imports: [MongooseModule.forFeature([{ name: Message.name, schema: MessageSchema }]), AuthModule, UsersModule],
   providers: [ChatGateway, ChatService]
 })
 export class GroupChatModule {}

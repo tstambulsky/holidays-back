@@ -39,18 +39,21 @@ export class UsersService {
     }
   }
 
-  async findOrCreateFB(accessToken: any, refreshToken: any, profile: any, done: any) {
+  async findOrCreateFB(accessToken: any, refreshToken: any, profile: any, done: any): Promise<User> {
     try {
       const user = await this.userModel.findOne({ provider_id: profile.id });
-        const createUser = await new this.userModel({
-          provider: profile.provider,
-          provider_id: profile.provider.id,
-          name: profile.name.givenName,
-          lastName: profile.name.familyName,
-          //email: profile.emails[0].value || 'not found',
-          photo: profile.photos[0].value
-        });
-        return createUser.save();
+      if (user) {
+        return user;
+      }
+      const createUser = new this.userModel({
+        provider: profile.provider,
+        provider_id: profile.provider.id,
+        name: profile.name.givenName,
+        lastName: profile.name.familyName,
+        //email: profile.emails[0].value || 'not found',
+        photo: profile.photos[0].value,
+      });
+      return createUser.save();
     } catch (err) {
       console.log(err);
       throw new Error(err.message);

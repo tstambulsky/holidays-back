@@ -1,5 +1,5 @@
 import { PassportStrategy } from '@nestjs/passport';
-import { Profile, Strategy } from 'passport-instagram';
+import { Strategy } from 'passport-instagram';
 import { Inject } from '@nestjs/common';
 import { UsersService } from '../../../users/users.service';
 import { instagramConfig } from '../../../../config/instagram';
@@ -17,10 +17,14 @@ export class InstagramStrategy extends PassportStrategy(Strategy, 'instagram') {
       scope: ['user_profile', 'user_media']
     });
   }
-  async validate(accessToken: string, refreshToken: string, profile: Profile, done: any) {
+  async validate(accessToken: string, refreshToken: string, profile: any, done: any) {
     console.log(profile);
     const user = await this.userService.findOrCreateInstagram(accessToken, refreshToken, profile, done);
-    const contacts = await this.contactsService.createListContactsInstagram(accessToken, refreshToken, profile, done);
-    return done(null, user, contacts);
+    const payload = {
+      user, 
+      accessToken
+    }
+    //const contacts = await this.contactsService.createListContactsInstagram(accessToken, refreshToken, profile, done);
+    return done(null, payload);
   }
 }
