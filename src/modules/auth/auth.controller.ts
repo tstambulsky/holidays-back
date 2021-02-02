@@ -16,7 +16,7 @@ import {
 import { AxiosResponse } from 'axios';
 import { AccessTokenDto } from './dto/accessToken.dto';
 import { RefreshAccessTokenDto } from './dto/refreshAccessToken.dto';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { LoginResDTO } from './dto/login.dto';
 import { RegisterResDTO } from './dto/register.dto';
 import { LoginDTO, AppleLoginDTO } from './dto/login.dto';
@@ -48,34 +48,34 @@ export class AuthController {
     }
   }
 
-  @Get('/auth/facebook/login')
+  @Get('/facebook/login')
   @UseGuards(AuthGuard('facebook'))
-  async getTokenAfterFacebookSignIn(@Req() req) {
+  async getTokenAfterFacebookSignIn(): Promise<any> {
     return HttpStatus.OK;
   }
 
   @Get('/facebook/redirect')
   @UseGuards(AuthGuard('facebook'))
-  async facebookAuthRedirect(@Req() req: Request) {
+  async facebookAuthRedirect(@Req() req: Request): Promise<any> {
     return {
       statusCode: HttpStatus.OK,
       data: req.user
     };
   }
 
-  @Get('/auth/instagram/login')
+  @Get('/instagram/login')
   @UseGuards(AuthGuard('instagram'))
-  async getTokenAfterInstagramSignIn(@Req() req) {
-      return HttpStatus.OK;
+  async getTokenAfterInstagramSignIn(): Promise<any> {
+    return HttpStatus.OK;
   }
 
   @Get('/instagram/redirect')
   @UseGuards(AuthGuard('instagram'))
-  async instagramAuthRedirect(@Req() req: Request) {
+  async instagramAuthRedirect(@Req() req: Request): Promise<any> {
     return {
       statusCode: HttpStatus.OK,
       data: req.user
-    };
+    }
   }
 
   @Post('/api/register')
