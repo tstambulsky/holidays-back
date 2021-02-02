@@ -49,7 +49,7 @@ export class AuthService {
   }
 
   async registerUser(data: RegisterDTO) {
-    const { name, lastName, DNI, email, phoneNumber, password, address } = data;
+    const { name, lastName, DNI, email, phoneNumber, password, address, birthDate, sex, city } = data;
     try {
       const userExist = await this.userService.getUserByEmail(email);
       if (userExist) return { response: 'User already exist' };
@@ -61,32 +61,15 @@ export class AuthService {
         email,
         phoneNumber,
         password: hashPassword,
-        address
+        address,
+        birthDate,
+        sex,
+        city
       });
       return user;
     } catch (err) {
       throw new Error(err.message);
     }
-  }
-
-  async facebookLogin(req) {
-    if (!req.user) {
-      return 'No user from Facebook';
-    }
-    return {
-      message: 'User info from Facebook',
-      user: req.user
-    };
-  }
-
-  async instagramLogin(req) {
-    if (!req.user) {
-      return 'No user from Instagram';
-    }
-    return {
-      message: 'User info from Instagram',
-      user: req.user
-    };
   }
 
   async recoverToken(email: string) {
