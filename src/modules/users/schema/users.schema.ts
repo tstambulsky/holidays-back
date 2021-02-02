@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
+import { City } from '../../zone/schema/city.schema';
 
 export type UserDocument = User & mongoose.Document;
 
@@ -21,6 +22,12 @@ export class User {
   DNI?: number;
   @Prop({ required: false })
   email?: string;
+  @Prop()
+  birthDate: Date;
+  @Prop()
+  sex: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'City' })
+  city: City;
   @Prop({ required: false })
   phoneNumber?: number;
   @Prop({ required: false })
@@ -31,8 +38,8 @@ export class User {
   passwordRecover?: string;
   @Prop({ default: false, required: false })
   confirmPasswordRecover?: boolean;
-  @Prop()
-  accessToken?: string;
+  @Prop({ default: false })
+  isAdmin: boolean;
 }
 export const UserSchema = SchemaFactory.createForClass(User);
 

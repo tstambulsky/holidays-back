@@ -1,6 +1,7 @@
 import { Prop } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { User } from '../../users/schema/users.schema';
+import { City } from '../../zone/schema/city.schema';
 
 export class RegisterDTO {
   readonly name: string;
@@ -13,6 +14,12 @@ export class RegisterDTO {
 
   readonly phoneNumber: number;
 
+  readonly birthDate: Date;
+
+  readonly sex: string;
+
+  readonly city: City;
+
   readonly password: string;
 
   readonly address: string;
@@ -20,10 +27,6 @@ export class RegisterDTO {
   readonly passwordRecover?: string;
 
   readonly confirmPasswordRecover?: boolean;
-}
 
-export class RegisterResDTO {
-  response: string;
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-  user: User;
+  readonly isAdmin?: boolean;
 }

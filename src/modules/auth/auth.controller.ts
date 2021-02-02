@@ -18,7 +18,6 @@ import { AccessTokenDto } from './dto/accessToken.dto';
 import { RefreshAccessTokenDto } from './dto/refreshAccessToken.dto';
 import { Request, Response } from 'express';
 import { LoginResDTO } from './dto/login.dto';
-import { RegisterResDTO } from './dto/register.dto';
 import { LoginDTO, AppleLoginDTO } from './dto/login.dto';
 import { RegisterDTO } from './dto/register.dto';
 import { AuthService } from './auth.service';
