@@ -1,4 +1,6 @@
 import { Meeting } from '../../meeting-place/schema/meetingPlace.schema';
+import { User } from '../../users/schema/users.schema';
+import { Document } from 'mongoose';
 
 export class GroupDTO {
   readonly name: string;
@@ -10,6 +12,7 @@ export class GroupDTO {
   readonly meetingPlaceTwo?: Meeting;
   readonly description: string;
   readonly photos?: string;
+  readonly integrants: User;
 }
 
 export class UpdateGroupDTO {
@@ -22,4 +25,13 @@ export class UpdateGroupDTO {
   readonly meetingPlaceTwo?: Meeting;
   readonly description?: string;
   readonly photos?: string;
+  readonly integrants: User;
+}
+
+export class ActivityDTO {
+  readonly tipeOfActivity: string;
+}
+
+export interface ActivityInterface extends Document {
+  readonly tipeOfActivity: string;
 }

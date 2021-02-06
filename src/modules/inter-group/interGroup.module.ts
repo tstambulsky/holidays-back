@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { InterGroupService } from './inter-group.service';
-import { InterGroupController } from './inter-group.controller';
-import { InterGroup, InterGroupSchema } from './schema/inter-group.schema';
+import { InterGroupService } from './interGroup.service';
+import { InterGroupController } from './interGroup.controller';
+import { InterGroup, InterGroupSchema } from './schema/interGroup.schema';
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: InterGroup.name, schema: InterGroupSchema }])],

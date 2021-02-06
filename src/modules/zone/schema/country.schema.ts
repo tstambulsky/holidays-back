@@ -6,7 +6,7 @@ export type CountryDocument = Country & mongoose.Document;
 
 @Schema()
 export class Country {
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   name: string;
   @Prop({ default: true })
   active: boolean;

@@ -17,7 +17,7 @@ import { EmailModule } from './modules/email/email.module';
 import { AppleModule } from './modules/login/apple/apple.module';
 import { FacebookModule } from './modules/login/facebook/facebook.module';
 import { InstagramModule } from './modules/login/instagram/instagram.module';
-import { InterGroupModule } from './modules/inter-group/inter-group.module';
+import { InterGroupModule } from './modules/inter-group/interGroup.module';
 import { ContactsModule } from './modules/contacts/contacts.module';
 
 @Module({

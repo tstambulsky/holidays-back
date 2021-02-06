@@ -11,7 +11,7 @@ export class UsersService {
   constructor(@InjectModel(User.name) private readonly userModel: Model<UserDocument>) {}
 
   async getUsers(): Promise<User[]> {
-    const users = await this.userModel.find();
+    const users = await this.userModel.find().populate('city').exec();
     if (!users) {
       throw new HttpException('Not Found', 404);
     }
@@ -51,7 +51,7 @@ export class UsersService {
         name: profile.name.givenName,
         lastName: profile.name.familyName,
         //email: profile.emails[0].value || 'not found',
-        photo: profile.photos[0].value,
+        photo: profile.photos[0].value
       });
       return createUser.save();
     } catch (err) {
@@ -63,6 +63,9 @@ export class UsersService {
   async findOrCreateInstagram(accessToken: any, refreshToken: any, profile: any, done: any) {
     try {
       const user = await this.userModel.findOne({ provider_id: profile.id });
+      if (user) {
+        return user;
+      }
       const createUser = await new this.userModel({
         provider: profile.provider,
         provider_id: profile.provider.id,

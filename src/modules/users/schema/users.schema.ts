@@ -6,7 +6,7 @@ export type UserDocument = User & mongoose.Document;
 
 @Schema()
 export class User {
-  @Prop()
+  @Prop({ trim: true })
   name: string;
   @Prop()
   lastName: string;
@@ -17,10 +17,10 @@ export class User {
   @Prop({ required: false })
   apple_id?: string;
   @Prop({ required: false })
-  photo?: string;
+  photo?: [string];
   @Prop({ required: false })
   DNI?: number;
-  @Prop({ required: false })
+  @Prop({ required: false, unique: true })
   email?: string;
   @Prop()
   birthDate: Date;

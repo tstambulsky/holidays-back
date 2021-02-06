@@ -14,9 +14,11 @@ export class Meeting {
   @Prop({ required: true })
   description: string;
   @Prop()
-  photo: string;
+  photo: [string];
 }
+
 export const MeetingPlaceSchema = SchemaFactory.createForClass(Meeting);
 
-MeetingPlaceSchema.set('timestamps', true);
 MeetingPlaceSchema.index({ location: '2dsphere' });
+
+MeetingPlaceSchema.set('timestamps', true);
