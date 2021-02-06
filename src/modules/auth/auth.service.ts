@@ -49,10 +49,10 @@ export class AuthService {
   }
 
   async registerUser(data: RegisterDTO) {
-    const { name, lastName, DNI, email, phoneNumber, password, address, birthDate, sex, city } = data;
+    const { name, lastName, DNI, email, phoneNumber, password, address, birthDate, sex, city, isAdmin } = data;
     try {
-      const userExist = await this.userService.getUserByEmail(email);
-      if (userExist) return { response: 'User already exist' };
+      /*const userExist = await this.userService.getUserByEmail(email);
+      if (userExist) return { response: 'User already exist' };*/
       const hashPassword = await hash(password, 12);
       const user = await this.userService.createUser({
         name,
@@ -64,7 +64,8 @@ export class AuthService {
         address,
         birthDate,
         sex,
-        city
+        city,
+        isAdmin
       });
       return user;
     } catch (err) {

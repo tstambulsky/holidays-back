@@ -6,8 +6,9 @@ import { UsersService } from '../../../users/users.service';
 import { ContactsService } from '../../../contacts/contacts.service';
 import { facebookConfig } from '../../../../config/facebook';
 
-export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook'){
-  constructor(@Inject(UsersService) private readonly userService: UsersService,
+export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
+  constructor(
+    @Inject(UsersService) private readonly userService: UsersService,
     @Inject(ContactsService) private readonly contactsService: ContactsService
   ) {
     super({
@@ -22,9 +23,9 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook'){
     const user = await this.userService.findOrCreateFB(accessToken, refreshToken, profile, done);
     //const contacts = await this.contactsService.createListContactsFB(accessToken, refreshToken, profile, done);
     const payload = {
-      user, accessToken
+      user,
+      accessToken
     };
     return done(null, payload);
   }
 }
-

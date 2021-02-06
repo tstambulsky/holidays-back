@@ -8,9 +8,9 @@ export type InterGroupDocument = InterGroup & mongoose.Document;
 
 @Schema()
 export class InterGroup {
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Group' })
+  @Prop([{ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Group' }])
   groupOne: Group;
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Group' })
+  @Prop([{ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Group' }])
   groupTwo: Group;
   @Prop({ required: true, default: Date.now })
   startDate: Date;
@@ -18,9 +18,9 @@ export class InterGroup {
   endDate?: Date;
   @Prop({ required: true })
   tipeOfActivity: string;
-  @Prop({ required: true })
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Meeting' })
   meetingPlaceOne: Meeting;
-  @Prop()
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Meeting' })
   meetingPlaceTwo?: Meeting;
   @Prop({ default: true })
   active: boolean;

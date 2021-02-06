@@ -7,7 +7,7 @@ export type StateDocument = State & mongoose.Document;
 
 @Schema()
 export class State {
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   name: string;
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Country', required: true })
   country: Country;

@@ -1,15 +1,21 @@
 import { Injectable, HttpException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { InterGroup, InterGroupDocument } from './schema/inter-group.schema';
-import { InterGroupDTO, UpdateInterGroupDTO } from './dto/inter-group.dto';
+import { InterGroup, InterGroupDocument } from './schema/interGroup.schema';
+import { InterGroupDTO, UpdateInterGroupDTO } from './dto/interGroup.dto';
 
 @Injectable()
 export class InterGroupService {
   constructor(@InjectModel(InterGroup.name) private readonly interGroupModel: Model<InterGroupDocument>) {}
 
   async getInterGroups(): Promise<InterGroup[]> {
-    const interGroups = await this.interGroupModel.find({ active: true });
+    const interGroups = await this.interGroupModel
+      .find({ active: true })
+      .populate('groupOne')
+      .populate('groupTwo')
+      .populate('meetingPlaceOne')
+      .populate('meetingPlaceTwo')
+      .exec();
     if (!interGroups) {
       throw new HttpException('Not Found', 404);
     }

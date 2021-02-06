@@ -21,9 +21,9 @@ export class InstagramStrategy extends PassportStrategy(Strategy, 'instagram') {
     console.log(profile);
     const user = await this.userService.findOrCreateInstagram(accessToken, refreshToken, profile, done);
     const payload = {
-      user, 
+      user,
       accessToken
-    }
+    };
     //const contacts = await this.contactsService.createListContactsInstagram(accessToken, refreshToken, profile, done);
     return done(null, payload);
   }

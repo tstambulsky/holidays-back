@@ -1,7 +1,7 @@
 import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { Group } from './schema/group.schema';
-import { GroupDTO, UpdateGroupDTO } from './dto/group.dto';
+import { GroupDTO, UpdateGroupDTO, ActivityDTO } from './dto/group.dto';
 
 @Controller('group')
 export class GroupController {
@@ -36,6 +36,36 @@ export class GroupController {
       });
     }
   }
+
+  @Get('/typeActivity/:activity')
+  async getGroupActivity(@Res() res, @Param('activity') activity) {
+    try {
+      const getGroup = await this.groupService.searchGroupByActivity(activity);
+      if (!getGroup) throw new NotFoundException('No results found');
+      return res.status(HttpStatus.OK).json(getGroup);
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'An error has ocurred',
+        err: err.message
+      });
+    }
+  }
+
+  @Get('/search/:name')
+  async getGroupName(@Res() res, @Param('name') name) {
+    try {
+      const getGroup = await this.groupService.searchGroupByName(name);
+      if (!getGroup) throw new NotFoundException('No results found');
+      return res.status(HttpStatus.OK).json(getGroup);
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'An error has ocurred',
+        err: err.message
+      });
+    }
+  }
+
+
 
   @Post()
   async createGroup(@Res() res, @Body() createGroupDTO: GroupDTO): Promise<string> {

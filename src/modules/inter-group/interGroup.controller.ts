@@ -1,9 +1,9 @@
 import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post } from '@nestjs/common';
-import { InterGroupService } from './inter-group.service';
-import { InterGroup } from './schema/inter-group.schema';
-import { InterGroupDTO, UpdateInterGroupDTO } from './dto/inter-group.dto';
+import { InterGroupService } from './interGroup.service';
+import { InterGroup } from './schema/interGroup.schema';
+import { InterGroupDTO, UpdateInterGroupDTO } from './dto/interGroup.dto';
 
-@Controller('inter-group')
+@Controller('interGroup')
 export class InterGroupController {
   constructor(private readonly interGroupService: InterGroupService) {}
 

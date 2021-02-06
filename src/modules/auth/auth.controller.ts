@@ -74,7 +74,7 @@ export class AuthController {
     return {
       statusCode: HttpStatus.OK,
       data: req.user
-    }
+    };
   }
 
   @Post('/api/register')
