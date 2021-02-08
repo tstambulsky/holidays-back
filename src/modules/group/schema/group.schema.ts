@@ -23,6 +23,12 @@ export class Group {
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Meeting' })
   meetingPlaceTwo?: mongoose.Types.ObjectId;
   @Prop({})
+  address: [{
+    "streetAndNumber": string,
+      "lat": string,
+      "long": string
+    }];
+  @Prop({})
   description: string;
   @Prop({ type: [String], required: false })
   photos?: string;

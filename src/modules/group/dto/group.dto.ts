@@ -8,8 +8,9 @@ export class GroupDTO {
   readonly startTime: Date;
   readonly endTime?: Date;
   readonly typeOfActivity: string;
-  readonly meetingPlaceOne: mongoose.Types.ObjectId;
+  readonly meetingPlaceOne?: mongoose.Types.ObjectId;
   readonly meetingPlaceTwo?: mongoose.Types.ObjectId;
+  readonly address: any;
   readonly description: string;
   readonly photos?: string;
   readonly integrants: User;
@@ -23,6 +24,7 @@ export class UpdateGroupDTO {
   readonly typeOfActivity?: string;
   readonly meetingPlaceOne?: mongoose.Types.ObjectId;
   readonly meetingPlaceTwo?: mongoose.Types.ObjectId;
+  readonly address?: any;
   readonly description?: string;
   readonly photos?: string;
   readonly integrants: mongoose.Types.ObjectId[];
