@@ -1,12 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Meeting } from '../../meeting-place/schema/meetingPlace.schema';
-import { User } from '../../users/schema/users.schema';
 
 import * as mongoose from 'mongoose';
 
 export type GroupDocument = Group & mongoose.Document;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Group {
   @Prop({ default: true })
   name: string;
@@ -18,17 +16,15 @@ export class Group {
   endTime?: Date;
   @Prop()
   typeOfActivity: string;
-  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }])
-  integrants: User;
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Meeting' })
-  meetingPlaceOne: Meeting;
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Meeting' })
-  meetingPlaceTwo?: Meeting;
+  @Prop([{ type: mongoose.SchemaTypes.ObjectId, ref: 'User' }])
+  integrants: mongoose.Types.ObjectId[];
+  @Prop({ required: true, type: mongoose.SchemaTypes.ObjectId, ref: 'Meeting' })
+  meetingPlaceOne: mongoose.Types.ObjectId;
+  @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Meeting' })
+  meetingPlaceTwo?: mongoose.Types.ObjectId;
   @Prop({ required: true })
   description: string;
   @Prop({ type: [String], required: false })
   photos?: string;
 }
 export const GroupSchema = SchemaFactory.createForClass(Group);
-
-GroupSchema.set('timestamps', true);

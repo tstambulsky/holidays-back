@@ -1,6 +1,5 @@
 import { Prop } from '@nestjs/mongoose';
-import { State } from '../schema/state.schema';
-import { Country } from '../schema/country.schema';
+import * as mongoose from 'mongoose';
 
 export class CreateCityDTO {
   @Prop({ required: true })
@@ -8,7 +7,7 @@ export class CreateCityDTO {
   @Prop({ required: true })
   readonly name: string;
   @Prop({ required: true })
-  readonly state: State;
+  readonly state: mongoose.Types.ObjectId;
   @Prop({ default: true, required: true })
   readonly active?: boolean;
 }
@@ -19,7 +18,7 @@ export class UpdateCityDTO {
   @Prop({ required: false })
   readonly name?: string;
   @Prop({ required: false })
-  readonly state?: State;
+  readonly state?: mongoose.Types.ObjectId;
   @Prop({ default: true, required: false })
   readonly active?: boolean;
 }
@@ -28,7 +27,7 @@ export class CreateStateDTO {
   @Prop({ required: true })
   readonly name: string;
   @Prop({ required: true })
-  readonly country: Country;
+  readonly country: mongoose.Types.ObjectId;
   @Prop({ default: true, required: true })
   readonly active: boolean;
 }
@@ -37,7 +36,7 @@ export class UpdateStateDTO {
   @Prop({ required: false })
   readonly name?: string;
   @Prop({ required: false })
-  readonly country?: Country;
+  readonly country?: mongoose.Types.ObjectId;
   @Prop({ default: true, required: false })
   readonly active?: boolean;
 }

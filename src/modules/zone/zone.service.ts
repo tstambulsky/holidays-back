@@ -15,7 +15,7 @@ export class ZoneService {
   ) {}
 
   async getCities(): Promise<City[]> {
-    const cities = await this.cityModel.find({ active: true }).populate('state').exec();
+    const cities = await this.cityModel.find({ active: true });
     if (!cities) {
       throw new HttpException('Not Found', 404);
     }
@@ -78,7 +78,7 @@ export class ZoneService {
   }
 
   async getStates(): Promise<State[]> {
-    const states = await this.stateModel.find({ active: true }).populate('country').exec();
+    const states = await this.stateModel.find({ active: true });
     if (!states) {
       throw new HttpException('Not Found', 404);
     }

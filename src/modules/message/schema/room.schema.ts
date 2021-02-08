@@ -5,7 +5,7 @@ import { UserSchema } from '../../users/schema/users.schema';
 
 export type RoomDocument = Room & mongoose.Document;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Room {
   @Prop({ type: String })
   name: string;
@@ -21,5 +21,3 @@ export class Room {
   messages: any;
 }
 export const RoomSchema = SchemaFactory.createForClass(Room);
-
-RoomSchema.set('timestamps', true);

@@ -4,7 +4,7 @@ import * as mongoose from 'mongoose';
 
 export type CountryDocument = Country & mongoose.Document;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Country {
   @Prop({ required: true, unique: true })
   name: string;
@@ -13,5 +13,3 @@ export class Country {
 }
 
 export const CountrySchema = SchemaFactory.createForClass(Country);
-
-CountrySchema.set('timestamps', true);

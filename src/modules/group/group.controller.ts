@@ -37,8 +37,23 @@ export class GroupController {
     }
   }
 
-  @Get('/typeActivity/:activity')
-  async getGroupActivity(@Res() res, @Param('activity') activity) {
+  @Get('/search/filters')
+  async filterSearch(@Res() res, @Query() gender, age, maxDistance) {
+    try {
+      const groups = await this.groupService.genderFilter(gender);
+      return res.status(HttpStatus.OK).json({
+        groups: groups
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'An error has ocurred',
+        err: err.message
+      });
+    }
+  }
+
+  @Get('/typeActivity/')
+  async getGroupActivity(@Res() res, @Query() activity) {
     try {
       const getGroup = await this.groupService.searchGroupByActivity(activity);
       if (!getGroup) throw new NotFoundException('No results found');
@@ -51,8 +66,8 @@ export class GroupController {
     }
   }
 
-  @Get('/search/:name')
-  async getGroupName(@Res() res, @Param('name') name) {
+  @Get('/search/')
+  async getGroupName(@Res() res, @Query() name) {
     try {
       const getGroup = await this.groupService.searchGroupByName(name);
       if (!getGroup) throw new NotFoundException('No results found');
@@ -64,8 +79,6 @@ export class GroupController {
       });
     }
   }
-
-
 
   @Post()
   async createGroup(@Res() res, @Body() createGroupDTO: GroupDTO): Promise<string> {

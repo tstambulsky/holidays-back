@@ -1,6 +1,6 @@
 import { Meeting } from '../../meeting-place/schema/meetingPlace.schema';
 import { User } from '../../users/schema/users.schema';
-import { Document } from 'mongoose';
+import * as mongoose from 'mongoose';
 
 export class GroupDTO {
   readonly name: string;
@@ -8,8 +8,8 @@ export class GroupDTO {
   readonly startTime: Date;
   readonly endTime?: Date;
   readonly typeOfActivity: string;
-  readonly meetingPlaceOne: Meeting;
-  readonly meetingPlaceTwo?: Meeting;
+  readonly meetingPlaceOne: mongoose.Types.ObjectId;
+  readonly meetingPlaceTwo?: mongoose.Types.ObjectId;
   readonly description: string;
   readonly photos?: string;
   readonly integrants: User;
@@ -21,11 +21,11 @@ export class UpdateGroupDTO {
   readonly startTime?: Date;
   readonly endTime?: Date;
   readonly typeOfActivity?: string;
-  readonly meetingPlaceOne?: Meeting;
-  readonly meetingPlaceTwo?: Meeting;
+  readonly meetingPlaceOne?: mongoose.Types.ObjectId;
+  readonly meetingPlaceTwo?: mongoose.Types.ObjectId;
   readonly description?: string;
   readonly photos?: string;
-  readonly integrants: User;
+  readonly integrants: mongoose.Types.ObjectId[];
 }
 
 export class ActivityDTO {
