@@ -3,7 +3,7 @@ import * as mongoose from 'mongoose';
 
 export type MeetingDocument = Meeting & mongoose.Document;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Meeting {
   @Prop({ required: true })
   name: string;
@@ -20,5 +20,3 @@ export class Meeting {
 export const MeetingPlaceSchema = SchemaFactory.createForClass(Meeting);
 
 MeetingPlaceSchema.index({ location: '2dsphere' });
-
-MeetingPlaceSchema.set('timestamps', true);

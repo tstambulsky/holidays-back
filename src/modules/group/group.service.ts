@@ -2,12 +2,16 @@ import { Injectable, HttpException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Group, GroupDocument } from './schema/group.schema';
+import { User, UserDocument } from '../users/schema/users.schema';
 import { GroupDTO, UpdateGroupDTO, ActivityDTO, ActivityInterface } from './dto/group.dto';
 import * as moment from 'moment';
 
 @Injectable()
 export class GroupService {
-  constructor(@InjectModel(Group.name) private readonly groupModel: Model<GroupDocument>) {}
+  constructor(
+    @InjectModel(Group.name) private readonly groupModel: Model<GroupDocument>,
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>
+  ) {}
 
   async getGroups(): Promise<Group[]> {
     const groups = await this.groupModel.find().populate('integrants').populate('meetingPlaceOne').populate('meetingPlaceTwo').exec();
@@ -33,11 +37,32 @@ export class GroupService {
     }
   }
 
-  /* async searchByGender(): Promise<Group[]> {
-    const searchGroup = await this.groupModel.find().populate('integrants').populate('meetingPlaceOne').populate('meetingPlaceTwo').exec()
-  } */
+  async suggestedGroups(userCity: any, groupDistance: any) {
+    try {
+      const groups = await this.groupModel.find({ meetingPlaceOne: groupDistance });
+      if ((userCity = groups)) return groups;
+    } catch (err) {
+      console.log(err);
+      throw new Error(err.message);
+    }
+  }
 
-  async searchGroupByActivity(typeOfActivity): Promise<Group[]> {
+  async genderFilter(gender: string) {
+    const sex = await this.userModel.aggregate([{ $group: { _id: { integrants: '$sex.$regex: /`${gender}`/'} } }]);
+    console.log(sex);
+    const groups = await this.groupModel.find({ integrants: sex }).exec();
+    return groups;
+  }
+
+  async ageFilter(age: any) {
+    const groups = await this.groupModel.find().exec();
+  }
+
+  async distanceFilter(distance: any) {
+    const groups = await this.groupModel.find({ meetingPlaceOne: {} }).exec();
+  }
+
+  async searchGroupByActivity(typeOfActivity: string): Promise<Group[]> {
     const searchGroup = await this.groupModel
       .find({ typeOfActivity: { $regex: new RegExp(typeOfActivity, 'i') } })
       .populate('integrants')
@@ -92,7 +117,6 @@ export class GroupService {
     }
   }
 
-
   years(birthDate) {
     birthDate.moment().format('YYYY Do MMM DD');
     let born = moment(birthDate); //format YYYY-MM-DD
@@ -103,7 +127,6 @@ export class GroupService {
     } else {
       console.error('The date of birth cannot be higher than the current system date.');
     }
-    return years; 
-}
-
+    return years;
+  }
 }

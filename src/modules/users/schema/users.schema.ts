@@ -1,10 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
-import { City } from '../../zone/schema/city.schema';
 
 export type UserDocument = User & mongoose.Document;
 
-@Schema()
+@Schema({ timestamps: true })
 export class User {
   @Prop({ trim: true })
   name: string;
@@ -26,8 +25,8 @@ export class User {
   birthDate: Date;
   @Prop()
   sex: string;
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'City' })
-  city: City;
+  @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'City', autopopulate: true })
+  city: mongoose.Types.ObjectId;
   @Prop({ required: false })
   phoneNumber?: number;
   @Prop({ required: false })
@@ -42,5 +41,3 @@ export class User {
   isAdmin: boolean;
 }
 export const UserSchema = SchemaFactory.createForClass(User);
-
-UserSchema.set('timestamps', true);
