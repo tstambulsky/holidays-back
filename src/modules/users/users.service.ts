@@ -115,4 +115,11 @@ export class UsersService {
       throw new Error(err.message);
     }
   }
+
+  /* async userPetitionGroup(userID: any, groupID: any): Promise<String> {
+    try {
+      const user = await this.userModel.findOne({ _id: userID});
+      const group = 
+    }
+  }*/
 }
