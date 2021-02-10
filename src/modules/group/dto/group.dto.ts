@@ -5,8 +5,8 @@ import * as mongoose from 'mongoose';
 export class GroupDTO {
   readonly name: string;
   readonly startDate: Date;
-  readonly startTime: Date;
-  readonly endTime?: Date;
+  readonly startTime: string;
+  readonly endTime?: string;
   readonly typeOfActivity: string;
   readonly meetingPlaceOne?: mongoose.Types.ObjectId;
   readonly meetingPlaceTwo?: mongoose.Types.ObjectId;
@@ -20,8 +20,8 @@ export class GroupDTO {
 export class UpdateGroupDTO {
   readonly name?: string;
   readonly startDate?: Date;
-  readonly startTime?: Date;
-  readonly endTime?: Date;
+  readonly startTime?: string;
+  readonly endTime?: string;
   readonly typeOfActivity?: string;
   readonly meetingPlaceOne?: mongoose.Types.ObjectId;
   readonly meetingPlaceTwo?: mongoose.Types.ObjectId;
