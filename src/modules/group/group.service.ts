@@ -14,7 +14,12 @@ export class GroupService {
   ) {}
 
   async getGroups(): Promise<Group[]> {
-    const groups = await this.groupModel.find().populate('integrants').populate('meetingPlaceOne').populate('meetingPlaceTwo').exec();
+    const groups = await this.groupModel
+      .find({ active: true })
+      .populate('integrants')
+      .populate('meetingPlaceOne')
+      .populate('meetingPlaceTwo')
+      .exec();
     if (!groups) {
       throw new HttpException('Not Found', 404);
     }
@@ -24,7 +29,7 @@ export class GroupService {
   async getGroup(groupID: any): Promise<Group> {
     try {
       const group = await this.groupModel
-        .findOne({ _id: groupID })
+        .findOne({ _id: groupID }, { active: true })
         .populate('integrants')
         .populate('meetingPlaceOne')
         .populate('meetingPlaceTwo')
@@ -35,57 +40,6 @@ export class GroupService {
       console.log(err);
       throw new Error(err.message);
     }
-  }
-
-  async suggestedGroups(userCity: any, groupDistance: any) {
-    try {
-      const groups = await this.groupModel.find({ meetingPlaceOne: groupDistance });
-      if ((userCity = groups)) return groups;
-    } catch (err) {
-      console.log(err);
-      throw new Error(err.message);
-    }
-  }
-
-  async genderFilter(gender: string) {
-    const sex = await this.userModel.aggregate([{ $group: { _id: { integrants: '$sex.$regex: /`${gender}`/'} } }]);
-    console.log(sex);
-    const groups = await this.groupModel.find({ integrants: sex }).exec();
-    return groups;
-  }
-
-  async ageFilter(age: any) {
-    const groups = await this.groupModel.find().exec();
-  }
-
-  async distanceFilter(distance: any) {
-    const groups = await this.groupModel.find({ meetingPlaceOne: {} }).exec();
-  }
-
-  async searchGroupByActivity(typeOfActivity: string): Promise<Group[]> {
-    const searchGroup = await this.groupModel
-      .find({ typeOfActivity: { $regex: new RegExp(typeOfActivity, 'i') } })
-      .populate('integrants')
-      .populate('meetingPlaceOne')
-      .populate('meetingPlaceTwo')
-      .exec();
-    if (!searchGroup) {
-      throw new HttpException('Not Found', 404);
-    }
-    return searchGroup;
-  }
-
-  async searchGroupByName(name): Promise<Group[]> {
-    const searchGroup = await this.groupModel
-      .find({ name: { $regex: new RegExp(name, 'i') } })
-      .populate('integrants')
-      .populate('meetingPlaceOne')
-      .populate('meetingPlaceTwo')
-      .exec();
-    if (!searchGroup) {
-      throw new HttpException('Not Found', 404);
-    }
-    return searchGroup;
   }
 
   async createGroup(groupDTO: GroupDTO): Promise<string> {
@@ -100,9 +54,23 @@ export class GroupService {
 
   async updateGroup(groupID: any, data: UpdateGroupDTO): Promise<Group | undefined> {
     try {
-      const group = await this.groupModel.findOneAndUpdate({ _id: groupID }, { ...data });
+      const group = await this.groupModel.findOneAndUpdate({ _id: groupID, active: true }, { ...data });
       console.log(group);
       return group;
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+  async toInactiveGroup(groupID: any): Promise<string> {
+    try {
+      const group = await this.groupModel.findById(groupID);
+      if (!group) {
+        throw new HttpException('Not Found', 404);
+      }
+      group.active = false;
+      await group.save();
+      return 'Group change to inactive';
     } catch (err) {
       throw new Error(err.message);
     }
@@ -115,6 +83,65 @@ export class GroupService {
     } catch (err) {
       throw new Error(err.message);
     }
+  }
+
+  async suggestedGroups(userCity: any, groupDistance: any) {
+    try {
+      const groups = await this.groupModel.find({ meetingPlaceOne: groupDistance });
+      if ((userCity = groups)) return groups;
+    } catch (err) {
+      console.log(err);
+      throw new Error(err.message);
+    }
+  }
+
+  async genderFilter(gender: any) {
+   
+  }
+
+  async ageFilter(age: any) {
+    const groups = await this.groupModel.find().exec();
+  }
+
+  async distanceFilter(distance: any) {
+    const groups = await this.groupModel.find({ meetingPlaceOne: {} }).exec();
+  }
+
+  async searchGroupByActivity(typeOfActivity: string): Promise<Group[]> {
+    const searchGroup = await this.groupModel
+      .find({ typeOfActivity: { $regex: new RegExp(typeOfActivity, 'i') } }, { active: true })
+      .populate('integrants')
+      .populate('meetingPlaceOne')
+      .populate('meetingPlaceTwo')
+      .exec();
+    if (!searchGroup) {
+      throw new HttpException('Not Found', 404);
+    }
+    return searchGroup;
+  }
+
+  async searchGroupByName(name): Promise<Group[]> {
+    const searchGroup = await this.groupModel
+      .find({ name: { $regex: new RegExp(name, 'i') } }, { active: true })
+      .populate('integrants')
+      .populate('meetingPlaceOne')
+      .populate('meetingPlaceTwo')
+      .exec();
+    if (!searchGroup) {
+      throw new HttpException('Not Found', 404);
+    }
+    return searchGroup;
+  }
+
+  async repeatGroup(userID: any) {
+    try {
+      const searchGroup = await this.groupModel.find({ integrants_id: userID }, { active: false }).exec();
+      if (!searchGroup) {
+        throw new HttpException('Not Found', 404);
+      }
+      //searchGroup.active = true;
+      //return await searchGroup.save();
+    } catch (err) {}
   }
 
   years(birthDate) {

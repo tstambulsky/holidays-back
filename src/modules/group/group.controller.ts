@@ -38,7 +38,7 @@ export class GroupController {
   }
 
   @Get('/search/filters')
-  async filterSearch(@Res() res, @Query() gender, age, maxDistance) {
+  async filterSearch(@Res() res, @Query() gender, age, maxDistance): Promise<Group[]> {
     try {
       const groups = await this.groupService.genderFilter(gender);
       return res.status(HttpStatus.OK).json({
@@ -117,6 +117,21 @@ export class GroupController {
       await this.groupService.deleteGroup(groupID);
       return res.status(HttpStatus.OK).json({
         message: 'Group deleted'
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'An error has ocurred',
+        err: err.message
+      });
+    }
+  }
+
+  @Put('/remove/:groupID')
+  async inactiveGroup(@Res() res, @Param('groupID') groupID): Promise<string> {
+    try {
+      await this.groupService.toInactiveGroup(groupID);
+      return res.status(HttpStatus.OK).json({
+        message: 'Group removed'
       });
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({

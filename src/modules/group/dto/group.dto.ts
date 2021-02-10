@@ -13,7 +13,8 @@ export class GroupDTO {
   readonly address: any;
   readonly description: string;
   readonly photos?: string;
-  readonly integrants: User;
+  readonly integrants: mongoose.Types.ObjectId;
+  readonly active: boolean;
 }
 
 export class UpdateGroupDTO {
@@ -27,7 +28,8 @@ export class UpdateGroupDTO {
   readonly address?: any;
   readonly description?: string;
   readonly photos?: string;
-  readonly integrants: mongoose.Types.ObjectId[];
+  readonly integrants: User;
+  readonly active?: boolean;
 }
 
 export class ActivityDTO {
