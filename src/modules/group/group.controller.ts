@@ -1,7 +1,7 @@
 import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { Group } from './schema/group.schema';
-import { GroupDTO, UpdateGroupDTO, ActivityDTO } from './dto/group.dto';
+import { GroupDTO, UpdateGroupDTO, queryDTO } from './dto/group.dto';
 
 @Controller('group')
 export class GroupController {
@@ -38,9 +38,9 @@ export class GroupController {
   }
 
   @Get('/search/filters')
-  async filterSearch(@Res() res, @Query() gender, age, maxDistance): Promise<Group[]> {
+  async filterSearch(@Res() res, @Query() gender: queryDTO , age: number, maxDistance: string): Promise<Group[]> {
     try {
-      const groups = await this.groupService.genderFilter(gender);
+      const groups = await this.groupService.genderFilter(gender.gender);
       return res.status(HttpStatus.OK).json({
         groups: groups
       });
@@ -95,6 +95,38 @@ export class GroupController {
     }
   }
 
+  @Put('/repeatGroup/:groupID')
+  async repeatGroup(@Res() res, @Param('groupID') groupID: string): Promise<Group> {
+    try {
+     const group = await this.groupService.repeatGroup(groupID)
+      return res.status(HttpStatus.OK).json({
+        message: 'Group is reactivated!',
+        group
+      })
+    } catch (err) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'An error has occurred',
+        err: err.message
+      });
+    }
+  }
+
+  @Get('/previousGroups/:userID')
+  async previouslyGroups(@Res() res, @Param('userID') userID: string): Promise<Group[]> {
+    try {
+     const group = await this.groupService.previousGroups(userID);
+      return res.status(HttpStatus.OK).json({
+        message: 'Previous groups!',
+        group
+      })
+    } catch (err) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        message: err.message,
+        err: err.message
+      });
+  }
+}
+
   @Put('/update/:groupID')
   async updateGroup(@Res() res, @Param('groupID') groupID, @Body() updateGroupDTO: UpdateGroupDTO): Promise<Group> {
     try {
@@ -105,7 +137,7 @@ export class GroupController {
       });
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({
-        message: 'An error has occurred',
+        message: err.message,
         err: err.message
       });
     }
@@ -120,7 +152,7 @@ export class GroupController {
       });
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({
-        message: 'An error has ocurred',
+        message: err.message,
         err: err.message
       });
     }
@@ -135,7 +167,7 @@ export class GroupController {
       });
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({
-        message: 'An error has ocurred',
+        message: 'err.message',
         err: err.message
       });
     }

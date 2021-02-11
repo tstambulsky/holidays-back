@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { UserSchema, User } from '../../users/schema/users.schema';
+import { User } from '../../users/schema/users.schema';
 import * as mongoose from 'mongoose';
 
 export type GroupDocument = Group & mongoose.Document;
@@ -16,11 +16,11 @@ export class Group {
   endTime?: string;
   @Prop()
   typeOfActivity: string;
-  @Prop([{ type: UserSchema }])
+  @Prop([{ type: mongoose.SchemaTypes.ObjectId, ref: 'User', autopopulate: true }])
   integrants: User;
-  @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Meeting' })
+  @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Meeting', autopopulate: true })
   meetingPlaceOne: mongoose.Types.ObjectId;
-  @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Meeting' })
+  @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Meeting', autopopulate: true})
   meetingPlaceTwo?: mongoose.Types.ObjectId;
   @Prop({})
   address: [

@@ -41,7 +41,7 @@ export class AuthController {
     } catch (err) {
       console.log('Error in login');
       return res.status(HttpStatus.NOT_FOUND).json({
-        message: 'Error: User not logged!',
+        message: err.message,
         status: 404
       });
     }
@@ -88,7 +88,7 @@ export class AuthController {
       }
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({
-        message: 'Error: User not created!',
+        message: err.message,
         status: 400
       });
     }
