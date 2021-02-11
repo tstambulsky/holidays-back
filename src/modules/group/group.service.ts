@@ -29,11 +29,7 @@ export class GroupService {
   async getGroup(groupID: any): Promise<Group> {
     try {
       const group = await this.groupModel
-        .findOne({ _id: groupID }, { active: true })
-        .populate('integrants')
-        .populate('meetingPlaceOne')
-        .populate('meetingPlaceTwo')
-        .exec();
+        .findOne({ _id: groupID, active: true })
       console.log(group);
       return group;
     } catch (err) {
@@ -54,9 +50,11 @@ export class GroupService {
 
   async updateGroup(groupID: any, data: UpdateGroupDTO): Promise<Group | undefined> {
     try {
-      const group = await this.groupModel.findOneAndUpdate({ _id: groupID, active: true }, { ...data });
+      const group = await this.groupModel.findOne({ _id: groupID, active: true });
+      const updatedGroup = await group.updateOne({ ...data });
+      const groupUpdated = await this.groupModel.findOne({ _id: groupID }).populate('integrants');
       console.log(group);
-      return group;
+      return groupUpdated;
     } catch (err) {
       throw new Error(err.message);
     }
@@ -95,12 +93,34 @@ export class GroupService {
     }
   }
 
-  async genderFilter(gender: any) {
-   
+  async genderFilter(gender: string) {
+   console.log(gender);
+    const groups = await this.groupModel.aggregate([
+      {$match: { active: true }},
+      {$lookup: {
+          from: 'users',
+          localField: 'integrants',
+          foreignField: '_id',
+          as: 'integrants'
+      }
+    },
+    {$match: { 'integrants.sex': { $eq: `${gender}` } }}
+    ]);
+    console.log(groups);
+   return groups;
   }
 
   async ageFilter(age: any) {
-    const groups = await this.groupModel.find().exec();
+    const groups = await this.groupModel.aggregate([
+      {$match: { active: true }},
+      {$lookup: {
+          from: 'users',
+          localField: 'integrants',
+          foreignField: '_id',
+          as: 'birthdays'
+      }
+    }
+    ]);;
   }
 
   async distanceFilter(distance: any) {
@@ -133,15 +153,31 @@ export class GroupService {
     return searchGroup;
   }
 
-  async repeatGroup(userID: any) {
+  async repeatGroup(groupID: any) {
     try {
-      const searchGroup = await this.groupModel.find({ integrants_id: userID }, { active: false }).exec();
+      const searchGroup = await this.groupModel.findById({ _id: groupID, active: false });
       if (!searchGroup) {
         throw new HttpException('Not Found', 404);
       }
-      //searchGroup.active = true;
-      //return await searchGroup.save();
+      searchGroup.active = true;
+      searchGroup.save();
+      return searchGroup;
     } catch (err) {}
+  }
+
+  async previousGroups(userID: any): Promise<Group[]> {
+    const groups = await this.groupModel.aggregate([
+         {$match: { active: false }},
+      {$lookup: {
+          from: 'users',
+          localField: 'integrants',
+          foreignField: '_id',
+          as: 'integrants'
+      }
+    },
+    {$match: { 'integrants._id': { $eq: `${userID}` } }}
+      ]);
+    return groups;
   }
 
   years(birthDate) {

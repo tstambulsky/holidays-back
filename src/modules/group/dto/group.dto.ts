@@ -39,3 +39,7 @@ export class ActivityDTO {
 export interface ActivityInterface extends Document {
   readonly tipeOfActivity: string;
 }
+
+export class queryDTO {
+  readonly gender: string;
+}
