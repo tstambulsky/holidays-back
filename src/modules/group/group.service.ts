@@ -28,8 +28,7 @@ export class GroupService {
 
   async getGroup(groupID: any): Promise<Group> {
     try {
-      const group = await this.groupModel
-        .findOne({ _id: groupID, active: true })
+      const group = await this.groupModel.findOne({ _id: groupID, active: true });
       console.log(group);
       return group;
     } catch (err) {
@@ -94,33 +93,36 @@ export class GroupService {
   }
 
   async genderFilter(gender: string) {
-   console.log(gender);
     const groups = await this.groupModel.aggregate([
-      {$match: { active: true }},
-      {$lookup: {
+      { $match: { active: true } },
+      {
+        $lookup: {
           from: 'users',
           localField: 'integrants',
           foreignField: '_id',
           as: 'integrants'
-      }
-    },
-    {$match: { 'integrants.sex': { $eq: `${gender}` } }}
+        }
+      },
+      { $match: { 'integrants.sex': { $eq: `${gender}` } } }
     ]);
     console.log(groups);
-   return groups;
+    return groups;
   }
 
-  async ageFilter(age: any) {
+  async ageFilter(age: number) {
     const groups = await this.groupModel.aggregate([
-      {$match: { active: true }},
-      {$lookup: {
+      { $match: { active: true } },
+      {
+        $lookup: {
           from: 'users',
           localField: 'integrants',
           foreignField: '_id',
-          as: 'birthdays'
+          as: 'integrants'
+        }
       }
-    }
-    ]);;
+    ]);
+    return groups;
+
   }
 
   async distanceFilter(distance: any) {
@@ -167,16 +169,17 @@ export class GroupService {
 
   async previousGroups(userID: any): Promise<Group[]> {
     const groups = await this.groupModel.aggregate([
-         {$match: { active: false }},
-      {$lookup: {
+      { $match: { active: false } },
+      {
+        $lookup: {
           from: 'users',
           localField: 'integrants',
           foreignField: '_id',
           as: 'integrants'
-      }
-    },
-    {$match: { 'integrants._id': { $eq: `${userID}` } }}
-      ]);
+        }
+      },
+      { $match: { 'integrants._id': { $eq: `${userID}` } } }
+    ]);
     return groups;
   }
 

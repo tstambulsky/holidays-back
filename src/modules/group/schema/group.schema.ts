@@ -20,7 +20,7 @@ export class Group {
   integrants: User;
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Meeting', autopopulate: true })
   meetingPlaceOne: mongoose.Types.ObjectId;
-  @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Meeting', autopopulate: true})
+  @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Meeting', autopopulate: true })
   meetingPlaceTwo?: mongoose.Types.ObjectId;
   @Prop({})
   address: [

@@ -38,10 +38,25 @@ export class GroupController {
   }
 
   @Get('/search/filters')
-  async filterSearch(@Res() res, @Query() gender: queryDTO , age: number, maxDistance: string): Promise<Group[]> {
+  async filterSearch(@Res() res, @Query() filters: queryDTO): Promise<Group[]> {
     try {
-      const groups = await this.groupService.genderFilter(gender.gender);
+      const groups = await this.groupService.genderFilter(filters.gender);
       return res.status(HttpStatus.OK).json({
+        groups: groups
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'An error has ocurred',
+        err: err.message
+      });
+    }
+  }
+
+  @Get('/search/age')
+  async filterAge(@Res() res, @Query() filters: queryDTO): Promise<Group[]> {
+    try {
+    const groups = await this.groupService.ageFilter(filters.age);
+   return res.status(HttpStatus.OK).json({
         groups: groups
       });
     } catch (err) {
@@ -98,11 +113,11 @@ export class GroupController {
   @Put('/repeatGroup/:groupID')
   async repeatGroup(@Res() res, @Param('groupID') groupID: string): Promise<Group> {
     try {
-     const group = await this.groupService.repeatGroup(groupID)
+      const group = await this.groupService.repeatGroup(groupID);
       return res.status(HttpStatus.OK).json({
         message: 'Group is reactivated!',
         group
-      })
+      });
     } catch (err) {
       res.status(HttpStatus.BAD_REQUEST).json({
         message: 'An error has occurred',
@@ -114,18 +129,18 @@ export class GroupController {
   @Get('/previousGroups/:userID')
   async previouslyGroups(@Res() res, @Param('userID') userID: string): Promise<Group[]> {
     try {
-     const group = await this.groupService.previousGroups(userID);
+      const group = await this.groupService.previousGroups(userID);
       return res.status(HttpStatus.OK).json({
         message: 'Previous groups!',
         group
-      })
+      });
     } catch (err) {
       res.status(HttpStatus.BAD_REQUEST).json({
         message: err.message,
         err: err.message
       });
+    }
   }
-}
 
   @Put('/update/:groupID')
   async updateGroup(@Res() res, @Param('groupID') groupID, @Body() updateGroupDTO: UpdateGroupDTO): Promise<Group> {
@@ -167,7 +182,7 @@ export class GroupController {
       });
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({
-        message: 'err.message',
+        message: err.message,
         err: err.message
       });
     }
