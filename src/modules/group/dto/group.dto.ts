@@ -42,4 +42,5 @@ export interface ActivityInterface extends Document {
 
 export class queryDTO {
   readonly gender: string;
+  readonly age: number;
 }
