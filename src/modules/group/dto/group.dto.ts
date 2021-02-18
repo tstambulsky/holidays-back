@@ -8,12 +8,12 @@ export class GroupDTO {
   readonly startTime: string;
   readonly endTime?: string;
   readonly typeOfActivity: string;
-  readonly meetingPlaceOne?: mongoose.Types.ObjectId;
-  readonly meetingPlaceTwo?: mongoose.Types.ObjectId;
+  readonly meetingPlaceOne?: Meeting;
+  readonly meetingPlaceTwo?: Meeting;
   readonly address: any;
   readonly description: string;
   readonly photos?: string;
-  readonly integrants: mongoose.Types.ObjectId;
+  readonly integrants: User;
   readonly active: boolean;
 }
 
@@ -23,8 +23,8 @@ export class UpdateGroupDTO {
   readonly startTime?: string;
   readonly endTime?: string;
   readonly typeOfActivity?: string;
-  readonly meetingPlaceOne?: mongoose.Types.ObjectId;
-  readonly meetingPlaceTwo?: mongoose.Types.ObjectId;
+  readonly meetingPlaceOne?: Meeting;
+  readonly meetingPlaceTwo?: Meeting;
   readonly address?: any;
   readonly description?: string;
   readonly photos?: string;
@@ -43,4 +43,6 @@ export interface ActivityInterface extends Document {
 export class queryDTO {
   readonly gender: string;
   readonly age: number;
+  readonly name: string;
+  readonly activity: string;
 }

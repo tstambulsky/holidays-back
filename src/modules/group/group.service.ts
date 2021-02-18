@@ -129,26 +129,16 @@ export class GroupService {
     const groups = await this.groupModel.find({ meetingPlaceOne: {} }).exec();
   }
 
-  async searchGroupByActivity(typeOfActivity: string): Promise<Group[]> {
-    const searchGroup = await this.groupModel
-      .find({ typeOfActivity: { $regex: new RegExp(typeOfActivity, 'i') } }, { active: true })
-      .populate('integrants')
-      .populate('meetingPlaceOne')
-      .populate('meetingPlaceTwo')
-      .exec();
-    if (!searchGroup) {
-      throw new HttpException('Not Found', 404);
-    }
-    return searchGroup;
+  async searchGroupByActivity(activity: string): Promise<Group[]> {
+    const groups = await this.groupModel.find({ typeOfActivity: new RegExp(activity, 'i')}, {active: true, name: 1, description: 1, typeOfActivity: 1})
+    .populate('integrants').populate('meetingPlaceOne').populate('meetingPlaceTwo').exec();
+    return groups;
+    if (!groups) return 
+    throw new HttpException('Not Found', 404);
   }
 
-  async searchGroupByName(name): Promise<Group[]> {
-    const searchGroup = await this.groupModel
-      .find({ name: { $regex: new RegExp(name, 'i') } }, { active: true })
-      .populate('integrants')
-      .populate('meetingPlaceOne')
-      .populate('meetingPlaceTwo')
-      .exec();
+  async searchGroupByName(name: string): Promise<Group[]> {
+    const searchGroup = await this.groupModel.find({ name: new RegExp(name, 'i') }, { active: true, name: 1, description: 1, typeOfActivity: 1}).populate('integrants').populate('meetingPlaceOne').populate('meetingPlaceTwo').exec();
     if (!searchGroup) {
       throw new HttpException('Not Found', 404);
     }

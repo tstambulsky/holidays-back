@@ -37,7 +37,7 @@ export class GroupController {
     }
   }
 
-  @Get('/search/filters')
+  @Get('/search/gender')
   async filterSearch(@Res() res, @Query() filters: queryDTO): Promise<Group[]> {
     try {
       const groups = await this.groupService.genderFilter(filters.gender);
@@ -67,12 +67,15 @@ export class GroupController {
     }
   }
 
-  @Get('/typeActivity/')
-  async getGroupActivity(@Res() res, @Query() activity) {
+  @Get('/search/typeActivity')
+  async getGroupActivity(@Res() res, @Query() filters: queryDTO): Promise<Group[]> {
     try {
-      const getGroup = await this.groupService.searchGroupByActivity(activity);
-      if (!getGroup) throw new NotFoundException('No results found');
-      return res.status(HttpStatus.OK).json(getGroup);
+      const getGroup = await this.groupService.searchGroupByActivity(filters.activity);
+       if (!getGroup) throw new NotFoundException('No results found');
+      return res.status(HttpStatus.OK).json({
+        message: 'List of groups',
+        groups: getGroup
+      });
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         message: 'An error has ocurred',
@@ -81,10 +84,10 @@ export class GroupController {
     }
   }
 
-  @Get('/search/')
-  async getGroupName(@Res() res, @Query() name) {
+  @Get('/search/name')
+  async getGroupName(@Res() res, @Query() filters: queryDTO): Promise<Group[]> {
     try {
-      const getGroup = await this.groupService.searchGroupByName(name);
+      const getGroup = await this.groupService.searchGroupByName(filters.name);
       if (!getGroup) throw new NotFoundException('No results found');
       return res.status(HttpStatus.OK).json(getGroup);
     } catch (err) {
