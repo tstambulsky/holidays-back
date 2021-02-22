@@ -110,7 +110,7 @@ export class GroupService {
   }
 
   async ageFilter(age: number) {
-    const groups = await this.groupModel.aggregate([
+    let years = await this.groupModel.aggregate([
       { $match: { active: true } },
       {
         $lookup: {
@@ -119,10 +119,48 @@ export class GroupService {
           foreignField: '_id',
           as: 'integrants'
         }
+      },
+      { $unwind: '$integrants' },
+      {
+        $project: {
+          _id: 0,
+          birthDate: { $year: '$integrants.birthDate' }
+        }
       }
     ]);
-    return groups;
+     let sumaEdades = 0;
+      let años;
+      years.forEach((person) => {
+      const year = new Date().getFullYear();
+      const personYear = year - person.birthDate;
+      console.log('personyear', personYear);
+      años = personYear;
+      sumaEdades += personYear;
+    });
+    
+    const filterEdad = async (age) => {
+      const groups: any[] = await this.groupModel.find({ active: true }).populate('integrants');
+     
+      groups.forEach((element) => {
+        const personasTotales = element.integrants.length;
+        const promedio = sumaEdades / personasTotales;
+        element.promedioDeEdades = promedio;
+        return element.promedioDeEdades
+      });
 
+      const checkPromedio = async (age) => {
+        const maxAge = años + 3;
+        const minAge = años - 3;
+        console.log('max', maxAge);
+        console.log('min', minAge);
+        const isInPromedio = age <= maxAge && age >= minAge;
+        return isInPromedio;
+      };
+
+      const gruposFiltrados = groups.filter((group) => checkPromedio(group.promedioDeEdades));
+      return gruposFiltrados;
+    };
+    return filterEdad(age);
   }
 
   async distanceFilter(distance: any) {
@@ -130,15 +168,24 @@ export class GroupService {
   }
 
   async searchGroupByActivity(activity: string): Promise<Group[]> {
-    const groups = await this.groupModel.find({ typeOfActivity: new RegExp(activity, 'i')}, {active: true, name: 1, description: 1, typeOfActivity: 1})
-    .populate('integrants').populate('meetingPlaceOne').populate('meetingPlaceTwo').exec();
+    const groups = await this.groupModel
+      .find({ typeOfActivity: new RegExp(activity, 'i') }, { active: true, name: 1, description: 1, typeOfActivity: 1 })
+      .populate('integrants')
+      .populate('meetingPlaceOne')
+      .populate('meetingPlaceTwo')
+      .exec();
     return groups;
-    if (!groups) return 
+    if (!groups) return;
     throw new HttpException('Not Found', 404);
   }
 
   async searchGroupByName(name: string): Promise<Group[]> {
-    const searchGroup = await this.groupModel.find({ name: new RegExp(name, 'i') }, { active: true, name: 1, description: 1, typeOfActivity: 1}).populate('integrants').populate('meetingPlaceOne').populate('meetingPlaceTwo').exec();
+    const searchGroup = await this.groupModel
+      .find({ name: new RegExp(name, 'i') }, { active: true, name: 1, description: 1, typeOfActivity: 1 })
+      .populate('integrants')
+      .populate('meetingPlaceOne')
+      .populate('meetingPlaceTwo')
+      .exec();
     if (!searchGroup) {
       throw new HttpException('Not Found', 404);
     }
@@ -171,18 +218,5 @@ export class GroupService {
       { $match: { 'integrants._id': { $eq: `${userID}` } } }
     ]);
     return groups;
-  }
-
-  years(birthDate) {
-    birthDate.moment().format('YYYY Do MMM DD');
-    let born = moment(birthDate); //format YYYY-MM-DD
-    let today = moment();
-    let years = 0;
-    if (born < today) {
-      years = today.diff(born, 'years'); //Calculate diff in years
-    } else {
-      console.error('The date of birth cannot be higher than the current system date.');
-    }
-    return years;
   }
 }

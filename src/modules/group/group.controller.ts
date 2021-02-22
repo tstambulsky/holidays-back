@@ -55,8 +55,8 @@ export class GroupController {
   @Get('/search/age')
   async filterAge(@Res() res, @Query() filters: queryDTO): Promise<Group[]> {
     try {
-    const groups = await this.groupService.ageFilter(filters.age);
-   return res.status(HttpStatus.OK).json({
+      const groups = await this.groupService.ageFilter(filters.age);
+      return res.status(HttpStatus.OK).json({
         groups: groups
       });
     } catch (err) {
@@ -71,7 +71,7 @@ export class GroupController {
   async getGroupActivity(@Res() res, @Query() filters: queryDTO): Promise<Group[]> {
     try {
       const getGroup = await this.groupService.searchGroupByActivity(filters.activity);
-       if (!getGroup) throw new NotFoundException('No results found');
+      if (!getGroup) throw new NotFoundException('No results found');
       return res.status(HttpStatus.OK).json({
         message: 'List of groups',
         groups: getGroup
