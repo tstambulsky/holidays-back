@@ -9,20 +9,28 @@ export type GroupDocument = Group & mongoose.Document;
 export class Group {
   @Prop({})
   name: string;
+
   @Prop({ default: Date.now })
   startDate: Date;
+
   @Prop()
   startTime: string;
+
   @Prop()
   endTime?: string;
+
   @Prop()
   typeOfActivity: string;
+
   @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }])
   integrants: User;
+
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Meeting' })
   meetingPlaceOne: Meeting;
+
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Meeting' })
   meetingPlaceTwo?: Meeting;
+
   @Prop({})
   address: [
     {
@@ -31,10 +39,13 @@ export class Group {
       long: string;
     }
   ];
+
   @Prop({})
   description: string;
+
   @Prop({ type: [String], required: false })
   photos?: string;
+
   @Prop({ default: true })
   active: boolean;
 }

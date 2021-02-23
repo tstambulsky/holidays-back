@@ -109,59 +109,69 @@ export class GroupService {
     return groups;
   }
 
-  async ageFilter(age: number) {
-    let years = await this.groupModel.aggregate([
-      { $match: { active: true } },
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'integrants',
-          foreignField: '_id',
-          as: 'integrants'
-        }
-      },
-      { $unwind: '$integrants' },
-      {
-        $project: {
-          _id: 0,
-          birthDate: { $year: '$integrants.birthDate' }
-        }
+      async ageFilter(edad: number) {
+        // let years = await this.groupModel.aggregate([
+        //   { $match: { active: true } },
+        //   {
+        //     $lookup: {
+        //       from: 'users',
+        //       localField: 'integrants',
+        //       foreignField: '_id',
+        //       as: 'integrants'
+        //     }
+        //   },
+        //   { $unwind: '$integrants' },
+        //   {
+        //     $project: {
+        //       _id: 0,
+        //       birthDate: { $year: '$integrants.birthDate' }
+        //     }
+        //   }
+        // ]);
+        // let sumaEdades = 0;
+        //   let años;
+        //   years.forEach((person) => {
+          // const year = new Date().getFullYear();
+          // const personYear = year - person.birthDate;
+          // console.log('personyear', personYear);
+          // años = personYear;
+          // sumaEdades += personYear;
+        // });
+        
+        
+          const groups: any[] = await this.groupModel.find({ active: true }).populate('integrants');
+        
+          groups.forEach((element) => {
+            const personasTotales = element.integrants.length;
+            let totalEdades = 0 ;
+            element.integrants.forEach(persona => {
+              const edad = getYearOfPerson(persona.birthDate)
+              totalEdades += edad;
+            });
+            const promedio = totalEdades / personasTotales;
+            element.promedioDeEdades = promedio;
+          });
+
+          const getYearOfPerson = (birthDate) => {
+            const year = new Date().getFullYear();
+            const date = new Date(birthDate);
+            const AniosDePersona = date.getFullYear();
+            const result = year - AniosDePersona;
+            return result;
+          }
+
+          const checkPromedio = async (age) => {
+            const maxAge = edad + 3;
+            const minAge = edad - 3;
+            console.log('max', maxAge);
+            console.log('min', minAge);
+            const isInPromedio = age <= maxAge && age >= minAge;
+            return isInPromedio;
+          };
+
+          const gruposFiltrados = groups.filter((group) => checkPromedio(group.promedioDeEdades));
+          return gruposFiltrados;
       }
-    ]);
-     let sumaEdades = 0;
-      let años;
-      years.forEach((person) => {
-      const year = new Date().getFullYear();
-      const personYear = year - person.birthDate;
-      console.log('personyear', personYear);
-      años = personYear;
-      sumaEdades += personYear;
-    });
-    
-    const filterEdad = async (age) => {
-      const groups: any[] = await this.groupModel.find({ active: true }).populate('integrants');
-     
-      groups.forEach((element) => {
-        const personasTotales = element.integrants.length;
-        const promedio = sumaEdades / personasTotales;
-        element.promedioDeEdades = promedio;
-        return element.promedioDeEdades
-      });
-
-      const checkPromedio = async (age) => {
-        const maxAge = años + 3;
-        const minAge = años - 3;
-        console.log('max', maxAge);
-        console.log('min', minAge);
-        const isInPromedio = age <= maxAge && age >= minAge;
-        return isInPromedio;
-      };
-
-      const gruposFiltrados = groups.filter((group) => checkPromedio(group.promedioDeEdades));
-      return gruposFiltrados;
-    };
-    return filterEdad(age);
-  }
 
   async distanceFilter(distance: any) {
     const groups = await this.groupModel.find({ meetingPlaceOne: {} }).exec();
@@ -220,3 +230,4 @@ export class GroupService {
     return groups;
   }
 }
+
