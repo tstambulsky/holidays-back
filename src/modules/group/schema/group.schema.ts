@@ -48,5 +48,8 @@ export class Group {
 
   @Prop({ default: true })
   active: boolean;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  admin: User;
 }
 export const GroupSchema = SchemaFactory.createForClass(Group);

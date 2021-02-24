@@ -8,13 +8,13 @@ export class Calification {
   @Prop({ default: true })
   success: boolean;
 
-  @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'User', autopopulate: true })
+  @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'User'})
   toUser: User;
   
-  @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'User', autopopulate: true })
+  @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'User'})
   fromUser: User;
 
-  @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'InterGroup', autopopulate: true })
+  @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'InterGroup'})
   interGroup: InterGroup;
 
   @Prop()

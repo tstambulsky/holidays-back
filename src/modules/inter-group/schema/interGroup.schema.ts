@@ -1,4 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Group } from '../../group/schema/group.schema';
+import { Meeting } from '../../meeting-place/schema/meetingPlace.schema';
 
 import * as mongoose from 'mongoose';
 
@@ -7,19 +9,26 @@ export type InterGroupDocument = InterGroup & mongoose.Document;
 @Schema({ timestamps: true })
 export class InterGroup {
   @Prop([{ required: true, type: mongoose.SchemaTypes.ObjectId, ref: 'Group' }])
-  groupOne: mongoose.Types.ObjectId;
+  groupOne: Group;
+
   @Prop([{ required: true, type: mongoose.SchemaTypes.ObjectId, ref: 'Group' }])
-  groupTwo: mongoose.Types.ObjectId;
+  groupTwo: Group;
+
   @Prop({ required: true, default: Date.now })
   startDate: Date;
+
   @Prop()
   endDate?: Date;
-  @Prop({ required: true })
+
+  @Prop({})
   tipeOfActivity: string;
-  @Prop({ required: true, type: mongoose.SchemaTypes.ObjectId, ref: 'Meeting' })
-  meetingPlaceOne: mongoose.Types.ObjectId;
+
+  @Prop({type: mongoose.SchemaTypes.ObjectId, ref: 'Meeting' })
+  meetingPlaceOne: Meeting;
+
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Meeting' })
-  meetingPlaceTwo?: mongoose.Types.ObjectId;
+  meetingPlaceTwo?: Meeting;
+
   @Prop({ default: true })
   active: boolean;
 }

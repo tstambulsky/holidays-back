@@ -3,14 +3,17 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Group, GroupDocument } from './schema/group.schema';
 import { User, UserDocument } from '../users/schema/users.schema';
-import { GroupDTO, UpdateGroupDTO, ActivityDTO, ActivityInterface } from './dto/group.dto';
-import * as moment from 'moment';
+import { InterGroup, InterGroupDocument } from '../inter-group/schema/interGroup.schema';
+import { InterGroupService } from '../inter-group/interGroup.service';
+import { GroupDTO, UpdateGroupDTO, SendInvitationDTO  } from './dto/group.dto';
 
 @Injectable()
 export class GroupService {
   constructor(
     @InjectModel(Group.name) private readonly groupModel: Model<GroupDocument>,
-    @InjectModel(User.name) private readonly userModel: Model<UserDocument>
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    @InjectModel(InterGroup.name) private readonly interGroupModel: Model<InterGroupDocument>,
+    private interGroupService: InterGroupService
   ) {}
 
   async getGroups(): Promise<Group[]> {
@@ -82,7 +85,7 @@ export class GroupService {
     }
   }
 
-  async suggestedGroups(userCity: any, groupDistance: any) {
+  /*async suggestedGroups(userCity: any, groupDistance: any) {
     try {
       const groups = await this.groupModel.find({ meetingPlaceOne: groupDistance });
       if ((userCity = groups)) return groups;
@@ -90,7 +93,7 @@ export class GroupService {
       console.log(err);
       throw new Error(err.message);
     }
-  }
+  } */
 
   async genderFilter(gender: string) {
     const groups = await this.groupModel.aggregate([
@@ -144,9 +147,9 @@ export class GroupService {
     return gruposFiltrados;
   }
 
-  async distanceFilter(distance: any) {
+  /*async distanceFilter(distance: any) {
     const groups = await this.groupModel.find({ meetingPlaceOne: {} }).exec();
-  }
+  } */
 
   async searchGroupByActivity(activity: string): Promise<Group[]> {
     const groups = await this.groupModel
@@ -199,5 +202,18 @@ export class GroupService {
       { $match: { 'integrants._id': { $eq: `${userID}` } } }
     ]);
     return groups;
+  }
+
+  async sendInvitation(data: SendInvitationDTO) {
+    try {
+    const { groupOne, groupTwo, admin } = data;
+    const group = await this.groupModel.find({active: true, admin});
+    if (!group) throw new Error ('Sorry, you dont have access to this action');
+    const createInterGroup = await this.interGroupModel.find({ active: true, groupOne: groupOne || groupTwo})
+    if (createInterGroup.length > 0 ) throw new Error('The group(s) are currently in another intergroup')
+      await this.interGroupService.createInterGroup(data)
+  } catch(err) {
+    throw new Error(err.message)
+  }
   }
 }

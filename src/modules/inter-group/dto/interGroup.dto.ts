@@ -1,24 +1,27 @@
 import * as mongoose from 'mongoose';
+import { Group } from '../../group/schema/group.schema';
+import { Meeting } from '../../meeting-place/schema/meetingPlace.schema';
+
 export class InterGroupDTO {
-  readonly groupOne: mongoose.Types.ObjectId;
-  readonly groupTwo: mongoose.Types.ObjectId;
+  readonly groupOne: Group;
+  readonly groupTwo: Group;
   readonly startDate: Date;
   readonly endDate?: Date;
   readonly typeOfActivity: string;
-  readonly meetingPlaceOne: mongoose.Types.ObjectId;
-  readonly meetingPlaceTwo?: mongoose.Types.ObjectId;
+  readonly meetingPlaceOne?: Meeting;
+  readonly meetingPlaceTwo?: Meeting;
   readonly photos?: string;
-  readonly active: boolean;
+  readonly active?: boolean;
 }
 
 export class UpdateInterGroupDTO {
-  readonly groupOne?: mongoose.Types.ObjectId;
-  readonly groupTwo?: mongoose.Types.ObjectId;
+  readonly groupOne?: Group;
+  readonly groupTwo?: Group;
   readonly startDate?: Date;
   readonly endDate?: Date;
   readonly typeOfActivity?: string;
-  readonly meetingPlaceOne: mongoose.Types.ObjectId;
-  readonly meetingPlaceTwo?: mongoose.Types.ObjectId;
+  readonly meetingPlaceOne?: Meeting;
+  readonly meetingPlaceTwo?: Meeting;
   readonly photos?: string;
   readonly active?: boolean;
 }

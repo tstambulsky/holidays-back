@@ -1,10 +1,25 @@
-import { Controller, Res, HttpStatus, Body, Post } from '@nestjs/common';
+import { Controller, Res, HttpStatus, Body, Post, Get } from '@nestjs/common';
 import { CalificationService } from './calification.service';
 import { CalificationDTO } from './dto/inputs.dto';
 
 @Controller('/calification')
 export class CalificationController {
   constructor(private calificationService: CalificationService) {}
+
+  @Get('/')
+  async getCalifications(@Res() res) {
+    try {
+    const califications = await this.calificationService.getCalifications();
+    return res.status(HttpStatus.OK).json({
+      message: 'List of califications',
+      califications
+    })
+  } catch (err) {
+    return res.status(HttpStatus.BAD_REQUEST).json({
+      err: err.message
+    })
+  }
+  }
 
   @Post('/')
   async createCalification(@Body() data: CalificationDTO, @Res() res) {

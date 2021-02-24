@@ -50,6 +50,6 @@ import { CalificationService } from './modules/calification/calification.service
     CalificationModule
   ],
   controllers: [AppController],
-  providers: [AppService, CalificationService]
+  providers: [AppService]
 })
 export class AppModule {}

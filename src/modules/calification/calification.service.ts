@@ -13,7 +13,7 @@ export class CalificationService {
   ) {}
 
   async getCalifications(): Promise<Calification[]> {
-    const califications = await this.calificationModel.find().populate('user').exec();
+    const califications = await this.calificationModel.find().populate('toUser').populate('fromUser').populate('interGroup').exec();
     if (!califications) {
       throw new HttpException('Not Found', 404);
     }
@@ -24,11 +24,11 @@ export class CalificationService {
     try {
       const { toUser, fromUser, interGroup, success } = data;
       await this.userService.changeUserCalifications(toUser, success)
-      const alreadyCalificated = await this.calificationModel.find({ toUser, fromUser, interGroup });
-      if (alreadyCalificated) throw new Error('This person already calificate the memeber of this intergroup');
+      const alreadyCalificated = await this.calificationModel.find({ toUser, fromUser, interGroup});
+      if (alreadyCalificated.length > 0) throw new Error('This person already calificate the member of this intergroup');
       const calification = new this.calificationModel(data);
       await calification.save();
-      return calification;
+      return calification.populate('toUser').populate('fromUser').populate('interGroup');
     } catch (error) {
       throw new Error(error.message);
     }
