@@ -1,7 +1,7 @@
 import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { Group } from './schema/group.schema';
-import { GroupDTO, UpdateGroupDTO, queryDTO } from './dto/group.dto';
+import { GroupDTO, UpdateGroupDTO, QueryDTO, SendInvitationDTO } from './dto/group.dto';
 
 @Controller('group')
 export class GroupController {
@@ -38,7 +38,7 @@ export class GroupController {
   }
 
   @Get('/search/gender')
-  async filterSearch(@Res() res, @Query() filters: queryDTO): Promise<Group[]> {
+  async filterSearch(@Res() res, @Query() filters: QueryDTO): Promise<Group[]> {
     try {
       const groups = await this.groupService.genderFilter(filters.gender);
       return res.status(HttpStatus.OK).json({
@@ -53,10 +53,10 @@ export class GroupController {
   }
 
   @Get('/search/age')
-  async filterAge(@Res() res, @Query() filters: queryDTO): Promise<Group[]> {
+  async filterAge(@Res() res, @Query() filters: QueryDTO): Promise<Group[]> {
     try {
-    const groups = await this.groupService.ageFilter(filters.age);
-   return res.status(HttpStatus.OK).json({
+      const groups = await this.groupService.ageFilter(filters.age);
+      return res.status(HttpStatus.OK).json({
         groups: groups
       });
     } catch (err) {
@@ -68,10 +68,10 @@ export class GroupController {
   }
 
   @Get('/search/typeActivity')
-  async getGroupActivity(@Res() res, @Query() filters: queryDTO): Promise<Group[]> {
+  async getGroupActivity(@Res() res, @Query() filters: QueryDTO): Promise<Group[]> {
     try {
       const getGroup = await this.groupService.searchGroupByActivity(filters.activity);
-       if (!getGroup) throw new NotFoundException('No results found');
+      if (!getGroup) throw new NotFoundException('No results found');
       return res.status(HttpStatus.OK).json({
         message: 'List of groups',
         groups: getGroup
@@ -85,7 +85,7 @@ export class GroupController {
   }
 
   @Get('/search/name')
-  async getGroupName(@Res() res, @Query() filters: queryDTO): Promise<Group[]> {
+  async getGroupName(@Res() res, @Query() filters: QueryDTO): Promise<Group[]> {
     try {
       const getGroup = await this.groupService.searchGroupByName(filters.name);
       if (!getGroup) throw new NotFoundException('No results found');
@@ -189,5 +189,20 @@ export class GroupController {
         err: err.message
       });
     }
+  }
+
+  @Post('/createInterGroup')
+  async createInterGroup(@Res() res, @Body() data: SendInvitationDTO) {
+    try {
+    const interGroup = await this.groupService.sendInvitation(data);
+    return res.status(HttpStatus.OK).json({
+      message: 'InterGroup has been created!',
+      interGroup
+    })
+  } catch (err) {
+    return res.status(HttpStatus.BAD_REQUEST).json({
+      err: err.message
+    })
+  }
   }
 }

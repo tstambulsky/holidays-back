@@ -53,7 +53,8 @@ export class UsersService {
         //email: profile.emails[0].value || 'not found',
         photo: profile.photos[0].value
       });
-      return createUser.save();
+      await createUser.save();
+      return createUser
     } catch (err) {
       console.log(err);
       throw new Error(err.message);
@@ -74,7 +75,8 @@ export class UsersService {
         email: profile.emails[0].value,
         photo: profile.photos[0].value
       });
-      return createUser.save();
+      await createUser.save();
+      return createUser
     } catch (err) {
       console.log(err);
       throw new Error(err.message);
@@ -83,7 +85,8 @@ export class UsersService {
 
   async createUser(userDTO: RegisterDTO): Promise<User> {
     const user = await new this.userModel(userDTO);
-    return user.save();
+    await user.save();
+    return user
   }
 
   async findOneUser(data: any) {
@@ -122,4 +125,16 @@ export class UsersService {
       const group = 
     }
   }*/
+
+  async changeUserCalifications(userID: any, sum:boolean):Promise<User> {
+    try {
+      const user = await this.userModel.findOne({ _id: userID });
+      if(!user) throw new Error('This user does not exist')
+      user.points = sum ? user.points + 1 : user.points - 1;
+      await user.save()
+      return user;
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
 }

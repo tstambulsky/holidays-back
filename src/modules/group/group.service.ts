@@ -3,14 +3,17 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Group, GroupDocument } from './schema/group.schema';
 import { User, UserDocument } from '../users/schema/users.schema';
-import { GroupDTO, UpdateGroupDTO, ActivityDTO, ActivityInterface } from './dto/group.dto';
-import * as moment from 'moment';
+import { InterGroup, InterGroupDocument } from '../inter-group/schema/interGroup.schema';
+import { InterGroupService } from '../inter-group/interGroup.service';
+import { GroupDTO, UpdateGroupDTO, SendInvitationDTO  } from './dto/group.dto';
 
 @Injectable()
 export class GroupService {
   constructor(
     @InjectModel(Group.name) private readonly groupModel: Model<GroupDocument>,
-    @InjectModel(User.name) private readonly userModel: Model<UserDocument>
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    @InjectModel(InterGroup.name) private readonly interGroupModel: Model<InterGroupDocument>,
+    private interGroupService: InterGroupService
   ) {}
 
   async getGroups(): Promise<Group[]> {
@@ -82,7 +85,7 @@ export class GroupService {
     }
   }
 
-  async suggestedGroups(userCity: any, groupDistance: any) {
+  /*async suggestedGroups(userCity: any, groupDistance: any) {
     try {
       const groups = await this.groupModel.find({ meetingPlaceOne: groupDistance });
       if ((userCity = groups)) return groups;
@@ -90,7 +93,7 @@ export class GroupService {
       console.log(err);
       throw new Error(err.message);
     }
-  }
+  } */
 
   async genderFilter(gender: string) {
     const groups = await this.groupModel.aggregate([
@@ -109,36 +112,64 @@ export class GroupService {
     return groups;
   }
 
-  async ageFilter(age: number) {
-    const groups = await this.groupModel.aggregate([
-      { $match: { active: true } },
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'integrants',
-          foreignField: '_id',
-          as: 'integrants'
-        }
-      }
-    ]);
-    return groups;
+  async ageFilter(edad: number) {
+    const groups: any[] = await this.groupModel.find({ active: true }).populate('integrants');
 
+    groups.forEach((element) => {
+      const personasTotales = element.integrants.length;
+      let totalEdades = 0;
+      element.integrants.forEach((persona) => {
+        const edad = getYearOfPerson(persona.birthDate);
+        totalEdades += edad;
+      });
+      const promedio = totalEdades / personasTotales;
+      element.promedioDeEdades = promedio;
+    });
+
+    const getYearOfPerson = (birthDate) => {
+      const year = new Date().getFullYear();
+      const date = new Date(birthDate);
+      const AniosDePersona = date.getFullYear();
+      const result = year - AniosDePersona;
+      return result;
+    };
+
+    const checkPromedio = async (age) => {
+      const maxAge = edad + 3;
+      const minAge = edad - 3;
+      console.log('max', maxAge);
+      console.log('min', minAge);
+      const isInPromedio = age <= maxAge && age >= minAge;
+      return isInPromedio;
+    };
+
+    const gruposFiltrados = groups.filter((group) => checkPromedio(group.promedioDeEdades));
+    return gruposFiltrados;
   }
 
-  async distanceFilter(distance: any) {
+  /*async distanceFilter(distance: any) {
     const groups = await this.groupModel.find({ meetingPlaceOne: {} }).exec();
-  }
+  } */
 
   async searchGroupByActivity(activity: string): Promise<Group[]> {
-    const groups = await this.groupModel.find({ typeOfActivity: new RegExp(activity, 'i')}, {active: true, name: 1, description: 1, typeOfActivity: 1})
-    .populate('integrants').populate('meetingPlaceOne').populate('meetingPlaceTwo').exec();
+    const groups = await this.groupModel
+      .find({ typeOfActivity: new RegExp(activity, 'i') }, { active: true, name: 1, description: 1, typeOfActivity: 1 })
+      .populate('integrants')
+      .populate('meetingPlaceOne')
+      .populate('meetingPlaceTwo')
+      .exec();
     return groups;
-    if (!groups) return 
+    if (!groups) return;
     throw new HttpException('Not Found', 404);
   }
 
   async searchGroupByName(name: string): Promise<Group[]> {
-    const searchGroup = await this.groupModel.find({ name: new RegExp(name, 'i') }, { active: true, name: 1, description: 1, typeOfActivity: 1}).populate('integrants').populate('meetingPlaceOne').populate('meetingPlaceTwo').exec();
+    const searchGroup = await this.groupModel
+      .find({ name: new RegExp(name, 'i') }, { active: true, name: 1, description: 1, typeOfActivity: 1 })
+      .populate('integrants')
+      .populate('meetingPlaceOne')
+      .populate('meetingPlaceTwo')
+      .exec();
     if (!searchGroup) {
       throw new HttpException('Not Found', 404);
     }
@@ -173,16 +204,16 @@ export class GroupService {
     return groups;
   }
 
-  years(birthDate) {
-    birthDate.moment().format('YYYY Do MMM DD');
-    let born = moment(birthDate); //format YYYY-MM-DD
-    let today = moment();
-    let years = 0;
-    if (born < today) {
-      years = today.diff(born, 'years'); //Calculate diff in years
-    } else {
-      console.error('The date of birth cannot be higher than the current system date.');
-    }
-    return years;
+  async sendInvitation(data: SendInvitationDTO) {
+    try {
+    const { groupOne, groupTwo, admin } = data;
+    const group = await this.groupModel.find({active: true, admin});
+    if (!group) throw new Error ('Sorry, you dont have access to this action');
+    const createInterGroup = await this.interGroupModel.find({ active: true, groupOne: groupOne || groupTwo})
+    if (createInterGroup.length > 0 ) throw new Error('The group(s) are currently in another intergroup')
+      await this.interGroupService.createInterGroup(data)
+  } catch(err) {
+    throw new Error(err.message)
+  }
   }
 }

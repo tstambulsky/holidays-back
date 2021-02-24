@@ -1,5 +1,6 @@
 import { Meeting } from '../../meeting-place/schema/meetingPlace.schema';
 import { User } from '../../users/schema/users.schema';
+import { Group } from '../schema/group.schema';
 import * as mongoose from 'mongoose';
 
 export class GroupDTO {
@@ -15,6 +16,7 @@ export class GroupDTO {
   readonly photos?: string;
   readonly integrants: User;
   readonly active: boolean;
+  readonly admin: User;
 }
 
 export class UpdateGroupDTO {
@@ -32,17 +34,22 @@ export class UpdateGroupDTO {
   readonly active?: boolean;
 }
 
-export class ActivityDTO {
-  readonly tipeOfActivity: string;
-}
-
-export interface ActivityInterface extends Document {
-  readonly tipeOfActivity: string;
-}
-
-export class queryDTO {
+export class QueryDTO {
   readonly gender: string;
   readonly age: number;
   readonly name: string;
   readonly activity: string;
+}
+
+export class SendInvitationDTO {
+  readonly groupOne: Group;
+  readonly groupTwo: Group;
+  readonly admin: User;
+  readonly startDate: Date;
+  readonly endDate: Date;
+  readonly typeOfActivity: string;
+  readonly meetingPlaceOne?: Meeting;
+  readonly meetingPlaceTwo?: Meeting;
+  readonly photos?: string
+  readonly active?: boolean;
 }
