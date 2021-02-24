@@ -1,12 +1,12 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty } from 'class-validator'
 
 export class AccessTokenDto {
-  @IsNotEmpty()
-  client_secret: string;
+   @IsNotEmpty()
+   client_secret: string
 
-  @IsNotEmpty()
-  grant_type: string;
+   @IsNotEmpty()
+   grant_type: string
 
-  @IsNotEmpty()
-  access_token: string;
+   @IsNotEmpty()
+   access_token: string
 }

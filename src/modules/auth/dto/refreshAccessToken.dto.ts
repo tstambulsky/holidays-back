@@ -1,9 +1,9 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty } from 'class-validator'
 
 export class RefreshAccessTokenDto {
-  @IsNotEmpty()
-  grant_type: string;
+   @IsNotEmpty()
+   grant_type: string
 
-  @IsNotEmpty()
-  access_token: string;
+   @IsNotEmpty()
+   access_token: string
 }
