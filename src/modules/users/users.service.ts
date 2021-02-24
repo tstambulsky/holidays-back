@@ -122,4 +122,16 @@ export class UsersService {
       const group = 
     }
   }*/
+
+  async changeUserCalifications(userId: any, sum:boolean):Promise<User> {
+    try {
+      const user = await this.userModel.findOne(userId);
+      if(!user) throw new Error('This user does not exist')
+      user.points = sum ? user.points + 1 : user.points - 1;
+      await user.save()
+      return user;
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
 }

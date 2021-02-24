@@ -36,7 +36,7 @@ export class User {
   @Prop()
   birthDate: Date;
   
-  @Prop()
+  @Prop({enum: ['Male', 'Female', 'Other']})
   sex: string;
   
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'City', autopopulate: true })
@@ -65,5 +65,8 @@ export class User {
   
   @Prop()
   comment: string;
+
+  @Prop({type:Number, default:0})
+  points: number;
 }
 export const UserSchema = SchemaFactory.createForClass(User);

@@ -20,6 +20,8 @@ import { FacebookModule } from './modules/login/facebook/facebook.module';
 import { InstagramModule } from './modules/login/instagram/instagram.module';
 import { InterGroupModule } from './modules/inter-group/interGroup.module';
 import { ContactsModule } from './modules/contacts/contacts.module';
+import { CalificationModule } from './modules/calification/calification.module';
+import { CalificationService } from './modules/calification/calification.service';
 
 @Module({
   imports: [
@@ -44,9 +46,10 @@ import { ContactsModule } from './modules/contacts/contacts.module';
     FacebookModule,
     InstagramModule,
     InterGroupModule,
-    ContactsModule
+    ContactsModule,
+    CalificationModule
   ],
   controllers: [AppController],
-  providers: [AppService]
+  providers: [AppService, CalificationService]
 })
 export class AppModule {}
