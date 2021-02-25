@@ -1,7 +1,7 @@
 import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post } from '@nestjs/common';
 import { InterGroupService } from './interGroup.service';
 import { InterGroup } from './schema/interGroup.schema';
-import { InterGroupDTO, UpdateInterGroupDTO } from './dto/interGroup.dto';
+import { InterGroupDTO, UpdateInterGroupDTO, RequestGroupToGroupDTO, AceptOrRefuseDTO } from './dto/interGroup.dto';
 
 @Controller('interGroup')
 export class InterGroupController {
@@ -37,20 +37,6 @@ export class InterGroupController {
     }
   }
 
-  @Post()
-  async createInterGroup(@Res() res, @Body() createInterGroupDTO: InterGroupDTO): Promise<string> {
-    try {
-      await this.interGroupService.createInterGroup(createInterGroupDTO);
-      return res.status(HttpStatus.OK).json({
-        message: 'Inter Group has been created'
-      });
-    } catch (err) {
-      res.status(HttpStatus.BAD_REQUEST).json({
-        message: 'An error has occurred',
-        err: err.message
-      });
-    }
-  }
 
   @Put('/update/:interGroupID')
   async updateInterGroup(
@@ -82,6 +68,63 @@ export class InterGroupController {
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         message: 'An error has ocurred',
+        err: err.message
+      });
+    }
+  }
+
+  @Post('/invitation/create')
+  async sendInvitation(@Res() res, @Body() data:RequestGroupToGroupDTO) {
+    try {
+      const interGroup = await this.interGroupService.sendInvitationToOtherGroup(data);
+      return res.status(HttpStatus.OK).json({
+        message: 'Invitation has been send!',
+        interGroup
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        err: err.message
+      });
+    }
+  }
+
+  @Get('/invitation/:interGroupID')
+  async getInvitations(@Res() res, @Param('interGroupID') interGroupID) {
+    try {
+      const response = await this.interGroupService.getInvitationGroupToGroup(interGroupID);
+      return res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        err: err.message
+      })
+    }
+  }
+
+  @Post('/invitation/success')
+  async acceptInvitation(@Res() res, @Body() data: AceptOrRefuseDTO) {
+    try {
+      const response = await this.interGroupService.acceptInvitationGroupToGroup(data);
+      return res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        err: err.message
+      });
+    }
+  }
+
+  @Post('/invitation/refuse')
+  async refuseInvitation(@Res() res, @Body() data: AceptOrRefuseDTO) {
+    try {
+      const response = await this.interGroupService.refuseInvitationGroupToGroup(data);
+      return res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
         err: err.message
       });
     }

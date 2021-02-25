@@ -15,6 +15,8 @@ export class Meeting {
   description: string;
   @Prop()
   photo: [string];
+  @Prop({ default: true })
+  active: boolean;
 }
 
 export const MeetingPlaceSchema = SchemaFactory.createForClass(Meeting);

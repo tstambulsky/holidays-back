@@ -82,4 +82,19 @@ export class MeetingPlaceController {
       });
     }
   }
+
+  @Put('/remove/:meetingID')
+  async inactiveGroup(@Res() res, @Param('meetingID') meetingID): Promise<string> {
+    try {
+      await this.meetingPlaceService.toInactiveMeeting(meetingID);
+      return res.status(HttpStatus.OK).json({
+        message: 'Meeting removed'
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: err.message,
+        err: err.message
+      });
+    }
+  }
 }

@@ -56,4 +56,19 @@ export class MeetingPlaceService {
       throw new Error(err.message);
     }
   }
+
+  async toInactiveMeeting(meetingID: any): Promise<string> {
+    try {
+      const meeting = await this.meetingModel.findById(meetingID);
+      if (!meeting) {
+        throw new HttpException('Not Found', 404);
+      }
+      meeting.active = false;
+      await meeting.save();
+      return 'Meeting change to inactive';
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
 }
