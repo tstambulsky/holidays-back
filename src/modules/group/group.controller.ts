@@ -1,7 +1,7 @@
 import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { Group } from './schema/group.schema';
-import { GroupDTO, UpdateGroupDTO, QueryDTO, SendInvitationDTO, RequestToGroupDTO, AceptOrRefuseDTO } from './dto/group.dto';
+import { GroupDTO, UpdateGroupDTO, QueryDTO, RequestToGroupDTO, AceptOrRefuseDTO } from './dto/group.dto';
 
 @Controller('group')
 export class GroupController {
@@ -191,28 +191,13 @@ export class GroupController {
     }
   }
 
-  @Post('/createInterGroup')
-  async createInterGroup(@Res() res, @Body() data: SendInvitationDTO) {
-    try {
-      const interGroup = await this.groupService.sendInvitation(data);
-      return res.status(HttpStatus.OK).json({
-        message: 'InterGroup has been created!',
-        interGroup
-      });
-    } catch (err) {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        err: err.message
-      });
-    }
-  }
-
   @Post('/invitation/create')
   async sendInvitation(@Res() res, @Body() data: RequestToGroupDTO) {
     try {
-      const interGroup = await this.groupService.sendInvitationToGroup(data);
+      const group = await this.groupService.sendInvitationToGroup(data);
       return res.status(HttpStatus.OK).json({
         message: 'Invitation has been send!',
-        interGroup
+        group
       });
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({

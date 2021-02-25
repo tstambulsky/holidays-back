@@ -1,21 +1,17 @@
-import { Injectable, HttpException } from '@nestjs/common';
+import { Injectable, HttpException, forwardRef, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { Group, GroupDocument } from './schema/group.schema';
-import { InterGroup, InterGroupDocument } from '../inter-group/schema/interGroup.schema';
-import { InterGroupService } from '../inter-group/interGroup.service';
-import { GroupDTO, UpdateGroupDTO, SendInvitationDTO, RequestToGroupDTO, AceptOrRefuseDTO } from './dto/group.dto';
 import { UsersService } from '../users/users.service';
+import { GroupDTO, UpdateGroupDTO, RequestToGroupDTO, AceptOrRefuseDTO } from './dto/group.dto';
 import { Invitation, InvitationDocument } from './schema/invitation.schema';
 
 @Injectable()
 export class GroupService {
   constructor(
     @InjectModel(Group.name) private readonly groupModel: Model<GroupDocument>,
-    @InjectModel(InterGroup.name) private readonly interGroupModel: Model<InterGroupDocument>,
-    private interGroupService: InterGroupService,
-    private userService: UsersService,
-    @InjectModel(Invitation.name) private readonly invitationModel: Model<InvitationDocument>
+    @InjectModel(Invitation.name) private readonly invitationModel: Model<InvitationDocument>,
+     @Inject(forwardRef(() => UsersService)) private userService: UsersService
   ) {}
 
   async getGroups(): Promise<Group[]> {
@@ -206,18 +202,6 @@ export class GroupService {
     return groups;
   }
 
-  async sendInvitation(data: SendInvitationDTO) {
-    try {
-      const { groupOne, groupTwo, admin } = data;
-      const group = await this.groupModel.find({ active: true, admin });
-      if (!group) throw new Error('Sorry, you dont have access to this action');
-      const createInterGroup = await this.interGroupModel.find({ active: true, groupOne: groupOne || groupTwo });
-      if (createInterGroup.length > 0) throw new Error('The group(s) are currently in another intergroup');
-      await this.interGroupService.createInterGroup(data);
-    } catch (err) {
-      throw new Error(err.message);
-    }
-  }
 
   async sendInvitationToGroup(data: RequestToGroupDTO) {
     try {
@@ -283,4 +267,5 @@ export class GroupService {
       throw new Error(error.message);
     }
   }
+
 }
