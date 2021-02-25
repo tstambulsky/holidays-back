@@ -41,15 +41,3 @@ export class QueryDTO {
   readonly activity: string;
 }
 
-export class SendInvitationDTO {
-  readonly groupOne: Group;
-  readonly groupTwo: Group;
-  readonly admin: User;
-  readonly startDate: Date;
-  readonly endDate: Date;
-  readonly typeOfActivity: string;
-  readonly meetingPlaceOne?: Meeting;
-  readonly meetingPlaceTwo?: Meeting;
-  readonly photos?: string
-  readonly active?: boolean;
-}

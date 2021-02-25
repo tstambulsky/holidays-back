@@ -62,4 +62,17 @@ export class InterGroupService {
       throw new Error(err.message);
     }
   }
+
+    async sendInvitation(data: SendInvitationDTO) {
+    try {
+    const { groupOne, groupTwo, admin } = data;
+    const group = await this.groupModel.find({active: true, admin});
+    if (!group) throw new Error ('Sorry, you dont have access to this action');
+    const createInterGroup = await this.interGroupModel.find({ active: true, groupOne: groupOne || groupTwo})
+    if (createInterGroup.length > 0 ) throw new Error('The group(s) are currently in another intergroup')
+      await this.interGroupService.createInterGroup(data)
+  } catch(err) {
+    throw new Error(err.message)
+  }
+  }
 }
