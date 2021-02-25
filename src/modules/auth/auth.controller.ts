@@ -30,7 +30,7 @@ import { AuthGuard } from '@nestjs/passport';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('/api/login')
+  @Post('/login')
   async login(@Res() res, @Body() data: LoginDTO): Promise<LoginResDTO> {
     try {
       const userLogedd = await this.authService.login(data);
@@ -77,7 +77,7 @@ export class AuthController {
     };
   }
 
-  @Post('/api/register')
+  @Post('/register')
   async registerUser(@Res() res, @Body() registerDTO: RegisterDTO) {
     try {
       const createUser = await this.authService.registerUser(registerDTO);
@@ -94,7 +94,7 @@ export class AuthController {
     }
   }
 
-  @Post('/api/send-recover')
+  @Post('/send-recover')
   async sendRecoverPassword(@Res() res, @Body() forgotPasswordDTO: ForgotPasswordDTO) {
     const { email } = forgotPasswordDTO;
     try {
@@ -105,7 +105,7 @@ export class AuthController {
     }
   }
 
-  @Post('/api/confirm-recover')
+  @Post('/confirm-recover')
   async confirmRecoverPassword(@Res() res, @Body() token: TokenCodeDTO) {
     const { code } = token;
     try {
@@ -117,7 +117,7 @@ export class AuthController {
     }
   }
 
-  @Post('/api/change-password')
+  @Post('/change-password')
   async changePassword(@Res() res, @Body() changePasswordDTO: ChangePasswordDTO) {
     const { email, password } = changePasswordDTO;
     try {

@@ -2,6 +2,7 @@ import { Meeting } from '../../meeting-place/schema/meetingPlace.schema';
 import { User } from '../../users/schema/users.schema';
 import { Group } from '../schema/group.schema';
 import * as mongoose from 'mongoose';
+import { Invitation } from '../schema/invitation.schema';
 
 export class GroupDTO {
   readonly name: string;
@@ -50,6 +51,16 @@ export class SendInvitationDTO {
   readonly typeOfActivity: string;
   readonly meetingPlaceOne?: Meeting;
   readonly meetingPlaceTwo?: Meeting;
-  readonly photos?: string
+  readonly photos?: string;
   readonly active?: boolean;
+}
+
+export class RequestToGroupDTO {
+  readonly group: Group;
+  readonly user: User;
+}
+
+export class AceptOrRefuseDTO {
+  readonly invitationId: Invitation;
+  readonly userId: User;
 }

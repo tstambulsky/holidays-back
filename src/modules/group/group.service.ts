@@ -2,18 +2,20 @@ import { Injectable, HttpException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Group, GroupDocument } from './schema/group.schema';
-import { User, UserDocument } from '../users/schema/users.schema';
 import { InterGroup, InterGroupDocument } from '../inter-group/schema/interGroup.schema';
 import { InterGroupService } from '../inter-group/interGroup.service';
-import { GroupDTO, UpdateGroupDTO, SendInvitationDTO  } from './dto/group.dto';
+import { GroupDTO, UpdateGroupDTO, SendInvitationDTO, RequestToGroupDTO, AceptOrRefuseDTO } from './dto/group.dto';
+import { UsersService } from '../users/users.service';
+import { Invitation, InvitationDocument } from './schema/invitation.schema';
 
 @Injectable()
 export class GroupService {
   constructor(
     @InjectModel(Group.name) private readonly groupModel: Model<GroupDocument>,
-    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     @InjectModel(InterGroup.name) private readonly interGroupModel: Model<InterGroupDocument>,
-    private interGroupService: InterGroupService
+    private interGroupService: InterGroupService,
+    private userService: UsersService,
+    @InjectModel(Invitation.name) private readonly invitationModel: Model<InvitationDocument>
   ) {}
 
   async getGroups(): Promise<Group[]> {
@@ -42,7 +44,7 @@ export class GroupService {
 
   async createGroup(groupDTO: GroupDTO): Promise<string> {
     try {
-      const group = await new this.groupModel(groupDTO);
+      const group = new this.groupModel(groupDTO);
       await group.save();
       return 'Group created';
     } catch (err) {
@@ -206,14 +208,79 @@ export class GroupService {
 
   async sendInvitation(data: SendInvitationDTO) {
     try {
-    const { groupOne, groupTwo, admin } = data;
-    const group = await this.groupModel.find({active: true, admin});
-    if (!group) throw new Error ('Sorry, you dont have access to this action');
-    const createInterGroup = await this.interGroupModel.find({ active: true, groupOne: groupOne || groupTwo})
-    if (createInterGroup.length > 0 ) throw new Error('The group(s) are currently in another intergroup')
-      await this.interGroupService.createInterGroup(data)
-  } catch(err) {
-    throw new Error(err.message)
+      const { groupOne, groupTwo, admin } = data;
+      const group = await this.groupModel.find({ active: true, admin });
+      if (!group) throw new Error('Sorry, you dont have access to this action');
+      const createInterGroup = await this.interGroupModel.find({ active: true, groupOne: groupOne || groupTwo });
+      if (createInterGroup.length > 0) throw new Error('The group(s) are currently in another intergroup');
+      await this.interGroupService.createInterGroup(data);
+    } catch (err) {
+      throw new Error(err.message);
+    }
   }
+
+  async sendInvitationToGroup(data: RequestToGroupDTO) {
+    try {
+      const { user, group } = data;
+      const groupExist = await this.groupModel.findOne({ _id: group }).populate('integrants');
+      const userExist = await this.userService.getUserById(user);
+      if (!groupExist || !userExist) throw new Error('This group or user does not exist');
+      const isIngroup = await this.groupModel.findOne({ _id: group, 'integrants._id': user });
+      if (isIngroup) throw new Error('This User is already in the group');
+      const newInvitation = new this.invitationModel(data);
+      await newInvitation.save();
+      return newInvitation;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async getInvitationToGroup(groupId: any) {
+    try {
+      const invitations = await this.invitationModel.find({ group: groupId, success: false, active: true }).populate('user');
+      if (invitations.length < 0) throw new Error('This group does not has requests');
+      return invitations;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async acceptInvitationToGroup(data: AceptOrRefuseDTO) {
+    try {
+      const { invitationId, userId } = data;
+      const invitation = await this.invitationModel.findOne({ _id: invitationId });
+      if (!invitation) throw new Error('This invitation does not exist');
+      if (invitation.success) throw new Error('This invitation is already success');
+      if (!invitation.active) throw new Error('This invitation was canceled');
+      const group = await this.groupModel.findOne({ _id: invitation.group }).populate('integrants');
+      const user = await this.userService.getUserById(invitation.user);
+      console.log('admin of this group', group.admin);
+      console.log('user id', userId);
+      if (group.admin != userId) throw new Error('This user is not the admin of this group');
+      invitation.success = true;
+      await invitation.save();
+      //@ts-ignore
+      group.integrants.push(user);
+      await group.save();
+      return group;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async refuseInvitationToGroup(data: AceptOrRefuseDTO) {
+    try {
+      const { invitationId, userId } = data;
+      const invitation = await this.invitationModel.findOne({ _id: invitationId });
+      if (!invitation) throw new Error('This invitation does not exist');
+      if (!invitation.active) throw new Error('This invitation was canceled');
+      const group = await this.groupModel.findOne({ _id: invitation.group }).populate('integrants');
+      if (group.admin != userId) throw new Error('This user is not the admin of this group');
+      invitation.active = false;
+      await invitation.save();
+      return group;
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 }
