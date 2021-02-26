@@ -94,6 +94,7 @@ export class GroupService {
   } */
 
   async genderFilter(gender: string) {
+    try {
     const groups = await this.groupModel.aggregate([
       { $match: { active: true } },
       {
@@ -107,7 +108,11 @@ export class GroupService {
       { $match: { 'integrants.sex': { $eq: `${gender}` } } }
     ]);
     console.log(groups);
+    if (groups.length < 0) throw new Error ('No have groups')
     return groups;
+  } catch (err) {
+    throw new Error(err.message)
+  };
   }
 
   async ageFilter(edad: number) {
@@ -150,30 +155,34 @@ export class GroupService {
   } */
 
   async searchGroupByActivity(activity: string): Promise<Group[]> {
+    try {
     const groups = await this.groupModel
       .find({ typeOfActivity: new RegExp(activity, 'i') }, { active: true, name: 1, description: 1, typeOfActivity: 1 })
       .populate('integrants')
       .populate('meetingPlaceOne')
       .populate('meetingPlaceTwo')
       .exec();
+    if (!groups) throw new HttpException('Not Found', 404);
     return groups;
-    if (!groups) return;
-    throw new HttpException('Not Found', 404);
-  }
+   } catch (err) {
+     throw new Error (err.message);
+   }
+}
 
   async searchGroupByName(name: string): Promise<Group[]> {
+    try {
     const searchGroup = await this.groupModel
       .find({ name: new RegExp(name, 'i') }, { active: true, name: 1, description: 1, typeOfActivity: 1 })
       .populate('integrants')
       .populate('meetingPlaceOne')
       .populate('meetingPlaceTwo')
       .exec();
-    if (!searchGroup) {
-      throw new HttpException('Not Found', 404);
-    }
+    if (!searchGroup) throw new HttpException('Not Found', 404);
     return searchGroup;
-  }
-
+   } catch (err) {
+     throw new Error(err.message)
+   }
+}
   async repeatGroup(groupID: any) {
     try {
       const searchGroup = await this.groupModel.findById({ _id: groupID, active: false });
@@ -183,23 +192,19 @@ export class GroupService {
       searchGroup.active = true;
       searchGroup.save();
       return searchGroup;
-    } catch (err) {}
+    } catch (err) {
+      throw new Error(err.message);
+    }
   }
 
   async previousGroups(userID: any): Promise<Group[]> {
-    const groups = await this.groupModel.aggregate([
-      { $match: { active: false } },
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'integrants',
-          foreignField: '_id',
-          as: 'integrants'
-        }
-      },
-      { $match: { 'integrants._id': { $eq: `${userID}` } } }
-    ]);
+     try {
+      const groups = await this.groupModel.find({ active: false, integrants: userID });
+    if(groups.length < 0) throw new Error('The user has no previous groups.')
     return groups;
+  } catch (err) {
+    throw new Error(err.message)
+  }
   }
 
 
@@ -266,6 +271,16 @@ export class GroupService {
     } catch (error) {
       throw new Error(error.message);
     }
+  }
+
+  async getUserGroups(userID: any) {
+     try {
+      const groups = await this.groupModel.find({ active: true, integrants: userID });
+    if(groups.length < 0) throw new Error('The user does not belong to any group')
+    return groups;
+  } catch (err) {
+    throw new Error(err.message)
+  }
   }
 
 }
