@@ -247,4 +247,19 @@ export class GroupController {
       });
     }
   }
+  
+  @Get('/groupsuser/:userID')
+  async getGroupsByUser(@Res() res, @Param('userID') userID: any) {
+    try {
+      const groups = await this.groupService.getUserGroups(userID);
+      return res.status(HttpStatus.OK).json({
+        message: 'List of groups',
+        groups
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        err: err.message
+      });
+    }
+  }
 }
