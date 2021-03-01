@@ -12,6 +12,9 @@ export class Proposal {
   @Prop({ default: Date.now })
   proposalDate: Date;
 
+  @Prop({})
+  proposalHour: string;
+
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Meeting' })
   proposalPlace: Meeting;
 

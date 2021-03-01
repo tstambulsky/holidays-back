@@ -53,6 +53,7 @@ export class newProposalDto {
   readonly interGroupId: InterGroup;
   readonly userId: User;
   readonly proposalDate: Date;
+  readonly proposalHour: Date;
   readonly proposalPlace: Meeting;
   readonly groupSender: Group;
   readonly groupReceiver: Group;
