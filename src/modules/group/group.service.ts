@@ -264,4 +264,14 @@ export class GroupService {
       throw new Error(error.message);
     }
   }
+  
+   async getUserGroups(userID: any) {
+    try {
+      const groups = await this.groupModel.find({ active: true, integrants: userID });
+      if (groups.length < 0) throw new Error('The user does not belong to any group')
+      return groups;
+    } catch (err) {
+      throw new Error(err.message)
+    }
+  }
 }
