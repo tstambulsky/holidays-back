@@ -27,11 +27,11 @@ export class MeetingPlaceService {
     }
   }
 
-  async createMeeting(meetingDTO: MeetingDTO): Promise<string> {
+  async createMeeting(meetingDTO: MeetingDTO): Promise<Meeting> {
     try {
-      const meeting = await new this.meetingModel(meetingDTO);
-      await meeting.save();
-      return 'Meeting place created';
+      const meeting = new this.meetingModel(meetingDTO);
+      const place = await meeting.save();
+      return place;
     } catch (err) {
       throw new Error(err.message);
     }
@@ -70,5 +70,4 @@ export class MeetingPlaceService {
       throw new Error(err.message);
     }
   }
-
 }

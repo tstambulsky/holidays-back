@@ -11,7 +11,7 @@ export class GroupService {
   constructor(
     @InjectModel(Group.name) private readonly groupModel: Model<GroupDocument>,
     @InjectModel(Invitation.name) private readonly invitationModel: Model<InvitationDocument>,
-     @Inject(forwardRef(() => UsersService)) private userService: UsersService
+    @Inject(forwardRef(() => UsersService)) private userService: UsersService
   ) {}
 
   async getGroups(): Promise<Group[]> {
@@ -202,7 +202,6 @@ export class GroupService {
     return groups;
   }
 
-
   async sendInvitationToGroup(data: RequestToGroupDTO) {
     try {
       const { user, group } = data;
@@ -238,8 +237,6 @@ export class GroupService {
       if (!invitation.active) throw new Error('This invitation was canceled');
       const group = await this.groupModel.findOne({ _id: invitation.group }).populate('integrants');
       const user = await this.userService.getUserById(invitation.user);
-      console.log('admin of this group', group.admin);
-      console.log('user id', userId);
       if (group.admin != userId) throw new Error('This user is not the admin of this group');
       invitation.success = true;
       await invitation.save();
@@ -267,5 +264,4 @@ export class GroupService {
       throw new Error(error.message);
     }
   }
-
 }

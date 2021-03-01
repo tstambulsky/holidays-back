@@ -1,8 +1,9 @@
-import * as mongoose from 'mongoose';
 import { Group } from '../../group/schema/group.schema';
 import { Meeting } from '../../meeting-place/schema/meetingPlace.schema';
 import { User } from '../../users/schema/users.schema';
-import { InvitationInterGroup } from '../schema/invitation.schema';
+import { InterGroup } from '../schema/interGroup.schema';
+import { InvitationInterGroup } from '../schema/invitationInterGroup.schema';
+import { Proposal } from '../schema/proposal.schema';
 
 export class InterGroupDTO {
   readonly groupOne: Group;
@@ -29,9 +30,9 @@ export class UpdateInterGroupDTO {
 }
 
 export class RequestGroupToGroupDTO {
- readonly adminSender: User;
- readonly groupSender: Group;
- readonly groupReceiver: Group;
+  readonly adminSender: User;
+  readonly groupSender: Group;
+  readonly groupReceiver: Group;
 }
 
 export class AceptOrRefuseDTO {
@@ -48,5 +49,17 @@ export class AceptOrRefuseDTO {
   readonly active?: boolean;
 }
 
+export class newProposalDto {
+  readonly interGroupId: InterGroup;
+  readonly userId: User;
+  readonly proposalDate: Date;
+  readonly proposalPlace: Meeting;
+  readonly groupSender: Group;
+  readonly groupReceiver: Group;
+}
 
-
+export class acceptOrRefuseProposalDto {
+  readonly proposalId: Proposal;
+  readonly accept: boolean;
+  readonly userId: User;
+}

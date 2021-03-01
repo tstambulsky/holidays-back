@@ -1,9 +1,16 @@
 import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post } from '@nestjs/common';
 import { InterGroupService } from './interGroup.service';
 import { InterGroup } from './schema/interGroup.schema';
-import { InterGroupDTO, UpdateInterGroupDTO, RequestGroupToGroupDTO, AceptOrRefuseDTO } from './dto/interGroup.dto';
+import {
+  InterGroupDTO,
+  UpdateInterGroupDTO,
+  RequestGroupToGroupDTO,
+  AceptOrRefuseDTO,
+  newProposalDto,
+  acceptOrRefuseProposalDto
+} from './dto/interGroup.dto';
 
-@Controller('interGroup')
+@Controller('intergroup')
 export class InterGroupController {
   constructor(private readonly interGroupService: InterGroupService) {}
 
@@ -36,7 +43,6 @@ export class InterGroupController {
       });
     }
   }
-
 
   @Put('/update/:interGroupID')
   async updateInterGroup(
@@ -74,7 +80,7 @@ export class InterGroupController {
   }
 
   @Post('/invitation/create')
-  async sendInvitation(@Res() res, @Body() data:RequestGroupToGroupDTO) {
+  async sendInvitation(@Res() res, @Body() data: RequestGroupToGroupDTO) {
     try {
       const interGroup = await this.interGroupService.sendInvitationToOtherGroup(data);
       return res.status(HttpStatus.OK).json({
@@ -98,7 +104,7 @@ export class InterGroupController {
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         err: err.message
-      })
+      });
     }
   }
 
@@ -120,6 +126,62 @@ export class InterGroupController {
   async refuseInvitation(@Res() res, @Body() data: AceptOrRefuseDTO) {
     try {
       const response = await this.interGroupService.refuseInvitationGroupToGroup(data);
+      return res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        err: err.message
+      });
+    }
+  }
+
+  @Post('/invitation/proposal')
+  async createProposalPlace(@Res() res, @Body() data: newProposalDto) {
+    try {
+      const response = await this.interGroupService.proposalDateAndPlace(data);
+      return res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        err: err.message
+      });
+    }
+  }
+
+  @Get('/invitation/proposal/:intergroup')
+  async getProposalsByIntergroup(@Res() res, @Param('intergroup') intergroupId) {
+    try {
+      const response = await this.interGroupService.getProposalsInterGroup(intergroupId);
+      return res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        err: err.message
+      });
+    }
+  }
+
+  @Post('/invitation/proposal/state')
+  async acceptOrRefuseProposal(@Res() res, @Body() data: acceptOrRefuseProposalDto) {
+    try {
+      const response = await this.interGroupService.acceptOrRefuseProposal(data);
+      return res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        err: err.message
+      });
+    }
+  }
+
+  @Get('/user/:user')
+  async getMyIntergroups(@Res() res, @Param('user') userId) {
+    try {
+      const response = await this.interGroupService.getMyIntergroups(userId);
       return res.status(HttpStatus.OK).json({
         response
       });

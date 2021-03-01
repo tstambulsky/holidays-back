@@ -30,7 +30,7 @@ export class Group {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Meeting' })
   meetingPlaceTwo?: Meeting;
- 
+
   @Prop({})
   address: [
     {

@@ -38,11 +38,12 @@ export class MeetingPlaceController {
   }
 
   @Post('/meetingPlace')
-  async createMeeting(@Res() res, @Body() createMeetingDTO: MeetingDTO): Promise<string> {
+  async createMeeting(@Res() res, @Body() createMeetingDTO: MeetingDTO): Promise<Meeting> {
     try {
-      await this.meetingPlaceService.createMeeting(createMeetingDTO);
+      const response = await this.meetingPlaceService.createMeeting(createMeetingDTO);
       return res.status(HttpStatus.OK).json({
-        message: 'Meeting place has been created'
+        message: 'Meeting place has been created',
+        data: response
       });
     } catch (err) {
       res.status(HttpStatus.BAD_REQUEST).json({
