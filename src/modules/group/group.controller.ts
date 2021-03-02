@@ -250,7 +250,8 @@ export class GroupController {
       });
     }
   }
-
+  
+  
   @Get('/request/user')
   async getMyRequestsToJoinGroup(@Res() res, @CurrentUser() user) {
     try {
