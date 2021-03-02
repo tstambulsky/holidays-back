@@ -1,11 +1,13 @@
-import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post } from '@nestjs/common';
+import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post, UseGuards } from '@nestjs/common';
 import { ZoneService } from './zone.service';
 import { CreateCityDTO, UpdateCityDTO, CreateStateDTO, UpdateStateDTO, CreateCountryDTO, UpdateCountryDTO } from './dto/zone.dto';
 import { IZone } from './interfaces/zone.interface';
 import { City } from './schema/city.schema';
 import { State } from './schema/state.schema';
 import { Country } from './schema/country.schema';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('zone')
 export class ZoneController {
   constructor(private zoneService: ZoneService) {}

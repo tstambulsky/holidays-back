@@ -70,6 +70,21 @@ export class InterGroupService {
     }
   }
 
+  async toInactiveInterGroup(interGroupID: any): Promise<string> {
+    try {
+      const interGroup = await this.interGroupModel.findById(interGroupID);
+      if (!interGroup) {
+        throw new HttpException('Not Found', 404);
+      }
+      interGroup.active = false;
+      await interGroup.save();
+      return 'InterGroup change to inactive';
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+
   async deleteInterGroup(interGroupID: any): Promise<string> {
     try {
       await this.interGroupModel.deleteOne({ _id: interGroupID });
@@ -79,10 +94,11 @@ export class InterGroupService {
     }
   }
 
-  async sendInvitationToOtherGroup(data: RequestGroupToGroupDTO) {
+  async sendInvitationToOtherGroup(data: RequestGroupToGroupDTO, currentUser: any) {
     try {
-      const { adminSender, groupSender, groupReceiver } = data;
-      const groupExistAndAdmin = await this.groupService.getGroup({ active: true, _id: groupSender, admin: adminSender });
+      const { groupSender, groupReceiver } = data;
+      const userID = currentUser._id;
+      const groupExistAndAdmin = await this.groupService.getGroup({ active: true, _id: groupSender, admin: userID });
       if (!groupExistAndAdmin) throw new Error('This group does not exist or the user is not the admin');
       const alreadyInIntergroup = await this.interGroupModel.find({ active: true, groupOne: groupSender || groupReceiver });
       if (alreadyInIntergroup.length > 0) throw new Error('The group(s) are already in an intergroup');
@@ -107,15 +123,16 @@ export class InterGroupService {
     }
   }
 
-  async acceptInvitationGroupToGroup(data: AceptOrRefuseDTO) {
+  async acceptInvitationGroupToGroup(data: AceptOrRefuseDTO, currentUser: any) {
     try {
-      const { invitationId, userId } = data;
+      const { invitationId } = data;
+      const userID = currentUser._id;
       const invitation = await this.invitationModel.findOne({ _id: invitationId });
       if (!invitation) throw new Error('This invitation does not exist');
       if (invitation.success) throw new Error('This invitation is already success');
       if (!invitation.active) throw new Error('This invitation was canceled');
       const groupReceivInvitation = await this.groupService.getGroup({ _id: invitation.groupReceiver });
-      if (groupReceivInvitation.admin != userId) throw new Error('This user is not the admin of this group');
+      if (groupReceivInvitation.admin != userID) throw new Error('You are not the admin of the group.');
       invitation.success = true;
       await invitation.save();
       const createInterGroup = await this.createInterGroup(data);
@@ -125,14 +142,15 @@ export class InterGroupService {
     }
   }
 
-  async refuseInvitationGroupToGroup(data: AceptOrRefuseDTO) {
+  async refuseInvitationGroupToGroup(data: AceptOrRefuseDTO, currentUser: any) {
     try {
-      const { invitationId, userId } = data;
+      const { invitationId } = data;
+      const userID = currentUser._id;
       const invitation = await this.invitationModel.findOne({ _id: invitationId });
       if (!invitation) throw new Error('This invitation does not exist');
       if (!invitation.active) throw new Error('This invitation was canceled');
       const group = await this.groupService.getGroup({ _id: invitation.groupReceiver });
-      if (group.admin != userId) throw new Error('This user is not the admin of this group');
+      if (group.admin != userID) throw new Error('You are not the admin of the group.');
       invitation.active = false;
       await invitation.save();
       return group;
@@ -141,14 +159,15 @@ export class InterGroupService {
     }
   }
 
-  async proposalDateAndPlace(data: newProposalDto) {
+  async proposalDateAndPlace(data: newProposalDto, currentUser: any) {
     try {
-      const { interGroupId, userId, groupSender } = data;
-      const interGroup = await this.interGroupModel.findOne({ _id: interGroupId });
-      if (!interGroup) throw new Error('This Inter group does not exist');
-      if (interGroup.confirmed) throw new Error('This Inter group is already confirmed');
+      const { interGroup, groupSender } = data;
+      const userID = currentUser._id;
+      const obtainInterGroup = await this.interGroupModel.findOne({ _id: interGroup });
+      if (!obtainInterGroup) throw new Error('This Inter group does not exist');
+      if (obtainInterGroup.confirmed) throw new Error('This Inter group is already confirmed');
       const groupSend = await this.groupService.getGroup(groupSender);
-      if (groupSend.admin != userId) throw new Error('This user is not the admin of the group');
+      if (groupSend.admin != userID) throw new Error('You are not the admin of the group.');
       const proposal = new this.proposalModel(data);
       await proposal.save();
       return 'Proposal Sended';
@@ -171,13 +190,14 @@ export class InterGroupService {
     }
   }
 
-  async acceptOrRefuseProposal(data: acceptOrRefuseProposalDto) {
+  async acceptOrRefuseProposal(data: acceptOrRefuseProposalDto, currentUser: any) {
     try {
-      const { proposalId, accept, userId } = data;
+      const { proposalId, accept } = data;
+      const userID = currentUser._id;
       const proposal = await this.proposalModel.findOne({ _id: proposalId });
       if (!proposal) throw new Error('This proposal does not exist');
       const groupReceiver = await this.groupService.getGroup(proposal.groupReceiver);
-      if (groupReceiver.admin != userId) throw new Error('This user is not the admin of the group');
+      if (groupReceiver.admin != userID) throw new Error('You are not the admin of the group.');
       proposal.active = false;
       proposal.success = accept;
       await proposal.save();

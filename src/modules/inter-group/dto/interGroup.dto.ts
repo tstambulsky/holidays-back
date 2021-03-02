@@ -30,21 +30,18 @@ export class UpdateInterGroupDTO {
 }
 
 export class RequestGroupToGroupDTO {
-  readonly adminSender: User;
   readonly groupSender: Group;
   readonly groupReceiver: Group;
 }
 
 export class AceptOrRefuseDTO {
   readonly invitationId: InvitationInterGroup;
-  readonly userId: User;
-  readonly groupOne: Group;
-  readonly groupTwo: Group;
+  readonly groupOne?: Group;
+  readonly groupTwo?: Group;
 }
 
 export class newProposalDto {
   readonly interGroup: InterGroup;
-  readonly userId: User;
   readonly proposalDate: Date;
   readonly proposalHour: Date;
   readonly proposalPlace: Meeting;
@@ -55,5 +52,4 @@ export class newProposalDto {
 export class acceptOrRefuseProposalDto {
   readonly proposalId: Proposal;
   readonly accept: boolean;
-  readonly userId: User;
 }

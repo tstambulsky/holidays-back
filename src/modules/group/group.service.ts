@@ -204,7 +204,7 @@ export class GroupService {
       const groupExist = await this.groupModel.findOne({ _id: group }).populate('integrants');
       const userExist = await this.userService.getUserById(user);
       if (!groupExist || !userExist) throw new Error('This group or user does not exist');
-      const isIngroup = await this.groupModel.findOne({ _id: group, 'integrants._id': user });
+      const isIngroup = await this.groupModel.findOne({ _id: group, integrants: user });
       if (isIngroup) throw new Error('This User is already in the group');
       const alreadyInvite = await this.invitationModel.find({ user, group, active: true });
       if (alreadyInvite.length > 0) throw new Error('User already invite');
@@ -220,7 +220,8 @@ export class GroupService {
     try {
       const invitations = await this.invitationModel
         .find({ group: groupId, success: false, active: true, fromAdmin: false })
-        .populate('user');
+        .populate('user')
+        .populate('group');
       if (invitations.length < 0) throw new Error('This group does not has requests');
       return invitations;
     } catch (error) {
@@ -307,8 +308,9 @@ export class GroupService {
     }
   }
 
-  async getUserGroups(userID: any) {
+  async getUserGroups(currentUser: any) {
     try {
+      const userID = currentUser._id;
       const groups = await this.groupModel.find({ active: true, integrants: userID });
       if (groups.length < 0) throw new Error('The user does not belong to any group');
       return groups;

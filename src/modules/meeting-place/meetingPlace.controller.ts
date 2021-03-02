@@ -1,8 +1,10 @@
-import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post } from '@nestjs/common';
+import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post, UseGuards } from '@nestjs/common';
 import { MeetingPlaceService } from './meetingPlace.service';
 import { Meeting } from './schema/meetingPlace.schema';
 import { MeetingDTO, UpdateMeetingDTO } from './dto/meeting.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller()
 export class MeetingPlaceController {
   constructor(private meetingPlaceService: MeetingPlaceService) {}
