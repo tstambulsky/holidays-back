@@ -47,7 +47,7 @@ export class UsersService {
       }
       const createUser = new this.userModel({
         provider: profile.provider,
-        provider_id: profile.provider.id,
+        provider_id: profile.id,
         name: profile.name.givenName,
         lastName: profile.name.familyName,
         //email: profile.emails[0].value || 'not found',
@@ -109,6 +109,21 @@ export class UsersService {
       throw new Error(err.message);
     }
   }
+
+   async toInactiveUser(userID: any): Promise<string> {
+    try {
+      const user = await this.userModel.findById(userID);
+      if (!user) {
+        throw new HttpException('Not Found', 404);
+      }
+      user.active = false;
+      await user.save();
+      return 'Meeting change to inactive';
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
 
   async deleteUser(userID: any): Promise<string> {
     try {

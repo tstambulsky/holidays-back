@@ -14,7 +14,7 @@ export class InterGroup {
   @Prop([{ required: true, type: mongoose.SchemaTypes.ObjectId, ref: 'Group' }])
   groupTwo: Group;
 
-  @Prop({ required: true, default: Date.now })
+  @Prop({ default: Date.now })
   startDate: Date;
 
   @Prop()
@@ -23,7 +23,7 @@ export class InterGroup {
   @Prop({})
   tipeOfActivity: string;
 
-  @Prop({type: mongoose.SchemaTypes.ObjectId, ref: 'Meeting' })
+  @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Meeting' })
   meetingPlaceOne: Meeting;
 
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Meeting' })
@@ -31,5 +31,8 @@ export class InterGroup {
 
   @Prop({ default: true })
   active: boolean;
+
+  @Prop({ default: false })
+  confirmed: boolean;
 }
 export const InterGroupSchema = SchemaFactory.createForClass(InterGroup);

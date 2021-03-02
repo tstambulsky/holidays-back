@@ -68,5 +68,8 @@ export class User {
 
   @Prop({type:Number, default:0})
   points: number;
+
+  @Prop({ default: true})
+  active: boolean;
 }
 export const UserSchema = SchemaFactory.createForClass(User);

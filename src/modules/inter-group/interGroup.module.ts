@@ -4,12 +4,17 @@ import { InterGroupService } from './interGroup.service';
 import { InterGroupController } from './interGroup.controller';
 import { InterGroup, InterGroupSchema } from './schema/interGroup.schema';
 import { GroupModule } from '../group/group.module';
-import { InvitationInterGroup, InvitationInterGroupSchema } from './schema/invitation.schema';
+import { InvitationInterGroup, InvitationInterGroupSchema } from './schema/invitationInterGroup.schema';
+import { Proposal, ProposalSchema } from './schema/proposal.schema';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: InterGroup.name, schema: InterGroupSchema }, 
-  	{name: InvitationInterGroup.name, schema: InvitationInterGroupSchema}]), 
-  forwardRef(() => GroupModule) 
+  imports: [
+    MongooseModule.forFeature([
+      { name: InterGroup.name, schema: InterGroupSchema },
+      { name: InvitationInterGroup.name, schema: InvitationInterGroupSchema },
+      { name: Proposal.name, schema: ProposalSchema }
+    ]),
+    forwardRef(() => GroupModule)
   ],
   controllers: [InterGroupController],
   providers: [InterGroupService],

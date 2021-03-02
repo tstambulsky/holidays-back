@@ -5,14 +5,14 @@ import { Group } from './group.schema';
 
 @Schema({ timestamps: true })
 export class Invitation {
-  @Prop({ default: Date.now })
-  created: Date;
-
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   user: User;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Group' })
   group: Group;
+
+  @Prop({ default: false })
+  fromAdmin: boolean;
 
   @Prop({ default: false })
   success: boolean;

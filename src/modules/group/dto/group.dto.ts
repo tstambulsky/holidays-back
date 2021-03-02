@@ -41,14 +41,13 @@ export class QueryDTO {
   readonly activity: string;
 }
 
-
 export class RequestToGroupDTO {
   readonly group: Group;
   readonly user: User;
+  readonly fromAdmin?: boolean;
 }
 
 export class AceptOrRefuseDTO {
   readonly invitationId: Invitation;
-  readonly userId: User;
+  readonly success?: boolean;
 }
-

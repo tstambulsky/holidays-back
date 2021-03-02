@@ -1,7 +1,9 @@
-import { Controller, Res, HttpStatus, Body, Post, Get } from '@nestjs/common';
+import { Controller, Res, HttpStatus, Body, Post, Get, UseGuards } from '@nestjs/common';
 import { CalificationService } from './calification.service';
 import { CalificationDTO } from './dto/inputs.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('/calification')
 export class CalificationController {
   constructor(private calificationService: CalificationService) {}
