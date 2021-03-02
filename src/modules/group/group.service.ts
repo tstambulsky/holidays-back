@@ -5,6 +5,7 @@ import { Group, GroupDocument } from './schema/group.schema';
 import { UsersService } from '../users/users.service';
 import { GroupDTO, UpdateGroupDTO, RequestToGroupDTO, AceptOrRefuseDTO } from './dto/group.dto';
 import { Invitation, InvitationDocument } from './schema/invitation.schema';
+import { group } from 'console';
 
 @Injectable()
 export class GroupService {
@@ -29,8 +30,7 @@ export class GroupService {
 
   async getGroup(groupID: any): Promise<Group> {
     try {
-      const group = await this.groupModel.findOne({ _id: groupID, active: true });
-      console.log(group);
+      const group = await this.groupModel.findOne({ _id: groupID, active: true }).populate('integrants');
       return group;
     } catch (err) {
       console.log(err);
@@ -145,10 +145,6 @@ export class GroupService {
     return gruposFiltrados;
   }
 
-  /*async distanceFilter(distance: any) {
-    const groups = await this.groupModel.find({ meetingPlaceOne: {} }).exec();
-  } */
-
   async searchGroupByActivity(activity: string): Promise<Group[]> {
     const groups = await this.groupModel
       .find({ typeOfActivity: new RegExp(activity, 'i') }, { active: true, name: 1, description: 1, typeOfActivity: 1 })
@@ -210,6 +206,8 @@ export class GroupService {
       if (!groupExist || !userExist) throw new Error('This group or user does not exist');
       const isIngroup = await this.groupModel.findOne({ _id: group, 'integrants._id': user });
       if (isIngroup) throw new Error('This User is already in the group');
+      const alreadyInvite = await this.invitationModel.find({ user, group, active: true });
+      if (alreadyInvite.length > 0) throw new Error('User already invite');
       const newInvitation = new this.invitationModel(data);
       await newInvitation.save();
       return newInvitation;
@@ -220,7 +218,9 @@ export class GroupService {
 
   async getInvitationToGroup(groupId: any) {
     try {
-      const invitations = await this.invitationModel.find({ group: groupId, success: false, active: true }).populate('user');
+      const invitations = await this.invitationModel
+        .find({ group: groupId, success: false, active: true, fromAdmin: false })
+        .populate('user');
       if (invitations.length < 0) throw new Error('This group does not has requests');
       return invitations;
     } catch (error) {
@@ -228,10 +228,11 @@ export class GroupService {
     }
   }
 
-  async acceptInvitationToGroup(data: AceptOrRefuseDTO) {
+  async acceptInvitationToGroup(data: AceptOrRefuseDTO, currentUser: any) {
     try {
-      const { invitationId, userId } = data;
-      const invitation = await this.invitationModel.findOne({ _id: invitationId });
+      const { invitationId } = data;
+      const userId = currentUser._id;
+      const invitation = await this.invitationModel.findOne({ _id: invitationId, fromAdmin: false });
       if (!invitation) throw new Error('This invitation does not exist');
       if (invitation.success) throw new Error('This invitation is already success');
       if (!invitation.active) throw new Error('This invitation was canceled');
@@ -239,6 +240,7 @@ export class GroupService {
       const user = await this.userService.getUserById(invitation.user);
       if (group.admin != userId) throw new Error('This user is not the admin of this group');
       invitation.success = true;
+      invitation.active = false;
       await invitation.save();
       //@ts-ignore
       group.integrants.push(user);
@@ -249,10 +251,11 @@ export class GroupService {
     }
   }
 
-  async refuseInvitationToGroup(data: AceptOrRefuseDTO) {
+  async refuseInvitationToGroup(data: AceptOrRefuseDTO, currentUser: any) {
     try {
-      const { invitationId, userId } = data;
-      const invitation = await this.invitationModel.findOne({ _id: invitationId });
+      const { invitationId } = data;
+      const userId = currentUser._id;
+      const invitation = await this.invitationModel.findOne({ _id: invitationId, fromAdmin: false });
       if (!invitation) throw new Error('This invitation does not exist');
       if (!invitation.active) throw new Error('This invitation was canceled');
       const group = await this.groupModel.findOne({ _id: invitation.group }).populate('integrants');
@@ -260,6 +263,45 @@ export class GroupService {
       invitation.active = false;
       await invitation.save();
       return group;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async getMyRequestsToJoinGroup(currentUser: any) {
+    try {
+      const userId = currentUser._id;
+      const user = await this.userService.getUserById(userId);
+      if (!user) throw new Error('This user does not exist');
+      const invitations = await this.invitationModel.find({ user: userId, fromAdmin: true, active: true });
+      if (invitations.length < 0) throw new Error('This user does not has invitations');
+      return invitations;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async acceptOrRefuseMyRequests(data: AceptOrRefuseDTO, currentUser: any) {
+    try {
+      const { invitationId, success } = data;
+      const userId = currentUser._id;
+      const user = await this.userService.getUserById(userId);
+      if (!user) throw new Error('This user does not exist');
+      const invitation = await this.invitationModel.findOne({ _id: invitationId, fromAdmin: true, active: true });
+      if (!invitation) throw new Error('Bad invitation');
+      if (success) {
+        const group = await this.groupModel.findOne({ _id: invitation.group }).populate('integrants');
+        //@ts-ignore
+        group.integrants.push(user);
+        await group.save();
+        invitation.success = true;
+        invitation.active = false;
+      } else {
+        invitation.success = false;
+        invitation.active = false;
+      }
+      await invitation.save();
+      return 'User added to group';
     } catch (error) {
       throw new Error(error.message);
     }

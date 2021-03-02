@@ -29,7 +29,7 @@ export class AuthService {
     const { email, password } = data;
     try {
       const userLoged = await this.validateUser(email, password);
-      const payload = { email: userLoged.email };
+      const payload = { email: userLoged.email, _id: userLoged._id };
       return {
         token: this.jwtService.sign(payload),
         user: userLoged

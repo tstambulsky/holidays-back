@@ -1,8 +1,10 @@
-import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post } from '@nestjs/common';
+import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post, UseGuards } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { Group } from './schema/group.schema';
 import { GroupDTO, UpdateGroupDTO, QueryDTO, RequestToGroupDTO, AceptOrRefuseDTO } from './dto/group.dto';
-
+import { CurrentUser } from '../users/decorators/currentUser';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+@UseGuards(JwtAuthGuard)
 @Controller('group')
 export class GroupController {
   constructor(private readonly groupService: GroupService) {}
@@ -220,10 +222,11 @@ export class GroupController {
     }
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('/invitation/success')
-  async acceptInvitation(@Res() res, @Body() data: AceptOrRefuseDTO) {
+  async acceptInvitation(@Res() res, @Body() data: AceptOrRefuseDTO, @CurrentUser() user) {
     try {
-      const response = await this.groupService.acceptInvitationToGroup(data);
+      const response = await this.groupService.acceptInvitationToGroup(data, user);
       return res.status(HttpStatus.OK).json({
         response
       });
@@ -234,16 +237,45 @@ export class GroupController {
     }
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('/invitation/refuse')
-  async refuseInvitation(@Res() res, @Body() data: AceptOrRefuseDTO) {
+  async refuseInvitation(@Res() res, @Body() data: AceptOrRefuseDTO, @CurrentUser() user) {
     try {
-      const response = await this.groupService.refuseInvitationToGroup(data);
+      const response = await this.groupService.refuseInvitationToGroup(data, user);
       return res.status(HttpStatus.OK).json({
         response
       });
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         err: err.message
+      });
+    }
+  }
+
+  @Get('/request/user')
+  async getMyRequestsToJoinGroup(@Res() res, @CurrentUser() user) {
+    try {
+      const response = await this.groupService.getMyRequestsToJoinGroup(user);
+      return res.status(HttpStatus.OK).json(response);
+    } catch (error) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'An error has ocurred',
+        err: error.message
+      });
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/request/state')
+  async acceptOrRefuseRequest(@Res() res, @Body() data: AceptOrRefuseDTO, @CurrentUser() user) {
+    try {
+      const response = await this.groupService.acceptOrRefuseMyRequests(data, user);
+      return res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (error) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        err: error.message
       });
     }
   }
