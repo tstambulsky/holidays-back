@@ -150,8 +150,8 @@ export class InterGroupController {
     }
   }
 
-  @Get('/invitation/proposal/:intergroup')
-  async getProposalsByIntergroup(@Res() res, @Param('intergroup') intergroupId) {
+  @Get('/invitation/proposal/:intergroupId')
+  async getProposalsByIntergroup(@Res() res, @Param('intergroupId') intergroupId) {
     try {
       const response = await this.interGroupService.getProposalsInterGroup(intergroupId);
       return res.status(HttpStatus.OK).json({

@@ -14,7 +14,7 @@ export class InterGroup {
   @Prop([{ required: true, type: mongoose.SchemaTypes.ObjectId, ref: 'Group' }])
   groupTwo: Group;
 
-  @Prop({ required: true, default: Date.now })
+  @Prop({ default: Date.now })
   startDate: Date;
 
   @Prop()

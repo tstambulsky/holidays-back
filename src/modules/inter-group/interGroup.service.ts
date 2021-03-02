@@ -49,11 +49,11 @@ export class InterGroupService {
     }
   }
 
-  async createInterGroup(interGroupDTO: InterGroupDTO): Promise<string> {
+  async createInterGroup(interGroupDTO: InterGroupDTO): Promise<InterGroup> {
     try {
       const interGroup = new this.interGroupModel(interGroupDTO);
       await interGroup.save();
-      return 'Inter Group created';
+      return interGroup._id;
     } catch (err) {
       throw new Error(err.message);
     }
@@ -146,7 +146,7 @@ export class InterGroupService {
       const { interGroupId, userId, groupSender } = data;
       const interGroup = await this.interGroupModel.findOne({ _id: interGroupId });
       if (!interGroup) throw new Error('This Inter group does not exist');
-      if (!interGroup.confirmed) throw new Error('This Inter group is already confirmed');
+      if (interGroup.confirmed) throw new Error('This Inter group is already confirmed');
       const groupSend = await this.groupService.getGroup(groupSender);
       if (groupSend.admin != userId) throw new Error('This user is not the admin of the group');
       const proposal = new this.proposalModel(data);
