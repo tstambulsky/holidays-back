@@ -7,7 +7,7 @@ import { MeetingDTO, UpdateMeetingDTO } from './dto/meeting.dto';
 export class MeetingPlaceController {
   constructor(private meetingPlaceService: MeetingPlaceService) {}
 
-  @Get('/meetingPlace')
+  @Get('/meetingplace')
   async getMeetings(@Res() res): Promise<Meeting[]> {
     try {
       const meetings = await this.meetingPlaceService.getAll();
@@ -23,7 +23,7 @@ export class MeetingPlaceController {
     }
   }
 
-  @Get('/meetingPlace/:meetingID')
+  @Get('/meetingplace/:meetingID')
   async getMeeting(@Res() res, @Param('meetingID') meetingID) {
     try {
       const meetings = await this.meetingPlaceService.getMeeting(meetingID);
@@ -37,7 +37,7 @@ export class MeetingPlaceController {
     }
   }
 
-  @Post('/meetingPlace')
+  @Post('/meetingplace')
   async createMeeting(@Res() res, @Body() createMeetingDTO: MeetingDTO): Promise<Meeting> {
     try {
       const response = await this.meetingPlaceService.createMeeting(createMeetingDTO);
@@ -53,7 +53,7 @@ export class MeetingPlaceController {
     }
   }
 
-  @Put('/meetingPlace/update/:meetingID')
+  @Put('/meetingplace/update/:meetingID')
   async updateMeeting(@Res() res, @Param('meetingID') meetingID, @Body() updateMeetingDTO: UpdateMeetingDTO): Promise<Meeting> {
     try {
       const updateMeeting = await this.meetingPlaceService.updateMeeting(meetingID, updateMeetingDTO);
@@ -69,7 +69,7 @@ export class MeetingPlaceController {
     }
   }
 
-  @Delete('/meetingPlace/delete/:meetingID')
+  @Delete('/meetingplace/delete/:meetingID')
   async deleteMeeting(@Res() res, @Param('meetingID') meetingID): Promise<string> {
     try {
       await this.meetingPlaceService.deleteMeeting(meetingID);
@@ -84,7 +84,7 @@ export class MeetingPlaceController {
     }
   }
 
-  @Put('/remove/:meetingID')
+  @Put('/meetingplace/remove/:meetingID')
   async inactiveGroup(@Res() res, @Param('meetingID') meetingID): Promise<string> {
     try {
       await this.meetingPlaceService.toInactiveMeeting(meetingID);

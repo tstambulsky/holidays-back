@@ -3,7 +3,7 @@ export class MeetingDTO {
   readonly location: string;
   readonly address: string;
   readonly description: string;
-  readonly photo: [string];
+  readonly photo: string;
 }
 
 export class UpdateMeetingDTO {
@@ -11,5 +11,5 @@ export class UpdateMeetingDTO {
   readonly address?: string;
   readonly location?: string;
   readonly description?: string;
-  readonly photo?: [string];
+  readonly photo?: string;
 }

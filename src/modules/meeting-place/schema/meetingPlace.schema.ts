@@ -14,7 +14,7 @@ export class Meeting {
   @Prop({ required: true })
   description: string;
   @Prop()
-  photo: [string];
+  photo: string;
   @Prop({ default: true })
   active: boolean;
 }

@@ -222,7 +222,6 @@ export class GroupController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('/invitation/success')
   async acceptInvitation(@Res() res, @Body() data: AceptOrRefuseDTO, @CurrentUser() user) {
     try {
@@ -237,7 +236,6 @@ export class GroupController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('/invitation/refuse')
   async refuseInvitation(@Res() res, @Body() data: AceptOrRefuseDTO, @CurrentUser() user) {
     try {
@@ -265,7 +263,6 @@ export class GroupController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('/request/state')
   async acceptOrRefuseRequest(@Res() res, @Body() data: AceptOrRefuseDTO, @CurrentUser() user) {
     try {
@@ -276,6 +273,21 @@ export class GroupController {
     } catch (error) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         err: error.message
+      });
+    }
+  }
+
+  @Get('/groupsuser/:userID')
+  async getGroupsByUser(@Res() res, @Param('userID') userID: any) {
+    try {
+      const groups = await this.groupService.getUserGroups(userID);
+      return res.status(HttpStatus.OK).json({
+        message: 'List of groups',
+        groups
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        err: err.message
       });
     }
   }

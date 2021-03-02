@@ -6,11 +6,11 @@ import { InvitationInterGroup } from '../schema/invitationInterGroup.schema';
 import { Proposal } from '../schema/proposal.schema';
 
 export class InterGroupDTO {
-  readonly groupOne: Group;
-  readonly groupTwo: Group;
-  readonly startDate: Date;
+  readonly groupOne?: Group;
+  readonly groupTwo?: Group;
+  readonly startDate?: Date;
   readonly endDate?: Date;
-  readonly typeOfActivity: string;
+  readonly typeOfActivity?: string;
   readonly meetingPlaceOne?: Meeting;
   readonly meetingPlaceTwo?: Meeting;
   readonly photos?: string;
@@ -40,17 +40,10 @@ export class AceptOrRefuseDTO {
   readonly userId: User;
   readonly groupOne: Group;
   readonly groupTwo: Group;
-  readonly startDate: Date;
-  readonly endDate?: Date;
-  readonly typeOfActivity: string;
-  readonly meetingPlaceOne?: Meeting;
-  readonly meetingPlaceTwo?: Meeting;
-  readonly photos?: string;
-  readonly active?: boolean;
 }
 
 export class newProposalDto {
-  readonly interGroupId: InterGroup;
+  readonly interGroup: InterGroup;
   readonly userId: User;
   readonly proposalDate: Date;
   readonly proposalHour: Date;
