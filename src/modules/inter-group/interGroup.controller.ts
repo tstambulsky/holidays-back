@@ -30,10 +30,10 @@ export class InterGroupController {
     }
   }
 
-  @Get('/:interGgroupID')
-  async getInterGroup(@Res() res, @Param('interGroupID') interGroupID) {
+  @Get('/:intergroupID')
+  async getInterGroup(@Res() res, @Param('intergroupID') intergroupID) {
     try {
-      const interGroup = await this.interGroupService.getInterGroup(interGroupID);
+      const interGroup = await this.interGroupService.getInterGroup(intergroupID);
       if (!interGroup) throw new NotFoundException('Inter Group does not exists');
       return res.status(HttpStatus.OK).json(interGroup);
     } catch (err) {
@@ -44,14 +44,14 @@ export class InterGroupController {
     }
   }
 
-  @Put('/update/:interGroupID')
+  @Put('/update/:intergroupID')
   async updateInterGroup(
     @Res() res,
-    @Param('interGroupID') interGroupID,
+    @Param('intergroupID') intergroupID,
     @Body() updateInterGroupDTO: UpdateInterGroupDTO
   ): Promise<InterGroup> {
     try {
-      const updateInterGroup = await this.interGroupService.updateInterGroup(interGroupID, updateInterGroupDTO);
+      const updateInterGroup = await this.interGroupService.updateInterGroup(intergroupID, updateInterGroupDTO);
       return res.status(HttpStatus.OK).json({
         message: 'Inter Group has been updated',
         interGroup: updateInterGroup
@@ -64,10 +64,10 @@ export class InterGroupController {
     }
   }
 
-  @Delete('/delete/:interGroupID')
-  async deleteInterGroup(@Res() res, @Param('groupID') interGroupID): Promise<string> {
+  @Delete('/delete/:intergroupID')
+  async deleteInterGroup(@Res() res, @Param('intergroupID') intergroupID): Promise<string> {
     try {
-      await this.interGroupService.deleteInterGroup(interGroupID);
+      await this.interGroupService.deleteInterGroup(intergroupID);
       return res.status(HttpStatus.OK).json({
         message: 'Inter Group deleted'
       });
