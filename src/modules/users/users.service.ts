@@ -28,9 +28,9 @@ export class UsersService {
     }
   }
 
-  async getUserById(userID: any): Promise<User> {
+  async getUserById(userId: any): Promise<User> {
     try {
-      const user = await this.userModel.findById({ _id: userID });
+      const user = await this.userModel.findById({ _id: userId });
       console.log(user);
       return user;
     } catch (err) {
@@ -98,21 +98,22 @@ export class UsersService {
     }
   }
 
-  async updateUser(userID: any, data: UpdateUserDTO): Promise<User | undefined> {
+  async updateUser(data: UpdateUserDTO, currentUser: any): Promise<User | undefined> {
     try {
-      const user = await this.userModel.findOne({ _id: userID });
+      const userId = currentUser._id;
+      const user = await this.userModel.findOne({ _id: userId });
       //agregar condicion para no hacer update en fb/insta/aple
       const updatedUser = await user.updateOne({ ...data });
-      const userUpdated = await this.userModel.findOne({ _id: userID });
+      const userUpdated = await this.userModel.findOne({ _id: userId });
       return userUpdated;
     } catch (err) {
       throw new Error(err.message);
     }
   }
 
-   async toInactiveUser(userID: any): Promise<string> {
+   async toInactiveUser(userId: any): Promise<string> {
     try {
-      const user = await this.userModel.findById(userID);
+      const user = await this.userModel.findById(userId);
       if (!user) {
         throw new HttpException('Not Found', 404);
       }
@@ -125,9 +126,9 @@ export class UsersService {
   }
 
 
-  async deleteUser(userID: any): Promise<string> {
+  async deleteUser(userId: any): Promise<string> {
     try {
-      await this.userModel.deleteOne({ _id: userID });
+      await this.userModel.deleteOne({ _id: userId });
       return 'User deleted';
     } catch (err) {
       throw new Error(err.message);
@@ -141,9 +142,9 @@ export class UsersService {
     }
   }*/
 
-  async changeUserCalifications(userID: any, sum:boolean):Promise<User> {
+  async changeUserCalifications(userId: any, sum:boolean):Promise<User> {
     try {
-      const user = await this.userModel.findOne({ _id: userID });
+      const user = await this.userModel.findOne({ _id: userId });
       if(!user) throw new Error('This user does not exist')
       user.points = sum ? user.points + 1 : user.points - 1;
       await user.save()

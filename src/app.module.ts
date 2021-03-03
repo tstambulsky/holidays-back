@@ -12,7 +12,7 @@ import { RolModule } from './modules/rol/rol.module';
 import { GroupModule } from './modules/group/group.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { CommentModule } from './modules/comment/comment.module';
-import { LikesModule } from './modules/likes/likes.module';
+import { TypeOfActivityModule } from './modules/typeOfActivity/typeOfActivity.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { EmailModule } from './modules/email/email.module';
 import { AppleModule } from './modules/login/apple/apple.module';
@@ -21,7 +21,6 @@ import { InstagramModule } from './modules/login/instagram/instagram.module';
 import { InterGroupModule } from './modules/inter-group/interGroup.module';
 import { ContactsModule } from './modules/contacts/contacts.module';
 import { CalificationModule } from './modules/calification/calification.module';
-import { CalificationService } from './modules/calification/calification.service';
 
 @Module({
   imports: [
@@ -39,7 +38,7 @@ import { CalificationService } from './modules/calification/calification.service
     GroupModule,
     NotificationModule,
     CommentModule,
-    LikesModule,
+    TypeOfActivityModule,
     AuthModule,
     EmailModule,
     AppleModule,

@@ -2,13 +2,13 @@ import { Meeting } from '../../meeting-place/schema/meetingPlace.schema';
 import { User } from '../../users/schema/users.schema';
 import { Group } from '../schema/group.schema';
 import { Invitation } from '../schema/invitation.schema';
+import { TypeOfActivity } from '../../typeOfActivity/schema/typeOfActivity.schema';
 
 export class GroupDTO {
   readonly name: string;
   readonly startDate: Date;
-  readonly startTime: string;
-  readonly endTime?: string;
-  readonly typeOfActivity: string;
+  readonly endDate?: string;
+  readonly typeOfActivity: TypeOfActivity;
   readonly meetingPlaceOne?: Meeting;
   readonly meetingPlaceTwo?: Meeting;
   readonly address: any;
@@ -16,15 +16,13 @@ export class GroupDTO {
   readonly photos?: string;
   readonly integrants: User;
   readonly active: boolean;
-  readonly admin: User;
 }
 
 export class UpdateGroupDTO {
   readonly name?: string;
   readonly startDate?: Date;
-  readonly startTime?: string;
-  readonly endTime?: string;
-  readonly typeOfActivity?: string;
+  readonly endDate?: string;
+  readonly typeOfActivity?: TypeOfActivity;
   readonly meetingPlaceOne?: Meeting;
   readonly meetingPlaceTwo?: Meeting;
   readonly address?: any;

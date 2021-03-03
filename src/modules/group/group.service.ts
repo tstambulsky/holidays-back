@@ -5,7 +5,7 @@ import { Group, GroupDocument } from './schema/group.schema';
 import { UsersService } from '../users/users.service';
 import { GroupDTO, UpdateGroupDTO, RequestToGroupDTO, AceptOrRefuseDTO } from './dto/group.dto';
 import { Invitation, InvitationDocument } from './schema/invitation.schema';
-import { group } from 'console';
+import * as moment from 'moment';
 
 @Injectable()
 export class GroupService {
@@ -21,6 +21,7 @@ export class GroupService {
       .populate('integrants')
       .populate('meetingPlaceOne')
       .populate('meetingPlaceTwo')
+      .populate('typeOfActivity')
       .exec();
     if (!groups) {
       throw new HttpException('Not Found', 404);
@@ -28,9 +29,12 @@ export class GroupService {
     return groups;
   }
 
-  async getGroup(groupID: any): Promise<Group> {
+  async getGroup(groupId: any): Promise<Group> {
     try {
-      const group = await this.groupModel.findOne({ _id: groupID, active: true }).populate('integrants');
+      const group = await this.groupModel.findOne({ _id: groupId, active: true }).populate('integrants') 
+      .populate('meetingPlaceOne')
+      .populate('meetingPlaceTwo')
+      .populate('typeOfActivity');
       return group;
     } catch (err) {
       console.log(err);
@@ -38,9 +42,14 @@ export class GroupService {
     }
   }
 
-  async createGroup(groupDTO: GroupDTO): Promise<string> {
+  async createGroup(groupDTO: GroupDTO, currentUser: any): Promise<string> {
     try {
+      const userId = currentUser._id;
       const group = new this.groupModel(groupDTO);
+      group.admin = userId;
+      if (!group.endDate) group.endDate = moment(group.startDate).add(15, 'hours').format('YYYY-MM-DD hh:mm:ss');
+      console.log(group);
+      if (group.endDate = moment().format('hh:mm')) group.active = false;
       await group.save();
       return 'Group created';
     } catch (err) {
@@ -48,11 +57,13 @@ export class GroupService {
     }
   }
 
-  async updateGroup(groupID: any, data: UpdateGroupDTO): Promise<Group | undefined> {
+  async updateGroup(groupId: any, data: UpdateGroupDTO, currentUser: any): Promise<Group | undefined> {
     try {
-      const group = await this.groupModel.findOne({ _id: groupID, active: true });
+      const userId = currentUser._id;
+      const group = await this.groupModel.findOne({ _id: groupId, active: true });
+      if (group.admin !== userId) throw new Error ('You do not have privileges to perform this action.')
       const updatedGroup = await group.updateOne({ ...data });
-      const groupUpdated = await this.groupModel.findOne({ _id: groupID }).populate('integrants');
+      const groupUpdated = await this.groupModel.findOne({ _id: groupId }).populate('integrants');
       console.log(group);
       return groupUpdated;
     } catch (err) {
@@ -60,9 +71,9 @@ export class GroupService {
     }
   }
 
-  async toInactiveGroup(groupID: any): Promise<string> {
+  async toInactiveGroup(groupId: any): Promise<string> {
     try {
-      const group = await this.groupModel.findById(groupID);
+      const group = await this.groupModel.findById(groupId);
       if (!group) {
         throw new HttpException('Not Found', 404);
       }
@@ -74,9 +85,9 @@ export class GroupService {
     }
   }
 
-  async deleteGroup(groupID: any): Promise<string> {
+  async deleteGroup(groupId: any): Promise<string> {
     try {
-      await this.groupModel.deleteOne({ _id: groupID });
+      await this.groupModel.deleteOne({ _id: groupId });
       return 'Group deleted';
     } catch (err) {
       throw new Error(err.message);
@@ -95,7 +106,7 @@ export class GroupService {
 
   async genderFilter(gender: string) {
     try {
-    const groups = await this.groupModel.aggregate([
+      const groups = await this.groupModel.aggregate([
       { $match: { active: true } },
       {
         $lookup: {
@@ -116,8 +127,9 @@ export class GroupService {
   }
 
   async ageFilter(edad: number) {
-    const groups: any[] = await this.groupModel.find({ active: true }).populate('integrants');
-
+    const groups: any[] = await this.groupModel.find({ active: true }).populate('integrants').populate('meetingPlaceOne')
+      .populate('meetingPlaceTwo')
+      .populate('typeOfActivity');
     groups.forEach((element) => {
       const personasTotales = element.integrants.length;
       let totalEdades = 0;
@@ -152,16 +164,24 @@ export class GroupService {
 
   async searchGroupByActivity(activity: string): Promise<Group[]> {
     try {
-    const groups = await this.groupModel
-      .find({ typeOfActivity: new RegExp(activity, 'i') }, { active: true, name: 1, description: 1, typeOfActivity: 1 })
-      .populate('integrants')
-      .populate('meetingPlaceOne')
-      .populate('meetingPlaceTwo')
-      .exec();
-    if (!groups) throw new HttpException('Not Found', 404);
+       const groups = await this.groupModel.aggregate([
+      { $match: { active: true } },
+      {
+        $lookup: {
+          from: 'typeOfActivity',
+          localField: 'typeOfActivity',
+          foreignField: '_id',
+          as: 'typeOfActivity'
+        }
+      },
+      { $match: { 'typeOfActivity.name': { $eq: `${activity}` } } }
+    ]);
+    console.log(groups);
+    if (groups.length < 0) throw new Error ('No have groups')
     return groups;
-   } catch (err) {
-     throw new Error (err.message);
+
+   }  catch (err) {
+      throw new Error (err.message);
    }
 }
 
@@ -172,18 +192,20 @@ export class GroupService {
       .populate('integrants')
       .populate('meetingPlaceOne')
       .populate('meetingPlaceTwo')
+      .populate('typeOfActivity')
       .exec();
-    if (!searchGroup) throw new HttpException('Not Found', 404);
-    return searchGroup;
-   } catch (err) {
-     throw new Error(err.message)
+      if (!searchGroup) throw new HttpException('Not Found', 404);
+      return searchGroup;
+   }  catch (err) {
+      throw new Error(err.message)
    }
 }
-  async repeatGroup(groupID: any) {
+  async repeatGroup(groupId: any, currentUser: any) {
     try {
-      const searchGroup = await this.groupModel.findById({ _id: groupID, active: false });
+      const userId = currentUser._id;
+      const searchGroup = await this.groupModel.findById({ _id: groupId, active: false, admin: userId });
       if (!searchGroup) {
-        throw new HttpException('Not Found', 404);
+        throw new HttpException('Group not found or you are not the admin', 404);
       }
       searchGroup.active = true;
       searchGroup.save();
@@ -193,9 +215,13 @@ export class GroupService {
     }
   }
 
-  async previousGroups(userID: any): Promise<Group[]> {
-     try {
-      const groups = await this.groupModel.find({ active: false, integrants: userID });
+  async previousGroups(currentUser: any): Promise<Group[]> {
+    try {
+      const userId = currentUser._id;
+      const groups = await this.groupModel.find({ active: false, integrants: userId }).populate('integrants')
+      .populate('meetingPlaceOne')
+      .populate('meetingPlaceTwo')
+      .populate('typeOfActivity');
     if(groups.length < 0) throw new Error('The user has no previous groups.')
     return groups;
   } catch (err) {
@@ -226,7 +252,8 @@ export class GroupService {
       const invitations = await this.invitationModel
         .find({ group: groupId, success: false, active: true, fromAdmin: false })
         .populate('user')
-        .populate('group');
+        .populate('group')
+        .populate('typeOfActivity')
       if (invitations.length < 0) throw new Error('This group does not has requests');
       return invitations;
     } catch (error) {
@@ -316,7 +343,10 @@ export class GroupService {
   async getUserGroups(currentUser: any) {
     try {
       const userID = currentUser._id;
-      const groups = await this.groupModel.find({ active: true, integrants: userID });
+      const groups = await this.groupModel.find({ active: true, integrants: userID }).populate('integrants')
+      .populate('meetingPlaceOne')
+      .populate('meetingPlaceTwo')
+      .populate('typeOfActivity');
       if (groups.length < 0) throw new Error('The user does not belong to any group');
       return groups;
     } catch (err) {
