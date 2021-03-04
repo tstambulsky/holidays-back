@@ -1,7 +1,7 @@
 import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post, UseGuards } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { Group } from './schema/group.schema';
-import { GroupDTO, UpdateGroupDTO, QueryDTO, RequestToGroupDTO, AceptOrRefuseDTO } from './dto/group.dto';
+import { GroupDTO, UpdateGroupDTO, QueryDTO, RequestToGroupDTO, AceptOrRefuseDTO, SearchByDistanceDto, NewAdminDto, EditPhotosDto } from './dto/group.dto';
 import { CurrentUser } from '../users/decorators/currentUser';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
@@ -26,10 +26,10 @@ export class GroupController {
     }
   }
 
-  @Get('/:groupID')
-  async getGroup(@Res() res, @Param('groupID') groupID) {
+  @Get('/:groupId')
+  async getGroup(@Res() res, @Param('groupId') groupId) {
     try {
-      const group = await this.groupService.getGroup(groupID);
+      const group = await this.groupService.getGroup(groupId);
       if (!group) throw new NotFoundException('Group does not exists');
       return res.status(HttpStatus.OK).json(group);
     } catch (err) {
@@ -102,11 +102,12 @@ export class GroupController {
   }
 
   @Post()
-  async createGroup(@Res() res, @Body() createGroupDTO: GroupDTO): Promise<string> {
+  async createGroup(@Res() res, @Body() createGroupDTO: GroupDTO, @CurrentUser() user): Promise<Group> {
     try {
-      await this.groupService.createGroup(createGroupDTO);
+      const group = await this.groupService.createGroup(createGroupDTO, user);
       return res.status(HttpStatus.OK).json({
-        message: 'Group has been created'
+        message: 'Group has been created',
+        group
       });
     } catch (err) {
       res.status(HttpStatus.BAD_REQUEST).json({
@@ -116,10 +117,10 @@ export class GroupController {
     }
   }
 
-  @Put('/repeatgroup/:groupID')
-  async repeatGroup(@Res() res, @Param('groupID') groupID: string): Promise<Group> {
+  @Put('/repeatgroup/:groupId')
+  async repeatGroup(@Res() res, @Param('groupId') groupId: string, @CurrentUser() user): Promise<Group> {
     try {
-      const group = await this.groupService.repeatGroup(groupID);
+      const group = await this.groupService.repeatGroup(groupId, user);
       return res.status(HttpStatus.OK).json({
         message: 'Group is reactivated!',
         group
@@ -148,10 +149,10 @@ export class GroupController {
     }
   }
 
-  @Put('/update/:groupID')
-  async updateGroup(@Res() res, @Param('groupID') groupID, @Body() updateGroupDTO: UpdateGroupDTO): Promise<Group> {
+  @Put('/update/:groupId')
+  async updateGroup(@Res() res, @Param('groupId') groupId, @Body() updateGroupDTO: UpdateGroupDTO, @CurrentUser() user): Promise<Group> {
     try {
-      const updateGroup = await this.groupService.updateGroup(groupID, updateGroupDTO);
+      const updateGroup = await this.groupService.updateGroup(groupId, updateGroupDTO, user);
       return res.status(HttpStatus.OK).json({
         message: 'Group has been updated',
         Group: updateGroup
@@ -164,10 +165,10 @@ export class GroupController {
     }
   }
 
-  @Delete('/delete/:groupID')
-  async deleteGroup(@Res() res, @Param('groupID') groupID): Promise<string> {
+  @Delete('/delete/:groupId')
+  async deleteGroup(@Res() res, @Param('groupId') groupId): Promise<string> {
     try {
-      await this.groupService.deleteGroup(groupID);
+      await this.groupService.deleteGroup(groupId);
       return res.status(HttpStatus.OK).json({
         message: 'Group deleted'
       });
@@ -179,10 +180,10 @@ export class GroupController {
     }
   }
 
-  @Put('/remove/:groupID')
-  async inactiveGroup(@Res() res, @Param('groupID') groupID): Promise<string> {
+  @Put('/remove/:groupId')
+  async inactiveGroup(@Res() res, @Param('groupId') groupId): Promise<string> {
     try {
-      await this.groupService.toInactiveGroup(groupID);
+      await this.groupService.toInactiveGroup(groupId);
       return res.status(HttpStatus.OK).json({
         message: 'Group removed'
       });
@@ -209,10 +210,10 @@ export class GroupController {
     }
   }
 
-  @Get('/invitation/:groupID')
-  async getInvitations(@Res() res, @Param('groupID') groupID) {
+  @Get('/invitation/:groupId')
+  async getInvitations(@Res() res, @Param('groupId') groupId) {
     try {
-      const response = await this.groupService.getInvitationToGroup(groupID);
+      const response = await this.groupService.getInvitationToGroup(groupId);
       return res.status(HttpStatus.OK).json({
         response
       });
@@ -250,8 +251,7 @@ export class GroupController {
       });
     }
   }
-  
-  
+
   @Get('/request/user')
   async getMyRequestsToJoinGroup(@Res() res, @CurrentUser() user) {
     try {
@@ -290,6 +290,54 @@ export class GroupController {
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         err: err.message
+      });
+    }
+  }
+
+  @Post('/search/distance')
+  async searchByDistance(@Res() res, @Body() data: SearchByDistanceDto): Promise<Group[]> {
+    try {
+      const getGroup = await this.groupService.searchByDistance(data.groupId, data.maxDistance);
+      return res.status(HttpStatus.OK).json({
+        message: 'List of groups',
+        groups: getGroup
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'An error has ocurred',
+        err: err.message
+      });
+    }
+  }
+
+  @Post('/new/admin')
+  async newAdmin(@Res() res, @Body() data: NewAdminDto, @CurrentUser() user): Promise<string> {
+    try {
+      const response = await this.groupService.setNewAdmin(data, user);
+      return res.status(HttpStatus.OK).json({
+        message: 'Admin seted',
+        response
+      });
+    } catch (error) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'An error has occurred',
+        err: error.message
+      });
+    }
+  }
+
+  @Post('/update/photos')
+  async editPhotos(@Res() res, @Body() data: EditPhotosDto, @CurrentUser() user ) {
+     try {
+      const response = await this.groupService.setGroupPhotos(data, user);
+      return res.status(HttpStatus.OK).json({
+        message: 'Photos updated',
+        response
+      });
+    } catch (error) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'An error has occurred',
+        err: error.message
       });
     }
   }

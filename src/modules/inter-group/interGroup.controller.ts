@@ -50,10 +50,11 @@ export class InterGroupController {
   async updateInterGroup(
     @Res() res,
     @Param('intergroupID') intergroupID,
-    @Body() updateInterGroupDTO: UpdateInterGroupDTO
+    @Body() updateInterGroupDTO: UpdateInterGroupDTO,
+    @CurrentUser() user
   ): Promise<InterGroup> {
     try {
-      const updateInterGroup = await this.interGroupService.updateInterGroup(intergroupID, updateInterGroupDTO);
+      const updateInterGroup = await this.interGroupService.updateInterGroup(intergroupID, updateInterGroupDTO, user);
       return res.status(HttpStatus.OK).json({
         message: 'Inter Group has been updated',
         interGroup: updateInterGroup

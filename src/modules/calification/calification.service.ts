@@ -20,11 +20,12 @@ export class CalificationService {
     return califications;
   }
 
-  async createCalification(data: CalificationDTO) {
+  async createCalification(data: CalificationDTO, currentUser: any) {
     try {
-      const { toUser, fromUser, interGroup, success } = data;
+      const userId = currentUser._id;
+      const { toUser, interGroup, success } = data;
       await this.userService.changeUserCalifications(toUser, success)
-      const alreadyCalificated = await this.calificationModel.find({ toUser, fromUser, interGroup});
+      const alreadyCalificated = await this.calificationModel.find({ toUser, fromUser: userId, interGroup});
       if (alreadyCalificated.length > 0) throw new Error('This person already calificate the member of this intergroup');
       const calification = new this.calificationModel(data);
       await calification.save();

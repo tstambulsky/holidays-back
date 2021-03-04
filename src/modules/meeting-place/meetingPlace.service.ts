@@ -40,7 +40,7 @@ export class MeetingPlaceService {
   async updateMeeting(meetingID: any, data: UpdateMeetingDTO): Promise<Meeting | undefined> {
     try {
       const meeting = await this.meetingModel.findOne({ _id: meetingID });
-      const updatedMeeting = await meeting.updateOne({ ...data });
+      await meeting.updateOne({ ...data });
       const meetingUpdated = await this.meetingModel.findOne({ _id: meetingID });
       return meetingUpdated;
     } catch (err) {

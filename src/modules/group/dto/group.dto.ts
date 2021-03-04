@@ -2,34 +2,30 @@ import { Meeting } from '../../meeting-place/schema/meetingPlace.schema';
 import { User } from '../../users/schema/users.schema';
 import { Group } from '../schema/group.schema';
 import { Invitation } from '../schema/invitation.schema';
+import { TypeOfActivity } from '../../typeOfActivity/schema/typeOfActivity.schema';
 
 export class GroupDTO {
   readonly name: string;
-  readonly startDate: Date;
-  readonly startTime: string;
-  readonly endTime?: string;
-  readonly typeOfActivity: string;
+  readonly startDate: string;
+  readonly endDate?: string;
+  readonly typeOfActivity: TypeOfActivity;
   readonly meetingPlaceOne?: Meeting;
   readonly meetingPlaceTwo?: Meeting;
-  readonly address: any;
   readonly description: string;
-  readonly photos?: string;
+  readonly photos?: string[];
   readonly integrants: User;
   readonly active: boolean;
-  readonly admin: User;
 }
 
 export class UpdateGroupDTO {
   readonly name?: string;
-  readonly startDate?: Date;
-  readonly startTime?: string;
-  readonly endTime?: string;
-  readonly typeOfActivity?: string;
+  readonly startDate?: string;
+  readonly endDate?: string;
+  readonly typeOfActivity?: TypeOfActivity;
   readonly meetingPlaceOne?: Meeting;
   readonly meetingPlaceTwo?: Meeting;
-  readonly address?: any;
   readonly description?: string;
-  readonly photos?: string;
+  readonly photos?: string[];
   readonly integrants: User;
   readonly active?: boolean;
 }
@@ -50,4 +46,20 @@ export class RequestToGroupDTO {
 export class AceptOrRefuseDTO {
   readonly invitationId: Invitation;
   readonly success?: boolean;
+}
+
+export class SearchByDistanceDto {
+  readonly groupId: Group;
+  readonly maxDistance: number;
+}
+
+export class NewAdminDto {
+  readonly adminId: User;
+  readonly groupId: Group;
+}
+
+export class EditPhotosDto {
+  readonly groupId: Group;
+  readonly photos: string[];
+
 }

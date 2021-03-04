@@ -59,9 +59,11 @@ export class InterGroupService {
     }
   }
 
-  async updateInterGroup(interGroupID: any, data: UpdateInterGroupDTO): Promise<InterGroup | undefined> {
+  async updateInterGroup(interGroupID: any, data: UpdateInterGroupDTO, currentUser: any): Promise<InterGroup | undefined> {
     try {
+      const userId = currentUser._id;
       const interGroup = await this.interGroupModel.findOne({ _id: interGroupID });
+      if (interGroup.groupOne.admin !== userId || interGroup.groupTwo.admin !== userId) throw new HttpException('You dont have privileges to do this action', 404);
       const updatedInterGroup = await this.interGroupModel.updateOne({ ...data });
       const interGroupUpdated = await this.interGroupModel.findOne({ _id: interGroupID });
       return interGroupUpdated;
@@ -125,7 +127,7 @@ export class InterGroupService {
 
   async acceptInvitationGroupToGroup(data: AceptOrRefuseDTO, currentUser: any) {
     try {
-      const { invitationId } = data;
+      const { invitationId, groupOne, groupTwo } = data;
       const userID = currentUser._id;
       const invitation = await this.invitationModel.findOne({ _id: invitationId });
       if (!invitation) throw new Error('This invitation does not exist');
@@ -135,8 +137,12 @@ export class InterGroupService {
       if (groupReceivInvitation.admin != userID) throw new Error('You are not the admin of the group.');
       invitation.success = true;
       await invitation.save();
-      const createInterGroup = await this.createInterGroup(data);
-      return createInterGroup;
+      const createInterGroup = await new this.interGroupModel({
+        groupOne,
+        groupTwo,
+        active: false
+      });
+      return await createInterGroup.save();
     } catch (error) {
       throw new Error(error.message);
     }
@@ -162,12 +168,12 @@ export class InterGroupService {
   async proposalDateAndPlace(data: newProposalDto, currentUser: any) {
     try {
       const { interGroup, groupSender } = data;
-      const userID = currentUser._id;
+      const userId = currentUser._id;
       const obtainInterGroup = await this.interGroupModel.findOne({ _id: interGroup });
       if (!obtainInterGroup) throw new Error('This Inter group does not exist');
       if (obtainInterGroup.confirmed) throw new Error('This Inter group is already confirmed');
       const groupSend = await this.groupService.getGroup(groupSender);
-      if (groupSend.admin != userID) throw new Error('You are not the admin of the group.');
+      if (groupSend.admin != userId) throw new Error('You are not the admin of the group.');
       const proposal = new this.proposalModel(data);
       await proposal.save();
       return 'Proposal Sended';

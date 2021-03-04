@@ -5,18 +5,30 @@ export type MeetingDocument = Meeting & mongoose.Document;
 
 @Schema({ timestamps: true })
 export class Meeting {
-  @Prop({ required: true })
+  @Prop()
   name: string;
+
   @Prop()
   address: string;
-  @Prop({ type: [Number], required: true }) //[Long - Lat]
-  location: string;
-  @Prop({ required: true })
+
+  @Prop()
+  latitude: number;
+
+  @Prop()
+  longitude: number;
+
+  @Prop()
   description: string;
+
   @Prop()
   photo: string;
+
   @Prop({ default: true })
   active: boolean;
+
+  @Prop({ default: false })
+  isStore: boolean;
+
 }
 
 export const MeetingPlaceSchema = SchemaFactory.createForClass(Meeting);
