@@ -3,9 +3,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Group, GroupDocument } from './schema/group.schema';
 import { UsersService } from '../users/users.service';
-import { GroupDTO, UpdateGroupDTO, RequestToGroupDTO, AceptOrRefuseDTO } from './dto/group.dto';
+import { GroupDTO, UpdateGroupDTO, RequestToGroupDTO, AceptOrRefuseDTO, NewAdminDto } from './dto/group.dto';
 import { Invitation, InvitationDocument } from './schema/invitation.schema';
 import * as moment from 'moment';
+import { checkRange, getDistaceBetween } from './utils/getDistance';
 
 @Injectable()
 export class GroupService {
@@ -21,7 +22,7 @@ export class GroupService {
       .populate('integrants')
       .populate('meetingPlaceOne')
       .populate('meetingPlaceTwo')
-      .populate('typeOfActivity')
+      .populate('TypeOfActivity')
       .exec();
     if (!groups) {
       throw new HttpException('Not Found', 404);
@@ -31,10 +32,12 @@ export class GroupService {
 
   async getGroup(groupId: any): Promise<Group> {
     try {
-      const group = await this.groupModel.findOne({ _id: groupId, active: true }).populate('integrants') 
-      .populate('meetingPlaceOne')
-      .populate('meetingPlaceTwo')
-      .populate('typeOfActivity');
+      const group = await this.groupModel
+        .findOne({ _id: groupId, active: true })
+        .populate('integrants')
+        .populate('meetingPlaceOne')
+        .populate('meetingPlaceTwo')
+        .populate('typeOfActivity');
       return group;
     } catch (err) {
       console.log(err);
@@ -42,16 +45,20 @@ export class GroupService {
     }
   }
 
-  async createGroup(groupDTO: GroupDTO, currentUser: any): Promise<string> {
+  async createGroup(groupDTO: GroupDTO, currentUser: any): Promise<Group> {
     try {
       const userId = currentUser._id;
       const group = new this.groupModel(groupDTO);
       group.admin = userId;
-      if (!group.endDate) group.endDate = moment(group.startDate).add(15, 'hours').format('YYYY-MM-DD hh:mm:ss');
-      console.log(group);
-      if (group.endDate = moment().format('hh:mm')) group.active = false;
-      await group.save();
-      return 'Group created';
+      //@ts-ignore
+      group.integrants.push(userId);
+      const fromDate = group.startDate || moment().format('YYYY-MM-DD hh:mm:ss');
+      group.startDate = fromDate;
+      if (!group.endDate) group.endDate = moment(fromDate).add(15, 'hours').format('YYYY-MM-DD hh:mm:ss');
+      console.log('Start, ', group.startDate);
+      console.log('finis', group.endDate);
+      const groupCreated = await group.save();
+      return groupCreated;
     } catch (err) {
       throw new Error(err.message);
     }
@@ -61,10 +68,9 @@ export class GroupService {
     try {
       const userId = currentUser._id;
       const group = await this.groupModel.findOne({ _id: groupId, active: true });
-      if (group.admin !== userId) throw new Error ('You do not have privileges to perform this action.')
-      const updatedGroup = await group.updateOne({ ...data });
+      if (group.admin !== userId) throw new Error('You do not have privileges to perform this action.');
+      await group.updateOne({ ...data });
       const groupUpdated = await this.groupModel.findOne({ _id: groupId }).populate('integrants');
-      console.log(group);
       return groupUpdated;
     } catch (err) {
       throw new Error(err.message);
@@ -107,27 +113,30 @@ export class GroupService {
   async genderFilter(gender: string) {
     try {
       const groups = await this.groupModel.aggregate([
-      { $match: { active: true } },
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'integrants',
-          foreignField: '_id',
-          as: 'integrants'
-        }
-      },
-      { $match: { 'integrants.sex': { $eq: `${gender}` } } }
-    ]);
-    console.log(groups);
-    if (groups.length < 0) throw new Error ('No have groups')
-    return groups;
-  } catch (err) {
-    throw new Error(err.message)
-  };
+        { $match: { active: true } },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'integrants',
+            foreignField: '_id',
+            as: 'integrants'
+          }
+        },
+        { $match: { 'integrants.sex': { $eq: `${gender}` } } }
+      ]);
+      console.log(groups);
+      if (groups.length < 0) throw new Error('No have groups');
+      return groups;
+    } catch (err) {
+      throw new Error(err.message);
+    }
   }
 
   async ageFilter(edad: number) {
-    const groups: any[] = await this.groupModel.find({ active: true }).populate('integrants').populate('meetingPlaceOne')
+    const groups: any[] = await this.groupModel
+      .find({ active: true })
+      .populate('integrants')
+      .populate('meetingPlaceOne')
       .populate('meetingPlaceTwo')
       .populate('typeOfActivity');
     groups.forEach((element) => {
@@ -164,42 +173,40 @@ export class GroupService {
 
   async searchGroupByActivity(activity: string): Promise<Group[]> {
     try {
-       const groups = await this.groupModel.aggregate([
-      { $match: { active: true } },
-      {
-        $lookup: {
-          from: 'typeOfActivity',
-          localField: 'typeOfActivity',
-          foreignField: '_id',
-          as: 'typeOfActivity'
-        }
-      },
-      { $match: { 'typeOfActivity.name': { $eq: `${activity}` } } }
-    ]);
-    console.log(groups);
-    if (groups.length < 0) throw new Error ('No have groups')
-    return groups;
-
-   }  catch (err) {
-      throw new Error (err.message);
-   }
-}
+      const groups = await this.groupModel.aggregate([
+        { $match: { active: true } },
+        {
+          $lookup: {
+            from: 'typeOfActivity',
+            localField: 'typeOfActivity',
+            foreignField: '_id',
+            as: 'typeOfActivity'
+          }
+        },
+        { $match: { 'typeOfActivity.name': { $eq: `${activity}` } } }
+      ]);
+      if (groups.length < 0) throw new Error('No have groups');
+      return groups;
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
 
   async searchGroupByName(name: string): Promise<Group[]> {
     try {
-    const searchGroup = await this.groupModel
-      .find({ name: new RegExp(name, 'i') }, { active: true, name: 1, description: 1, typeOfActivity: 1 })
-      .populate('integrants')
-      .populate('meetingPlaceOne')
-      .populate('meetingPlaceTwo')
-      .populate('typeOfActivity')
-      .exec();
+      const searchGroup = await this.groupModel
+        .find({ name: new RegExp(name, 'i') }, { active: true, name: 1, description: 1, typeOfActivity: 1 })
+        .populate('integrants')
+        .populate('meetingPlaceOne')
+        .populate('meetingPlaceTwo')
+        .populate('typeOfActivity')
+        .exec();
       if (!searchGroup) throw new HttpException('Not Found', 404);
       return searchGroup;
-   }  catch (err) {
-      throw new Error(err.message)
-   }
-}
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
   async repeatGroup(groupId: any, currentUser: any) {
     try {
       const userId = currentUser._id;
@@ -218,15 +225,17 @@ export class GroupService {
   async previousGroups(currentUser: any): Promise<Group[]> {
     try {
       const userId = currentUser._id;
-      const groups = await this.groupModel.find({ active: false, integrants: userId }).populate('integrants')
-      .populate('meetingPlaceOne')
-      .populate('meetingPlaceTwo')
-      .populate('typeOfActivity');
-    if(groups.length < 0) throw new Error('The user has no previous groups.')
-    return groups;
-  } catch (err) {
-    throw new Error(err.message)
-  }
+      const groups = await this.groupModel
+        .find({ active: false, integrants: userId })
+        .populate('integrants')
+        .populate('meetingPlaceOne')
+        .populate('meetingPlaceTwo')
+        .populate('typeOfActivity');
+      if (groups.length < 0) throw new Error('The user has no previous groups.');
+      return groups;
+    } catch (err) {
+      throw new Error(err.message);
+    }
   }
 
   async sendInvitationToGroup(data: RequestToGroupDTO) {
@@ -253,7 +262,7 @@ export class GroupService {
         .find({ group: groupId, success: false, active: true, fromAdmin: false })
         .populate('user')
         .populate('group')
-        .populate('typeOfActivity')
+        .populate('typeOfActivity');
       if (invitations.length < 0) throw new Error('This group does not has requests');
       return invitations;
     } catch (error) {
@@ -343,14 +352,55 @@ export class GroupService {
   async getUserGroups(currentUser: any) {
     try {
       const userID = currentUser._id;
-      const groups = await this.groupModel.find({ active: true, integrants: userID }).populate('integrants')
-      .populate('meetingPlaceOne')
-      .populate('meetingPlaceTwo')
-      .populate('typeOfActivity');
+      const groups = await this.groupModel
+        .find({ active: true, integrants: userID })
+        .populate('integrants')
+        .populate('meetingPlaceOne')
+        .populate('meetingPlaceTwo')
+        .populate('typeOfActivity');
       if (groups.length < 0) throw new Error('The user does not belong to any group');
       return groups;
     } catch (err) {
       throw new Error(err.message);
+    }
+  }
+
+  async searchByDistance(fromPlace, maxDistance) {
+    try {
+      const group = await this.groupModel.findOne({ _id: fromPlace, active: true }).populate('meetingPlaceOne');
+      if (!group || !group.meetingPlaceOne.latitude) throw new Error('We dont have information about this place');
+      const allGroups = await this.groupModel.find({ active: true }).populate('meetingPlaceOne');
+      let groupsInRange = [];
+      allGroups
+        .filter((g) => g.meetingPlaceOne !== null)
+        .forEach((data) => {
+          console.log(data);
+          const distance = getDistaceBetween(group.meetingPlaceOne, data.meetingPlaceOne);
+          console.log('distance betweenn ', group.name + 'and' + data.name);
+          const result = checkRange(distance, maxDistance);
+          if (result) {
+            groupsInRange.push(data);
+          }
+        });
+      const final = groupsInRange.filter((data) => data !== fromPlace);
+      return final;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async setNewAdmin(currentUser: any, data: NewAdminDto) {
+    try {
+      const { adminId, groupId } = data;
+      const userId = currentUser._id;
+      const group = await this.groupModel.findOne({ _id: groupId, active: true });
+      if (!group) throw new Error('This group does not exist');
+      if (group.admin != userId) throw new Error('You dont have permission to set a new Admin');
+      group.admin = adminId;
+      await group.save();
+      return 'New Admin seted';
+    } catch (error) {
+      throw new Error(error.message);
     }
   }
 }

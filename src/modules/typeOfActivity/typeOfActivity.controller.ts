@@ -11,38 +11,39 @@ export class TypeOfActivityController {
   @Get('/')
   async getTypes(@Res() res) {
     try {
-    const types = await this.typeOfActivityService.getTypes();
-    return res.status(HttpStatus.OK).json({
-      message: 'List of Types of activities',
-      types
-    })
-  } catch (err) {
-    return res.status(HttpStatus.BAD_REQUEST).json({
-      err: err.message
-    })
-  }
+      const response = await this.typeOfActivityService.getTypes();
+      return res.status(HttpStatus.OK).json({
+        message: 'List of Types of activities',
+        response
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        err: err.message
+      });
+    }
   }
 
   @Get('/:typeId')
   async getType(@Res() res, @Param('typeId') typeId) {
     try {
-      const type = await this.typeOfActivityService.getType(typeId);
+      const response = await this.typeOfActivityService.getType(typeId);
       return res.status(HttpStatus.OK).json({
-        type
-      })
+        response
+      });
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         err: err.message
-      })
+      });
     }
   }
 
   @Post('/')
   async createType(@Body() data: TypeActivityDTO, @Res() res) {
     try {
-      const type = await this.typeOfActivityService.createType(data);
+      const response = await this.typeOfActivityService.createType(data);
       return res.status(HttpStatus.OK).json({
-        message: 'Type of activity Created'
+        message: 'Type of activity Created',
+        response
       });
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -52,12 +53,12 @@ export class TypeOfActivityController {
   }
 
   @Put('/update/:typeId')
-  async updateType (@Body() data: TypeActivityDTO, @Res() res, @Param('typeId') typeId) {
-     try {
-      const type = await this.typeOfActivityService.updateType(typeId, data);
+  async updateType(@Body() data: TypeActivityDTO, @Res() res, @Param('typeId') typeId) {
+    try {
+      const response = await this.typeOfActivityService.updateType(typeId, data);
       return res.status(HttpStatus.OK).json({
         message: 'Type of activity updated!',
-        type
+        response
       });
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -67,8 +68,8 @@ export class TypeOfActivityController {
   }
 
   @Delete('/delete/:typeId')
-  async deleteType (@Res() res, @Param('typeId') typeId) {
-     try {
+  async deleteType(@Res() res, @Param('typeId') typeId) {
+    try {
       await this.typeOfActivityService.deleteType(typeId);
       return res.status(HttpStatus.OK).json({
         message: 'Type of activity deleted.'
@@ -79,7 +80,5 @@ export class TypeOfActivityController {
         err: err.message
       });
     }
-
   }
-  }
-
+}

@@ -5,7 +5,7 @@ export type TypeOfActivityDocument = TypeOfActivity & mongoose.Document;
 
 @Schema({ timestamps: true })
 export class TypeOfActivity {
-  @Prop({ type: [String] })
+  @Prop()
   name: string;
 }
 export const TypeOfActivitySchema = SchemaFactory.createForClass(TypeOfActivity);

@@ -6,12 +6,11 @@ import { TypeOfActivity } from '../../typeOfActivity/schema/typeOfActivity.schem
 
 export class GroupDTO {
   readonly name: string;
-  readonly startDate: Date;
+  readonly startDate: string;
   readonly endDate?: string;
   readonly typeOfActivity: TypeOfActivity;
   readonly meetingPlaceOne?: Meeting;
   readonly meetingPlaceTwo?: Meeting;
-  readonly address: any;
   readonly description: string;
   readonly photos?: string;
   readonly integrants: User;
@@ -20,12 +19,11 @@ export class GroupDTO {
 
 export class UpdateGroupDTO {
   readonly name?: string;
-  readonly startDate?: Date;
+  readonly startDate?: string;
   readonly endDate?: string;
   readonly typeOfActivity?: TypeOfActivity;
   readonly meetingPlaceOne?: Meeting;
   readonly meetingPlaceTwo?: Meeting;
-  readonly address?: any;
   readonly description?: string;
   readonly photos?: string;
   readonly integrants: User;
@@ -48,4 +46,14 @@ export class RequestToGroupDTO {
 export class AceptOrRefuseDTO {
   readonly invitationId: Invitation;
   readonly success?: boolean;
+}
+
+export class SearchByDistanceDto {
+  readonly groupId: Group;
+  readonly maxDistance: number;
+}
+
+export class NewAdminDto {
+  readonly adminId: User;
+  readonly groupId: Group;
 }
