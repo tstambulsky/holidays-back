@@ -11,8 +11,8 @@ export class Group {
   @Prop({})
   name: string;
 
-  @Prop({ default: Date.now })
-  startDate: Date;
+  @Prop()
+  startDate: string;
 
   @Prop()
   endDate?: string;
@@ -28,15 +28,6 @@ export class Group {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Meeting' })
   meetingPlaceTwo?: Meeting;
-
-  @Prop({})
-  address: [
-    {
-      streetAndNumber: string;
-      lat: string;
-      long: string;
-    }
-  ];
 
   @Prop({})
   description: string;

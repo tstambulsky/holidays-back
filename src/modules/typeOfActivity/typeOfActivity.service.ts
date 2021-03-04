@@ -10,45 +10,45 @@ export class TypeOfActivityService {
 
   async getTypes(): Promise<TypeOfActivity[]> {
     try {
-      const types = await this.typeOfActivityModel.find();
-      if(!types) throw new HttpException('Do not have types of activities', 404);
-      return types;
+      const activities = await this.typeOfActivityModel.find();
+      if (!activities) throw new HttpException('Do not have types of activities', 404);
+      return activities;
     } catch (err) {
       throw new Error(err.message);
+    }
   }
-  }  
 
-async getType(typeId: any) {
-  try {
-    const type = await this.typeOfActivityModel.findOne({ _id: typeId});
-    if (!type) throw new HttpException('No matches', 404);
+  async getType(typeId: any) {
+    try {
+      const type = await this.typeOfActivityModel.findOne({ _id: typeId });
+      if (!type) throw new HttpException('No matches', 404);
       return type;
-  } catch (err) {
-    throw new Error(err.message);
+    } catch (err) {
+      throw new Error(err.message);
+    }
   }
-}
 
-async createType(data:TypeActivityDTO): Promise<string> {
-  try {
-    const createType = new this.typeOfActivityModel(data);
-    await createType.save();
-    return 'Type of activity created!'
-  } catch (err) {
-    throw new Error (err.message)
+  async createType(data: TypeActivityDTO): Promise<TypeOfActivity> {
+    try {
+      const createType = new this.typeOfActivityModel(data);
+      const activity = await createType.save();
+      return activity;
+    } catch (err) {
+      throw new Error(err.message);
+    }
   }
-}
 
-async updateType(typeId: any, data: TypeActivityDTO): Promise<TypeOfActivity> {
-  try {
-    const type = await this.typeOfActivityModel.findOne({ _id: typeId});
-    if(!type) throw new HttpException('No matches', 404);
-      const updatedType = await type.updateOne({ ...data });
+  async updateType(typeId: any, data: TypeActivityDTO): Promise<TypeOfActivity> {
+    try {
+      const type = await this.typeOfActivityModel.findOne({ _id: typeId });
+      if (!type) throw new HttpException('No matches', 404);
+      await type.updateOne({ ...data });
       const typeUpdated = await this.typeOfActivityModel.findOne({ _id: typeId });
       return typeUpdated;
-  } catch (err) {
-    throw new Error(err.message)
+    } catch (err) {
+      throw new Error(err.message);
+    }
   }
-}
 
   async deleteType(typeId: any): Promise<string> {
     try {

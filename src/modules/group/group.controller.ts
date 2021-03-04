@@ -1,7 +1,7 @@
 import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post, UseGuards } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { Group } from './schema/group.schema';
-import { GroupDTO, UpdateGroupDTO, QueryDTO, RequestToGroupDTO, AceptOrRefuseDTO } from './dto/group.dto';
+import { GroupDTO, UpdateGroupDTO, QueryDTO, RequestToGroupDTO, AceptOrRefuseDTO, SearchByDistanceDto, NewAdminDto } from './dto/group.dto';
 import { CurrentUser } from '../users/decorators/currentUser';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
@@ -102,11 +102,12 @@ export class GroupController {
   }
 
   @Post()
-  async createGroup(@Res() res, @Body() createGroupDTO: GroupDTO, @CurrentUser() user): Promise<string> {
+  async createGroup(@Res() res, @Body() createGroupDTO: GroupDTO, @CurrentUser() user): Promise<Group> {
     try {
-      await this.groupService.createGroup(createGroupDTO, user);
+      const group = await this.groupService.createGroup(createGroupDTO, user);
       return res.status(HttpStatus.OK).json({
-        message: 'Group has been created'
+        message: 'Group has been created',
+        group
       });
     } catch (err) {
       res.status(HttpStatus.BAD_REQUEST).json({
@@ -250,8 +251,7 @@ export class GroupController {
       });
     }
   }
-  
-  
+
   @Get('/request/user')
   async getMyRequestsToJoinGroup(@Res() res, @CurrentUser() user) {
     try {
@@ -290,6 +290,38 @@ export class GroupController {
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         err: err.message
+      });
+    }
+  }
+
+  @Post('/search/distance')
+  async searchByDistance(@Res() res, @Body() data: SearchByDistanceDto): Promise<Group[]> {
+    try {
+      const getGroup = await this.groupService.searchByDistance(data.groupId, data.maxDistance);
+      return res.status(HttpStatus.OK).json({
+        message: 'List of groups',
+        groups: getGroup
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'An error has ocurred',
+        err: err.message
+      });
+    }
+  }
+
+  @Post('/new/admin')
+  async newAdmin(@Res() res, @Body() data: NewAdminDto, @CurrentUser() user): Promise<string> {
+    try {
+      const response = await this.groupService.setNewAdmin(user, data);
+      return res.status(HttpStatus.OK).json({
+        message: 'Admin seted',
+        response
+      });
+    } catch (error) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'An error has occurred',
+        err: error.message
       });
     }
   }
