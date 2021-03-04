@@ -21,7 +21,7 @@ export class User {
   @Prop({ required: false })
   apple_id?: string;
   
-  @Prop({type:[String], required: false })
+  @Prop({type:[String], required: false, minItems: 0, maxItems: 6})
   photo?: string[];
   
   @Prop({ required: false })

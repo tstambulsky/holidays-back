@@ -1,7 +1,7 @@
 import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post, UseGuards } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { Group } from './schema/group.schema';
-import { GroupDTO, UpdateGroupDTO, QueryDTO, RequestToGroupDTO, AceptOrRefuseDTO, SearchByDistanceDto, NewAdminDto } from './dto/group.dto';
+import { GroupDTO, UpdateGroupDTO, QueryDTO, RequestToGroupDTO, AceptOrRefuseDTO, SearchByDistanceDto, NewAdminDto, EditPhotosDto } from './dto/group.dto';
 import { CurrentUser } from '../users/decorators/currentUser';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
@@ -313,9 +313,25 @@ export class GroupController {
   @Post('/new/admin')
   async newAdmin(@Res() res, @Body() data: NewAdminDto, @CurrentUser() user): Promise<string> {
     try {
-      const response = await this.groupService.setNewAdmin(user, data);
+      const response = await this.groupService.setNewAdmin(data, user);
       return res.status(HttpStatus.OK).json({
         message: 'Admin seted',
+        response
+      });
+    } catch (error) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'An error has occurred',
+        err: error.message
+      });
+    }
+  }
+
+  @Post('/update/photos')
+  async editPhotos(@Res() res, @Body() data: EditPhotosDto, @CurrentUser() user ) {
+     try {
+      const response = await this.groupService.setGroupPhotos(data, user);
+      return res.status(HttpStatus.OK).json({
+        message: 'Photos updated',
         response
       });
     } catch (error) {

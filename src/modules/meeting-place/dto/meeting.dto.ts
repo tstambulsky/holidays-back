@@ -5,6 +5,7 @@ export class MeetingDTO {
   readonly longitude: number;
   readonly description: string;
   readonly photo: string;
+  readonly isStore: boolean;
 }
 
 export class UpdateMeetingDTO {
@@ -14,4 +15,5 @@ export class UpdateMeetingDTO {
   readonly longitude?: number;
   readonly description?: string;
   readonly photo?: string;
+  readonly isStore?: boolean;
 }

@@ -12,7 +12,7 @@ export class GroupDTO {
   readonly meetingPlaceOne?: Meeting;
   readonly meetingPlaceTwo?: Meeting;
   readonly description: string;
-  readonly photos?: string;
+  readonly photos?: string[];
   readonly integrants: User;
   readonly active: boolean;
 }
@@ -25,7 +25,7 @@ export class UpdateGroupDTO {
   readonly meetingPlaceOne?: Meeting;
   readonly meetingPlaceTwo?: Meeting;
   readonly description?: string;
-  readonly photos?: string;
+  readonly photos?: string[];
   readonly integrants: User;
   readonly active?: boolean;
 }
@@ -56,4 +56,10 @@ export class SearchByDistanceDto {
 export class NewAdminDto {
   readonly adminId: User;
   readonly groupId: Group;
+}
+
+export class EditPhotosDto {
+  readonly groupId: Group;
+  readonly photos: string[];
+
 }

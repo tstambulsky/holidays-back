@@ -25,6 +25,10 @@ export class Meeting {
 
   @Prop({ default: true })
   active: boolean;
+
+  @Prop({ default: false })
+  isStore: boolean;
+
 }
 
 export const MeetingPlaceSchema = SchemaFactory.createForClass(Meeting);

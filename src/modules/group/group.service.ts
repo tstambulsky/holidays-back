@@ -3,10 +3,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Group, GroupDocument } from './schema/group.schema';
 import { UsersService } from '../users/users.service';
-import { GroupDTO, UpdateGroupDTO, RequestToGroupDTO, AceptOrRefuseDTO, NewAdminDto } from './dto/group.dto';
+import { GroupDTO, UpdateGroupDTO, RequestToGroupDTO, AceptOrRefuseDTO, NewAdminDto, EditPhotosDto } from './dto/group.dto';
 import { Invitation, InvitationDocument } from './schema/invitation.schema';
-import * as moment from 'moment';
 import { checkRange, getDistaceBetween } from './utils/getDistance';
+const moment = require('moment');
+moment.suppressDeprecationWarnings = true;
 
 @Injectable()
 export class GroupService {
@@ -52,10 +53,10 @@ export class GroupService {
       group.admin = userId;
       //@ts-ignore
       group.integrants.push(userId);
-      const fromDate = group.startDate || moment().format('YYYY-MM-DD hh:mm:ss');
+      const fromDate = group.startDate || moment().format("YYYY-MM-DD hh:mm:ss A");
       group.startDate = fromDate;
-      if (!group.endDate) group.endDate = moment(fromDate).add(15, 'hours').format('YYYY-MM-DD hh:mm:ss');
-      console.log('Start, ', group.startDate);
+      if (!group.endDate) group.endDate = moment(fromDate).add(12, 'hours').format("YYYY-MM-DD hh:mm:ss A");
+      console.log('Start', group.startDate);
       console.log('finis', group.endDate);
       const groupCreated = await group.save();
       return groupCreated;
@@ -68,7 +69,7 @@ export class GroupService {
     try {
       const userId = currentUser._id;
       const group = await this.groupModel.findOne({ _id: groupId, active: true });
-      if (group.admin !== userId) throw new Error('You do not have privileges to perform this action.');
+      if (group.admin != userId) throw new Error('You do not have privileges to perform this action.');
       await group.updateOne({ ...data });
       const groupUpdated = await this.groupModel.findOne({ _id: groupId }).populate('integrants');
       return groupUpdated;
@@ -139,6 +140,14 @@ export class GroupService {
       .populate('meetingPlaceOne')
       .populate('meetingPlaceTwo')
       .populate('typeOfActivity');
+
+      const getYearOfPerson = (birthDate) => {
+      const year = new Date().getFullYear();
+      const date = new Date(birthDate);
+      const AniosDePersona = date.getFullYear();
+      const result = year - AniosDePersona;
+      return result;
+    };
     groups.forEach((element) => {
       const personasTotales = element.integrants.length;
       let totalEdades = 0;
@@ -150,19 +159,9 @@ export class GroupService {
       element.promedioDeEdades = promedio;
     });
 
-    const getYearOfPerson = (birthDate) => {
-      const year = new Date().getFullYear();
-      const date = new Date(birthDate);
-      const AniosDePersona = date.getFullYear();
-      const result = year - AniosDePersona;
-      return result;
-    };
-
     const checkPromedio = async (age) => {
-      const maxAge = edad + 3;
+      const maxAge = Number(edad) + 3;
       const minAge = edad - 3;
-      console.log('max', maxAge);
-      console.log('min', minAge);
       const isInPromedio = age <= maxAge && age >= minAge;
       return isInPromedio;
     };
@@ -177,7 +176,7 @@ export class GroupService {
         { $match: { active: true } },
         {
           $lookup: {
-            from: 'typeOfActivity',
+            from: 'tipeofactivities',
             localField: 'typeOfActivity',
             foreignField: '_id',
             as: 'typeOfActivity'
@@ -399,6 +398,21 @@ export class GroupService {
       group.admin = adminId;
       await group.save();
       return 'New Admin seted';
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async setGroupPhotos(currentUser: any, data: EditPhotosDto) {
+    try {
+      const { photos, groupId } = data;
+      const userId = currentUser._id;
+      const group = await this.groupModel.findOne({ _id: groupId, active: true});
+      if (!group) throw new Error('This group does not exist');
+      if (group.admin != userId) throw new Error('You dont have permission to edit photos.');
+      group.photos = photos;
+      await group.save();
+      return 'Updated photos'
     } catch (error) {
       throw new Error(error.message);
     }
