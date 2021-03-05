@@ -46,5 +46,14 @@ export class Group {
 
   @Prop()
   calificationsAverage: number;
+
+  @Prop()
+  percentageOfMale: number;
+
+  @Prop()
+  percentageOfFemale: number;
+
+  @Prop()
+  percentageOfNoGender: number;
 }
 export const GroupSchema = SchemaFactory.createForClass(Group);

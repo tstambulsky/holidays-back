@@ -41,28 +41,43 @@ export class GroupService {
         .populate('meetingPlaceOne')
         .populate('meetingPlaceTwo')
         .populate('typeOfActivity');
-        const getYearOfPerson = (birthDate) => {
-        const year = new Date().getFullYear();
-        const date = new Date(birthDate);
-        const AniosDePersona = date.getFullYear();
-        const result = year - AniosDePersona;
-        return result;
-    };
-        const personasTotales = group.integrants.length;
-        let totalEdades = 0;
-        group.integrants.forEach((persona) => {
-        const edad = getYearOfPerson(persona.birthDate);
-        totalEdades += edad;
+        const totalyPeople = group.integrants.length;
+        let totalyAge = 0;
+        let totalyMale = 0;
+        let totalyFemale = 0;
+        let totalyNoGender = 0;
+
+        group.integrants.forEach((people) => {
+          const persons = people.sex;
+          if (persons === 'Female') {
+           totalyFemale = persons.length / 2;
+          }
+          else if (persons === 'Male') {
+            totalyMale = persons.length / 2;
+          }
+          else {
+            totalyNoGender = persons.length / 2;
+          }
+          const ageFilter = getYearOfPerson(people.birthDate);
+          totalyAge += ageFilter;
       });
+          console.log('males', totalyMale)
+          console.log('female', totalyFemale)
           let totalCalifications = 0;
-          group.integrants.forEach((persona) => {
-          const califications = persona.points;
+          group.integrants.forEach((people) => {
+          const califications = people.points;
           totalCalifications += califications;
         });
-      const promedioEdad = totalEdades / personasTotales;
-      const promedioCalificacion = totalCalifications / personasTotales;
-      group.averageAge = promedioEdad;
-      group.calificationsAverage = promedioCalificacion;
+      const averageAge = totalyAge / totalyPeople;
+      const averageCalifications = totalCalifications / totalyPeople;
+      group.averageAge = averageAge;
+      group.calificationsAverage = averageCalifications;
+      const percentlyMale = (totalyMale * 100) / totalyPeople;
+      const percentlyFemale = totalyFemale * 100 / totalyPeople;
+      const percentlyNoGender = totalyNoGender * 100 / totalyPeople;
+      group.percentageOfMale = percentlyMale;
+      group.percentageOfFemale = percentlyFemale;
+      group.percentageOfNoGender = percentlyNoGender;
       return group
     } catch (err) {
       console.log(err);
@@ -73,6 +88,9 @@ export class GroupService {
   async createGroup(groupDTO: GroupDTO, currentUser: any): Promise<Group> {
     try {
       const userId = currentUser._id;
+      //const today = moment();
+      const alreadyInDate = await this.groupModel.findOne({ active: true, integrants: userId});
+      //if (alreadyInDate.startDate == today) throw new HttpException('It is not possible to have two groups on the same date', 404);
       const group = new this.groupModel(groupDTO);
       group.admin = userId;
       //@ts-ignore
