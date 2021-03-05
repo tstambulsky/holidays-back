@@ -5,7 +5,9 @@ import { Group, GroupDocument } from './schema/group.schema';
 import { UsersService } from '../users/users.service';
 import { GroupDTO, UpdateGroupDTO, RequestToGroupDTO, AceptOrRefuseDTO, NewAdminDto, EditPhotosDto } from './dto/group.dto';
 import { Invitation, InvitationDocument } from './schema/invitation.schema';
-import { checkRange, getDistaceBetween } from './utils/getDistance';
+import { distanceBetweenLocations } from './utils/getDistance';
+import { getYearOfPerson } from './utils/getYearByDate';
+import { checkPromedio } from './utils/checkPromedio';
 const moment = require('moment');
 moment.suppressDeprecationWarnings = true;
 
@@ -75,9 +77,9 @@ export class GroupService {
       group.admin = userId;
       //@ts-ignore
       group.integrants.push(userId);
-      const fromDate = group.startDate || moment().format("YYYY-MM-DD hh:mm:ss A");
+      const fromDate = group.startDate || moment().format('YYYY-MM-DD hh:mm:ss A');
       group.startDate = fromDate;
-      if (!group.endDate) group.endDate = moment(fromDate).add(12, 'hours').format("YYYY-MM-DD hh:mm:ss A");
+      if (!group.endDate) group.endDate = moment(fromDate).add(12, 'hours').format('YYYY-MM-DD hh:mm:ss A');
       console.log('Start', group.startDate);
       console.log('finis', group.endDate);
       const groupCreated = await group.save();
@@ -155,41 +157,26 @@ export class GroupService {
     }
   }
 
-  async ageFilter(edad: number) {
-    const groups: any[] = await this.groupModel
-      .find({ active: true })
-      .populate('integrants')
-      .populate('meetingPlaceOne')
-      .populate('meetingPlaceTwo')
-      .populate('typeOfActivity');
+  async ageFilter(averageAge: number) {
+    try {
+      const groups: any[] = await this.groupModel.find({ active: true }).populate('integrants');
 
-      const getYearOfPerson = (birthDate) => {
-      const year = new Date().getFullYear();
-      const date = new Date(birthDate);
-      const AniosDePersona = date.getFullYear();
-      const result = year - AniosDePersona;
-      return result;
-    };
-    groups.forEach((element) => {
-      const personasTotales = element.integrants.length;
-      let totalEdades = 0;
-      element.integrants.forEach((persona) => {
-        const edad = getYearOfPerson(persona.birthDate);
-        totalEdades += edad;
+      groups.forEach((element) => {
+        const totalPeople = element.integrants.length;
+        let allAges = 0;
+        element.integrants.forEach((person) => {
+          const year = getYearOfPerson(person.birthDate);
+          allAges += year;
+        });
+        const averages = allAges / totalPeople;
+        element.average = averages;
       });
-      const promedio = totalEdades / personasTotales;
-      element.promedioDeEdades = promedio;
-    });
 
-    const checkPromedio = async (age) => {
-      const maxAge = Number(edad) + 3;
-      const minAge = edad - 3;
-      const isInPromedio = age <= maxAge && age >= minAge;
-      return isInPromedio;
-    };
-
-    const gruposFiltrados = groups.filter((group) => checkPromedio(group.promedioDeEdades));
-    return gruposFiltrados;
+      const finalGroups = groups.filter((group) => checkPromedio(group.average, averageAge));
+      return finalGroups;
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
   async searchGroupByActivity(activity: string): Promise<Group[]> {
@@ -386,25 +373,20 @@ export class GroupService {
     }
   }
 
-  async searchByDistance(fromPlace, maxDistance) {
+  async searchByDistance(fromGroupId, maxDistance) {
     try {
-      const group = await this.groupModel.findOne({ _id: fromPlace, active: true }).populate('meetingPlaceOne');
+      const group = await this.groupModel.findOne({ _id: fromGroupId, active: true }).populate('meetingPlaceOne');
       if (!group || !group.meetingPlaceOne.latitude) throw new Error('We dont have information about this place');
       const allGroups = await this.groupModel.find({ active: true }).populate('meetingPlaceOne');
       let groupsInRange = [];
-      allGroups
-        .filter((g) => g.meetingPlaceOne !== null)
-        .forEach((data) => {
-          console.log(data);
-          const distance = getDistaceBetween(group.meetingPlaceOne, data.meetingPlaceOne);
-          console.log('distance betweenn ', group.name + 'and' + data.name);
-          const result = checkRange(distance, maxDistance);
-          if (result) {
-            groupsInRange.push(data);
-          }
-        });
-      const final = groupsInRange.filter((data) => data !== fromPlace);
-      return final;
+      const groupsFiltered = allGroups.filter((element) => element.meetingPlaceOne !== null && element._id != fromGroupId);
+      for (let data of groupsFiltered) {
+        const distance = distanceBetweenLocations(group.meetingPlaceOne, data.meetingPlaceOne);
+        if (distance < maxDistance + 1) {
+          groupsInRange.push(data);
+        }
+      }
+      return groupsInRange;
     } catch (error) {
       throw new Error(error.message);
     }
@@ -429,12 +411,12 @@ export class GroupService {
     try {
       const { photos, groupId } = data;
       const userId = currentUser._id;
-      const group = await this.groupModel.findOne({ _id: groupId, active: true});
+      const group = await this.groupModel.findOne({ _id: groupId, active: true });
       if (!group) throw new Error('This group does not exist');
       if (group.admin != userId) throw new Error('You dont have permission to edit photos.');
       group.photos = photos;
       await group.save();
-      return 'Updated photos'
+      return 'Updated photos';
     } catch (error) {
       throw new Error(error.message);
     }

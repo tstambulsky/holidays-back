@@ -1,21 +1,35 @@
-//@ts-nocheck
-import Distance from 'geo-distance';
 import { Meeting } from 'src/modules/meeting-place/schema/meetingPlace.schema';
-
-export const getDistaceBetween = (placeOne: Meeting, placeTwo: Meeting) =>
-  Distance.between(cleanDistance(placeOne), cleanDistance(placeTwo));
-
-export const checkRange = (placesDistance, maxDistance) => {
-  if (placesDistance > Distance(`${maxDistance} km`)) {
-    return true;
-  }
-  return false;
-};
+import { ILocation } from '../interfaces/location.interface';
 
 const cleanDistance = (place: Meeting) => {
-  console.log('PLACE IN CLEAN', place);
   return {
-    lat: place.latitude,
-    lon: place.longitude
+    latitude: place.latitude,
+    longitude: place.longitude
   };
+};
+
+const degreesToRadians = (degrees: number) => degrees * (Math.PI / 180);
+const radiansToDegrees = (radians: number) => radians * (180 / Math.PI);
+
+const centralSubtendedAngle = (locationX: ILocation, locationY: ILocation) => {
+  const locationXLatRadians = degreesToRadians(locationX.latitude);
+  const locationYLatRadians = degreesToRadians(locationY.latitude);
+  return radiansToDegrees(
+    Math.acos(
+      Math.sin(locationXLatRadians) * Math.sin(locationYLatRadians) +
+        Math.cos(locationXLatRadians) *
+          Math.cos(locationYLatRadians) *
+          Math.cos(degreesToRadians(Math.abs(locationX.longitude - locationY.longitude)))
+    )
+  );
+};
+
+const earthRadius = 6371;
+const greatCircleDistance = (angle: number) => 2 * Math.PI * earthRadius * (angle / 360);
+
+export const distanceBetweenLocations = (locationX: Meeting, locationY: Meeting): number => {
+  const fromLocation = cleanDistance(locationX);
+  const toLocation = cleanDistance(locationY);
+  const distance = greatCircleDistance(centralSubtendedAngle(fromLocation, toLocation));
+  return distance;
 };
