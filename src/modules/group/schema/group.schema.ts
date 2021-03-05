@@ -40,5 +40,11 @@ export class Group {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   admin: User;
+
+  @Prop()
+  averageAge: number;
+
+  @Prop()
+  calificationsAverage: number;
 }
 export const GroupSchema = SchemaFactory.createForClass(Group);

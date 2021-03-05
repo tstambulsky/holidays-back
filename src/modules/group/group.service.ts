@@ -33,13 +33,35 @@ export class GroupService {
 
   async getGroup(groupId: any): Promise<Group> {
     try {
-      const group = await this.groupModel
+      const group: any = await this.groupModel
         .findOne({ _id: groupId, active: true })
         .populate('integrants')
         .populate('meetingPlaceOne')
         .populate('meetingPlaceTwo')
         .populate('typeOfActivity');
-      return group;
+        const getYearOfPerson = (birthDate) => {
+        const year = new Date().getFullYear();
+        const date = new Date(birthDate);
+        const AniosDePersona = date.getFullYear();
+        const result = year - AniosDePersona;
+        return result;
+    };
+        const personasTotales = group.integrants.length;
+        let totalEdades = 0;
+        group.integrants.forEach((persona) => {
+        const edad = getYearOfPerson(persona.birthDate);
+        totalEdades += edad;
+      });
+          let totalCalifications = 0;
+          group.integrants.forEach((persona) => {
+          const califications = persona.points;
+          totalCalifications += califications;
+        });
+      const promedioEdad = totalEdades / personasTotales;
+      const promedioCalificacion = totalCalifications / personasTotales;
+      group.averageAge = promedioEdad;
+      group.calificationsAverage = promedioCalificacion;
+      return group
     } catch (err) {
       console.log(err);
       throw new Error(err.message);
