@@ -36,8 +36,7 @@ export class RequestGroupToGroupDTO {
 
 export class AceptOrRefuseDTO {
   readonly invitationId: InvitationInterGroup;
-  readonly groupOne?: Group;
-  readonly groupTwo?: Group;
+
 }
 
 export class newProposalDto {

@@ -127,7 +127,7 @@ export class InterGroupService {
 
   async acceptInvitationGroupToGroup(data: AceptOrRefuseDTO, currentUser: any) {
     try {
-      const { invitationId, groupOne, groupTwo } = data;
+      const { invitationId } = data;
       const userID = currentUser._id;
       const invitation = await this.invitationModel.findOne({ _id: invitationId });
       if (!invitation) throw new Error('This invitation does not exist');
@@ -137,9 +137,14 @@ export class InterGroupService {
       if (groupReceivInvitation.admin != userID) throw new Error('You are not the admin of the group.');
       invitation.success = true;
       await invitation.save();
+      const groupOne = invitation.groupSender;
+      const groupTwo = invitation.groupReceiver;
+      const firstGroup = await this.groupService.getGroup(groupOne);
+      const secondGroup = await this.groupService.getGroup(groupTwo);
       const createInterGroup = await new this.interGroupModel({
         groupOne,
         groupTwo,
+        name: `${firstGroup.name} + ${secondGroup.name}`,
         active: false
       });
       return await createInterGroup.save();

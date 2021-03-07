@@ -36,7 +36,7 @@ export class User {
   @Prop()
   birthDate: Date;
   
-  @Prop({enum: ['Male', 'Female', 'Other']})
+  @Prop({enum: ['Male', 'Female', 'Other/noGender']})
   sex: string;
   
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'City', autopopulate: true })

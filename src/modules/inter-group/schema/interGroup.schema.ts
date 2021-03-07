@@ -8,6 +8,9 @@ export type InterGroupDocument = InterGroup & mongoose.Document;
 
 @Schema({ timestamps: true })
 export class InterGroup {
+  @Prop()
+  name: string;
+  
   @Prop([{ required: true, type: mongoose.SchemaTypes.ObjectId, ref: 'Group' }])
   groupOne: Group;
 
