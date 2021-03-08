@@ -10,6 +10,8 @@ export interface UserDTO extends Document {
   readonly address: string;
   readonly passwordRecover?: string;
   readonly confirmPasswordRecover?: boolean;
+  readonly latitude: number;
+  readonly longitude: number;
 }
 
 export class UpdateUserDTO {
@@ -22,4 +24,6 @@ export class UpdateUserDTO {
   readonly address?: string;
   readonly passwordRecover?: string;
   readonly confirmPasswordRecover?: boolean;
+  readonly latitude?: number;
+  readonly longitude?: number;
 }

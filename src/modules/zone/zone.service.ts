@@ -25,7 +25,6 @@ export class ZoneService {
   async getCity(cityID: any): Promise<City> {
     try {
       const city = await this.cityModel.findOne({ _id: cityID }, { active: true });
-      console.log(city);
       return city;
     } catch (err) {
       console.log(err);
@@ -88,7 +87,6 @@ export class ZoneService {
   async getState(stateID: any): Promise<State> {
     try {
       const state = await this.stateModel.findOne({ _id: stateID }, { active: true });
-      console.log(state);
       return state;
     } catch (err) {
       console.log(err);
@@ -152,7 +150,6 @@ export class ZoneService {
   async getCountry(countryID: any): Promise<Country> {
     try {
       const country = await this.countryModel.findOne({ _id: countryID }, { active: true });
-      console.log(country);
       return country;
     } catch (err) {
       console.log(err);
