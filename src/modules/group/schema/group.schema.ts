@@ -55,5 +55,8 @@ export class Group {
 
   @Prop()
   percentageOfNoGender: number;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  groupCreatedBy: User;
 }
 export const GroupSchema = SchemaFactory.createForClass(Group);
