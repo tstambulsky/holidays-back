@@ -19,7 +19,6 @@ export class MeetingPlaceService {
   async getMeeting(meetingID: any): Promise<Meeting> {
     try {
       const meeting = await this.meetingModel.findOne({ _id: meetingID });
-      console.log(meeting);
       return meeting;
     } catch (err) {
       console.log(err);

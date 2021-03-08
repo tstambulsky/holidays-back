@@ -41,7 +41,6 @@ export class InterGroupService {
   async getInterGroup(interGroupID: any): Promise<InterGroup> {
     try {
       const interGroup = await this.interGroupModel.findOne({ _id: interGroupID }, { active: true });
-      console.log(interGroup);
       return interGroup;
     } catch (err) {
       console.log(err);
@@ -63,7 +62,8 @@ export class InterGroupService {
     try {
       const userId = currentUser._id;
       const interGroup = await this.interGroupModel.findOne({ _id: interGroupID });
-      if (interGroup.groupOne.admin !== userId || interGroup.groupTwo.admin !== userId) throw new HttpException('You dont have privileges to do this action', 404);
+      if (interGroup.groupOne.admin !== userId || interGroup.groupTwo.admin !== userId)
+        throw new HttpException('You dont have privileges to do this action', 404);
       const updatedInterGroup = await this.interGroupModel.updateOne({ ...data });
       const interGroupUpdated = await this.interGroupModel.findOne({ _id: interGroupID });
       return interGroupUpdated;
@@ -85,7 +85,6 @@ export class InterGroupService {
       throw new Error(err.message);
     }
   }
-
 
   async deleteInterGroup(interGroupID: any): Promise<string> {
     try {

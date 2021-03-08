@@ -1,7 +1,7 @@
 import { Meeting } from 'src/modules/meeting-place/schema/meetingPlace.schema';
 import { ILocation } from '../interfaces/location.interface';
 
-const cleanDistance = (place: Meeting) => {
+const cleanDistance = (place: any) => {
   return {
     latitude: place.latitude,
     longitude: place.longitude
@@ -27,8 +27,8 @@ const centralSubtendedAngle = (locationX: ILocation, locationY: ILocation) => {
 const earthRadius = 6371;
 const greatCircleDistance = (angle: number) => 2 * Math.PI * earthRadius * (angle / 360);
 
-export const distanceBetweenLocations = (locationX: Meeting, locationY: Meeting): number => {
-  const fromLocation = cleanDistance(locationX);
+export const distanceBetweenLocations = (user: any, locationY: Meeting): number => {
+  const fromLocation = cleanDistance(user);
   const toLocation = cleanDistance(locationY);
   const distance = greatCircleDistance(centralSubtendedAngle(fromLocation, toLocation));
   return distance;

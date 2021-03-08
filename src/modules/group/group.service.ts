@@ -41,44 +41,42 @@ export class GroupService {
         .populate('meetingPlaceOne')
         .populate('meetingPlaceTwo')
         .populate('typeOfActivity');
-        const totalyPeople = group.integrants.length;
-        let totalyAge = 0;
-        let totalyMale = 0;
-        let totalyFemale = 0;
-        let totalyNoGender = 0;
+      const totalyPeople = group.integrants.length;
+      let totalyAge = 0;
+      let totalyMale = 0;
+      let totalyFemale = 0;
+      let totalyNoGender = 0;
 
-        group.integrants.forEach((people) => {
-          const persons = people.sex;
-          if (persons === 'Female') {
-           totalyFemale = persons.length / 2;
-          }
-          else if (persons === 'Male') {
-            totalyMale = persons.length / 2;
-          }
-          else {
-            totalyNoGender = persons.length / 2;
-          }
-          const ageFilter = getYearOfPerson(people.birthDate);
-          totalyAge += ageFilter;
+      group.integrants.forEach((people) => {
+        const persons = people.sex;
+        if (persons === 'Female') {
+          totalyFemale = persons.length / 2;
+        } else if (persons === 'Male') {
+          totalyMale = persons.length / 2;
+        } else {
+          totalyNoGender = persons.length / 2;
+        }
+        const ageFilter = getYearOfPerson(people.birthDate);
+        totalyAge += ageFilter;
       });
-          console.log('males', totalyMale)
-          console.log('female', totalyFemale)
-          let totalCalifications = 0;
-          group.integrants.forEach((people) => {
-          const califications = people.points;
-          totalCalifications += califications;
-        });
+      console.log('males', totalyMale);
+      console.log('female', totalyFemale);
+      let totalCalifications = 0;
+      group.integrants.forEach((people) => {
+        const califications = people.points;
+        totalCalifications += califications;
+      });
       const averageAge = totalyAge / totalyPeople;
       const averageCalifications = totalCalifications / totalyPeople;
       group.averageAge = averageAge;
       group.calificationsAverage = averageCalifications;
       const percentlyMale = (totalyMale * 100) / totalyPeople;
-      const percentlyFemale = totalyFemale * 100 / totalyPeople;
-      const percentlyNoGender = totalyNoGender * 100 / totalyPeople;
+      const percentlyFemale = (totalyFemale * 100) / totalyPeople;
+      const percentlyNoGender = (totalyNoGender * 100) / totalyPeople;
       group.percentageOfMale = percentlyMale;
       group.percentageOfFemale = percentlyFemale;
       group.percentageOfNoGender = percentlyNoGender;
-      return group
+      return group;
     } catch (err) {
       console.log(err);
       throw new Error(err.message);
@@ -89,7 +87,7 @@ export class GroupService {
     try {
       const userId = currentUser._id;
       //const today = moment();
-      const alreadyInDate = await this.groupModel.findOne({ active: true, integrants: userId});
+      const alreadyInDate = await this.groupModel.findOne({ active: true, integrants: userId });
       //if (alreadyInDate.startDate == today) throw new HttpException('It is not possible to have two groups on the same date', 404);
       const group = new this.groupModel(groupDTO);
       group.admin = userId;
@@ -391,16 +389,17 @@ export class GroupService {
     }
   }
 
-  async searchByDistance(fromGroupId, maxDistance) {
+  async searchByDistance(currentUser, maxDistance) {
     try {
-      const group = await this.groupModel.findOne({ _id: fromGroupId, active: true }).populate('meetingPlaceOne');
-      if (!group || !group.meetingPlaceOne.latitude) throw new Error('We dont have information about this place');
+      const userId = currentUser._id;
+      const user = await this.userService.getUserById(userId);
+      if (!user || !user.latitude) throw new Error('We dont have information about this user');
       const allGroups = await this.groupModel.find({ active: true }).populate('meetingPlaceOne');
       let groupsInRange = [];
-      const groupsFiltered = allGroups.filter((element) => element.meetingPlaceOne !== null && element._id != fromGroupId);
+      const groupsFiltered = allGroups.filter((element) => element.meetingPlaceOne !== null);
       for (let data of groupsFiltered) {
-        const distance = distanceBetweenLocations(group.meetingPlaceOne, data.meetingPlaceOne);
-        if (distance < maxDistance + 1) {
+        const distance = distanceBetweenLocations(user, data.meetingPlaceOne);
+        if (distance < maxDistance) {
           groupsInRange.push(data);
         }
       }

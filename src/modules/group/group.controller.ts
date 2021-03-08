@@ -1,7 +1,16 @@
 import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post, UseGuards } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { Group } from './schema/group.schema';
-import { GroupDTO, UpdateGroupDTO, QueryDTO, RequestToGroupDTO, AceptOrRefuseDTO, SearchByDistanceDto, NewAdminDto, EditPhotosDto } from './dto/group.dto';
+import {
+  GroupDTO,
+  UpdateGroupDTO,
+  QueryDTO,
+  RequestToGroupDTO,
+  AceptOrRefuseDTO,
+  SearchByDistanceDto,
+  NewAdminDto,
+  EditPhotosDto
+} from './dto/group.dto';
 import { CurrentUser } from '../users/decorators/currentUser';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
@@ -295,9 +304,9 @@ export class GroupController {
   }
 
   @Post('/search/distance')
-  async searchByDistance(@Res() res, @Body() data: SearchByDistanceDto): Promise<Group[]> {
+  async searchByDistance(@Res() res, @Body() data: SearchByDistanceDto, @CurrentUser() user): Promise<Group[]> {
     try {
-      const getGroup = await this.groupService.searchByDistance(data.groupId, data.maxDistance);
+      const getGroup = await this.groupService.searchByDistance(user, data.maxDistance);
       return res.status(HttpStatus.OK).json({
         message: 'List of groups',
         groups: getGroup
@@ -327,8 +336,8 @@ export class GroupController {
   }
 
   @Post('/update/photos')
-  async editPhotos(@Res() res, @Body() data: EditPhotosDto, @CurrentUser() user ) {
-     try {
+  async editPhotos(@Res() res, @Body() data: EditPhotosDto, @CurrentUser() user) {
+    try {
       const response = await this.groupService.setGroupPhotos(data, user);
       return res.status(HttpStatus.OK).json({
         message: 'Photos updated',

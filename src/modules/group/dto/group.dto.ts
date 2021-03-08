@@ -49,7 +49,6 @@ export class AceptOrRefuseDTO {
 }
 
 export class SearchByDistanceDto {
-  readonly groupId: Group;
   readonly maxDistance: number;
 }
 
@@ -61,5 +60,4 @@ export class NewAdminDto {
 export class EditPhotosDto {
   readonly groupId: Group;
   readonly photos: string[];
-
 }

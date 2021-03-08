@@ -103,7 +103,6 @@ export class AuthService {
       await user.save();
       return 'Confirmed code!';
     } catch (err) {
-      console.log();
       throw new Error(err.message);
     }
   }

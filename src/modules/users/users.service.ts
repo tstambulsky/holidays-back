@@ -31,7 +31,6 @@ export class UsersService {
   async getUserById(userId: any): Promise<User> {
     try {
       const user = await this.userModel.findById({ _id: userId });
-      console.log(user);
       return user;
     } catch (err) {
       console.log(err);
@@ -54,7 +53,7 @@ export class UsersService {
         photo: profile.photos[0].value
       });
       await createUser.save();
-      return createUser
+      return createUser;
     } catch (err) {
       console.log(err);
       throw new Error(err.message);
@@ -76,7 +75,7 @@ export class UsersService {
         photo: profile.photos[0].value
       });
       await createUser.save();
-      return createUser
+      return createUser;
     } catch (err) {
       console.log(err);
       throw new Error(err.message);
@@ -86,7 +85,7 @@ export class UsersService {
   async createUser(userDTO: RegisterDTO): Promise<User> {
     const user = await new this.userModel(userDTO);
     await user.save();
-    return user
+    return user;
   }
 
   async findOneUser(data: any) {
@@ -111,7 +110,7 @@ export class UsersService {
     }
   }
 
-   async toInactiveUser(userId: any): Promise<string> {
+  async toInactiveUser(userId: any): Promise<string> {
     try {
       const user = await this.userModel.findById(userId);
       if (!user) {
@@ -124,7 +123,6 @@ export class UsersService {
       throw new Error(err.message);
     }
   }
-
 
   async deleteUser(userId: any): Promise<string> {
     try {
@@ -142,12 +140,12 @@ export class UsersService {
     }
   }*/
 
-  async changeUserCalifications(userId: any, sum:boolean):Promise<User> {
+  async changeUserCalifications(userId: any, sum: boolean): Promise<User> {
     try {
       const user = await this.userModel.findOne({ _id: userId });
-      if(!user) throw new Error('This user does not exist')
+      if (!user) throw new Error('This user does not exist');
       user.points = sum ? user.points + 1 : user.points - 1;
-      await user.save()
+      await user.save();
       return user;
     } catch (err) {
       throw new Error(err.message);
