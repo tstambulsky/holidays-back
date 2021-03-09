@@ -101,10 +101,10 @@ export class UsersController {
     }
   }
 
-  @Get('/contacts')
-  async getContacts(@Res() res, @Body() users: any[], @CurrentUser() user){
+  @Get('/search/contacts')
+  async getContacts(@Res() res, @Body() users: any[]){
     try {
-      const response = await this.userService.searchContact(user, users);
+      const response = await this.userService.searchContact(users);
       return res.satatus(HttpStatus.OK).json({
         response
       });
@@ -115,11 +115,11 @@ export class UsersController {
     }
   }
 
-  @Get('/search/')
+  @Get('/search/user')
   async getByName(@Res() res, @Query() name: string){
     try {
       const users = await this.userService.searchByName(name);
-      return res.satatus(HttpStatus.OK).json({
+      return res.status(HttpStatus.OK).json({
         users
       });
     } catch (err) {

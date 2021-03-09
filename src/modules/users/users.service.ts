@@ -50,7 +50,7 @@ export class UsersService {
         provider_id: profile.id,
         name: profile.name.givenName,
         lastName: profile.name.familyName,
-        //email: profile.emails[0].value || 'not found',
+        email: profile.emails[0].value,
         photo: profile.photos[0].value
       });
       await createUser.save();
@@ -147,12 +147,11 @@ export class UsersService {
     }
   }
 
-  async searchContact(currentUser: any, users: any[]) {
+  async searchContact(users: any[]) {
     try {
-      const userId = currentUser._id;
       let allUsers = [];
-      for await (const userId of users) {
-        const data = await this.userModel.findOne({ $or: [{ email: userId.email }, { phone: userId.phoneNumber }] });
+      for await (const user of users) {
+        const data = await this.userModel.findOne({ $or: [{ email: user.email }, { phone: user.phoneNumber }] });
         if (data) {
           allUsers.push(data);
         }
@@ -165,7 +164,9 @@ export class UsersService {
 
   async searchByName(name: string) {
     try {
-      const users = await this.userModel.find({ name });
+      const users = await this.userModel.find({name: 
+      {$regex: `${name}`}
+      });
       return users;
     } catch (error) {
       throw new Error(error.message);

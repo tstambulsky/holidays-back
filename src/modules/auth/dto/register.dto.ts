@@ -29,4 +29,8 @@ export class RegisterDTO {
   readonly confirmPasswordRecover?: boolean;
 
   readonly isAdmin?: boolean;
+  
+  readonly latitude: number;
+
+  readonly longitude: number;
 }
