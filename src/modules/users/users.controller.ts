@@ -1,9 +1,10 @@
-import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Param, NotFoundException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Param, NotFoundException, UseGuards, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDTO } from './dto/data.dto';
 import { User } from './schema/users.schema';
 import { LoginDTO } from '../auth/dto/login.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from './decorators/currentUser';
 
 @UseGuards(JwtAuthGuard)
 @Controller('/users')
@@ -96,6 +97,34 @@ export class UsersController {
       return res.status(HttpStatus.BAD_REQUEST).json({
         message: 'An error has ocurred',
         err: err.message
+      });
+    }
+  }
+
+  @Get('/contacts')
+  async getContacts(@Res() res, @Body() users: any[], @CurrentUser() user){
+    try {
+      const response = await this.userService.searchContact(user, users);
+      return res.satatus(HttpStatus.OK).json({
+        response
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        error: err.message
+      });
+    }
+  }
+
+  @Get('/search/')
+  async getByName(@Res() res, @Query() name: string){
+    try {
+      const users = await this.userService.searchByName(name);
+      return res.satatus(HttpStatus.OK).json({
+        users
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        error: err.message
       });
     }
   }

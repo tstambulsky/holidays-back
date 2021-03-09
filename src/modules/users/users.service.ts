@@ -5,6 +5,7 @@ import { RegisterDTO } from '../auth/dto/register.dto';
 import { UserDTO, UpdateUserDTO } from './dto/data.dto';
 import { LoginDTO } from '../auth/dto/login.dto';
 import { User, UserDocument } from './schema/users.schema';
+import { databaseConfig } from 'src/config/database';
 
 @Injectable()
 export class UsersService {
@@ -133,12 +134,6 @@ export class UsersService {
     }
   }
 
-  /* async userPetitionGroup(userID: any, groupID: any): Promise<String> {
-    try {
-      const user = await this.userModel.findOne({ _id: userID});
-      const group = 
-    }
-  }*/
 
   async changeUserCalifications(userId: any, sum: boolean): Promise<User> {
     try {
@@ -149,6 +144,31 @@ export class UsersService {
       return user;
     } catch (err) {
       throw new Error(err.message);
+    }
+  }
+
+  async searchContact(currentUser: any, users: any[]) {
+    try {
+      const userId = currentUser._id;
+      let allUsers = [];
+      for await (const userId of users) {
+        const data = await this.userModel.findOne({ $or: [{ email: userId.email }, { phone: userId.phoneNumber }] });
+        if (data) {
+          allUsers.push(data);
+        }
+      }
+      return allUsers;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async searchByName(name: string) {
+    try {
+      const users = await this.userModel.find({ name });
+      return users;
+    } catch (error) {
+      throw new Error(error.message);
     }
   }
 }
