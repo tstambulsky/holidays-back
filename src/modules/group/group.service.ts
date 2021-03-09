@@ -176,9 +176,8 @@ export class GroupService {
             as: 'integrants'
           }
         },
-        { $match: { 'integrants.sex': { $eq: `${gender}` } } }
+        { $match: { 'integrants.sex': new RegExp('^'+ `${gender}` + '$', 'i')}}
       ]);
-      console.log(groups);
       if (groups.length < 0) throw new Error('No have groups');
       return groups;
     } catch (err) {
@@ -422,6 +421,27 @@ export class GroupService {
       throw new Error(error.message);
     }
   }
+
+  async nearbyGroups(currentUser) {
+    try {
+        const userId = currentUser._id;
+        const user = await this.userService.getUserById(userId);
+        if (!user || !user.latitude) throw new Error('We dont have information about this user');
+        const allGroups = await this.groupModel.find({ active: true }).populate('meetingPlaceOne');
+        let groupsInRange = [];
+        const groupsFiltered = allGroups.filter((element) => element.meetingPlaceOne !== null);
+        for (let data of groupsFiltered) {
+        const distance = distanceBetweenLocations(user, data.meetingPlaceOne);
+        console.log(distance)
+        if (distance < 5) {
+          groupsInRange.push(data);
+        }
+      }
+      return groupsInRange;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+    }
 
   async setNewAdmin(currentUser: any, data: NewAdminDto) {
     try {

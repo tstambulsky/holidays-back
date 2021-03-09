@@ -365,4 +365,18 @@ export class GroupController {
     })
   }
   }
+
+  @Get('/groups/nearby')
+  async getNearbyGroups(@Res() res, @CurrentUser() user) {
+    try {
+      const response = await this.groupService.nearbyGroups(user);
+      return res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (error) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        error: error.message
+      })
+    }
+  }
 }
