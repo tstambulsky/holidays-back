@@ -346,8 +346,23 @@ export class GroupController {
     } catch (error) {
       res.status(HttpStatus.BAD_REQUEST).json({
         message: 'An error has occurred',
-        err: error.message
+        error: error.message
       });
     }
+  }
+
+  @Get('/groupsuser/createdbyuser')
+  async getGroupsCreatedByUser(@Res() res, @CurrentUser() user) {
+  try {
+    const response = await this.groupService.groupsCreatedByUser(user)
+    return res.status(HttpStatus.OK).json({
+      message: 'List of groups',
+      response
+    });
+  } catch (error) {
+    res.status(HttpStatus.BAD_REQUEST).json({
+      error: error.message
+    })
+  }
   }
 }

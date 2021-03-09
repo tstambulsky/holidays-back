@@ -43,29 +43,41 @@ export class GroupService {
         .populate('typeOfActivity');
       const totalyPeople = group.integrants.length;
       let totalyAge = 0;
+      let personsSex = [];
       let totalyMale = 0;
       let totalyFemale = 0;
       let totalyNoGender = 0;
 
       group.integrants.forEach((people) => {
-        const persons = people.sex;
-        if (persons === 'Female') {
-          totalyFemale = persons.length / 2;
-        } else if (persons === 'Male') {
-          totalyMale = persons.length / 2;
-        } else {
-          totalyNoGender = persons.length / 2;
-        }
+        personsSex.push(people.sex);
         const ageFilter = getYearOfPerson(people.birthDate);
         totalyAge += ageFilter;
       });
-      console.log('males', totalyMale);
-      console.log('female', totalyFemale);
-      let totalCalifications = 0;
-      group.integrants.forEach((people) => {
+        personsSex.forEach((sex) => {
+          if (sex === 'Male') {
+          totalyMale = +1;
+        }
+        else if (sex === 'male') {
+          totalyMale = +1 
+        }
+        else if (sex === 'Female') {
+          totalyFemale = +1
+        }
+        else if (sex === 'female') {
+          totalyFemale = +1
+        }
+        else if (sex === 'Other') {
+          totalyNoGender = +1;
+        }
+        else if (sex === 'other') {
+          totalyNoGender = +1;
+        }
+        })
+        let totalCalifications = 0;
+        group.integrants.forEach((people) => {
         const califications = people.points;
         totalCalifications += califications;
-      });
+      });  
       const averageAge = totalyAge / totalyPeople;
       const averageCalifications = totalCalifications / totalyPeople;
       group.averageAge = averageAge;
@@ -91,6 +103,7 @@ export class GroupService {
       //if (alreadyInDate.startDate == today) throw new HttpException('It is not possible to have two groups on the same date', 404);
       const group = new this.groupModel(groupDTO);
       group.admin = userId;
+      group.groupCreatedBy = userId;
       //@ts-ignore
       group.integrants.push(userId);
       const fromDate = group.startDate || moment().format('YYYY-MM-DD hh:mm:ss A');
@@ -399,6 +412,7 @@ export class GroupService {
       const groupsFiltered = allGroups.filter((element) => element.meetingPlaceOne !== null);
       for (let data of groupsFiltered) {
         const distance = distanceBetweenLocations(user, data.meetingPlaceOne);
+        console.log(distance)
         if (distance < maxDistance) {
           groupsInRange.push(data);
         }
@@ -429,13 +443,23 @@ export class GroupService {
       const { photos, groupId } = data;
       const userId = currentUser._id;
       const group = await this.groupModel.findOne({ _id: groupId, active: true });
-      if (!group) throw new Error('This group does not exist');
+      if (!group) throw new HttpException('This group does not exist', 404);
       if (group.admin != userId) throw new Error('You dont have permission to edit photos.');
       group.photos = photos;
       await group.save();
       return 'Updated photos';
     } catch (error) {
       throw new Error(error.message);
+    }
+  }
+  async groupsCreatedByUser(currentUser: any) {
+    try {
+      const userId = currentUser._id;
+      const groups = await this.groupModel.find({ groupCreatedBy: userId });
+      if (!groups) throw new HttpException ('User has not created groups', 404)
+      return groups;
+    } catch (error) {
+      throw new Error (error.message);
     }
   }
 }
