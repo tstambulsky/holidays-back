@@ -27,3 +27,11 @@ export class UpdateUserDTO {
   readonly latitude?: number;
   readonly longitude?: number;
 }
+
+export class queryDTO {
+  readonly name: string;
+}
+
+export class contactsDTO {
+  readonly users: any[];
+}

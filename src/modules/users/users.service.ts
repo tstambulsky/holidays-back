@@ -1,11 +1,9 @@
-import { Injectable, HttpException, NotFoundException } from '@nestjs/common';
+import { Injectable, HttpException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { RegisterDTO } from '../auth/dto/register.dto';
-import { UserDTO, UpdateUserDTO } from './dto/data.dto';
-import { LoginDTO } from '../auth/dto/login.dto';
+import { UpdateUserDTO, queryDTO,  } from './dto/data.dto';
 import { User, UserDocument } from './schema/users.schema';
-import { databaseConfig } from 'src/config/database';
 
 @Injectable()
 export class UsersService {
@@ -151,7 +149,7 @@ export class UsersService {
     try {
       let allUsers = [];
       for await (const user of users) {
-        const data = await this.userModel.findOne({ $or: [{ email: user.email }, { phone: user.phoneNumber }] });
+        const data = await this.userModel.find({ $or: [{ email: user.email }, { phone: user.phoneNumber }] });
         if (data) {
           allUsers.push(data);
         }
@@ -161,12 +159,10 @@ export class UsersService {
       throw new Error(error.message);
     }
   }
-
-  async searchByName(name: string) {
+  async searchByName(name: queryDTO) {
     try {
-      const users = await this.userModel.find({name: 
-      {$regex: `${name}`}
-      });
+      if(name.name.length === 0) throw new HttpException('Please, insert a name', 404)
+      const users = await this.userModel.find({name:new RegExp(name.name, 'i') });
       return users;
     } catch (error) {
       throw new Error(error.message);
