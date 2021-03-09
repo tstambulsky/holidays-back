@@ -83,7 +83,6 @@ export class GroupController {
   async getGroupActivity(@Res() res, @Query() filters: QueryDTO): Promise<Group[]> {
     try {
       const getGroup = await this.groupService.searchGroupByActivity(filters.activity);
-      if (!getGroup) throw new NotFoundException('No results found');
       return res.status(HttpStatus.OK).json({
         message: 'List of groups',
         groups: getGroup

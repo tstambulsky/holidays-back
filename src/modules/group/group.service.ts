@@ -213,7 +213,7 @@ export class GroupService {
         { $match: { active: true } },
         {
           $lookup: {
-            from: 'tipeofactivities',
+            from: 'typeofactivities',
             localField: 'typeOfActivity',
             foreignField: '_id',
             as: 'typeOfActivity'

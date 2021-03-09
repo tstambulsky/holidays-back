@@ -1,6 +1,6 @@
 import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Param, NotFoundException, UseGuards, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { UpdateUserDTO } from './dto/data.dto';
+import { UpdateUserDTO, queryDTO } from './dto/data.dto';
 import { User } from './schema/users.schema';
 import { LoginDTO } from '../auth/dto/login.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -116,7 +116,7 @@ export class UsersController {
   }
 
   @Get('/search/user')
-  async getByName(@Res() res, @Query() name: string){
+  async getByName(@Res() res, @Query() name: queryDTO){
     try {
       const users = await this.userService.searchByName(name);
       return res.status(HttpStatus.OK).json({
