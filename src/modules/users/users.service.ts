@@ -147,11 +147,12 @@ export class UsersService {
     }
   }
 
-  async searchContact(users: any[]) {
+  async searchContact(currentUser: any, users: any[]) {
     try {
+      const userId = currentUser._id;
       let allUsers = [];
-      for await (const user of users) {
-        const data = await this.userModel.findOne({ $or: [{ email: user.email }, { phone: user.phoneNumber }] });
+      for await (const userId of users) {
+        const data = await this.userModel.findOne({ $or: [{ email: userId.email }, { phone: userId.phoneNumber }] });
         if (data) {
           allUsers.push(data);
         }
