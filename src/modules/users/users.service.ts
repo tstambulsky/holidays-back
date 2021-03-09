@@ -133,12 +133,6 @@ export class UsersService {
     }
   }
 
-  /* async userPetitionGroup(userID: any, groupID: any): Promise<String> {
-    try {
-      const user = await this.userModel.findOne({ _id: userID});
-      const group = 
-    }
-  }*/
 
   async changeUserCalifications(userId: any, sum: boolean): Promise<User> {
     try {
