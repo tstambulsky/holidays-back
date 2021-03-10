@@ -13,6 +13,7 @@ import {
 } from './dto/group.dto';
 import { CurrentUser } from '../users/decorators/currentUser';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { contactsDTO } from '../users/dto/data.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('group')
@@ -376,6 +377,20 @@ export class GroupController {
       res.status(HttpStatus.BAD_REQUEST).json({
         error: error.message
       })
+    }
+  }
+
+  @Post('/groups/contacts')
+  async getGroupsOfMyContacts(@Res() res, @Body() users: contactsDTO) {
+    try {
+      const getGroups = await this.groupService.groupsOfMyContacts(users.users)
+      return res.status(HttpStatus.OK).json({
+        getGroups
+      });
+    } catch (error) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        error: error.message
+      });
     }
   }
 }

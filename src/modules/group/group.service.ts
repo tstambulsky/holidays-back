@@ -154,16 +154,6 @@ export class GroupService {
     }
   }
 
-  /*async suggestedGroups(userCity: any, groupDistance: any) {
-    try {
-      const groups = await this.groupModel.find({ meetingPlaceOne: groupDistance });
-      if ((userCity = groups)) return groups;
-    } catch (err) {
-      console.log(err);
-      throw new Error(err.message);
-    }
-  } */
-
   async genderFilter(gender: string) {
     try {
       const groups = await this.groupModel.aggregate([
@@ -480,6 +470,24 @@ export class GroupService {
       return groups;
     } catch (error) {
       throw new Error (error.message);
+    }
+  }
+
+  async groupsOfMyContacts(users: any[]) {
+    try {
+     const groupsContacts = await this.userService.searchContact(users);
+      let allGroups = [];
+      const groupsFiltered = groupsContacts.filter((element) => element._id !== null);
+      for await (let group of groupsFiltered) {
+        console.log('info', group)
+        const data = await this.groupModel.find({integrants: group._id})
+        if (data) {
+          allGroups.push(data);
+        }
+      }
+      return allGroups;
+    } catch (error) {
+      throw new Error(error.message);
     }
   }
 }
