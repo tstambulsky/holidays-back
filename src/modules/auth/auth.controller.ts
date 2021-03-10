@@ -47,13 +47,13 @@ export class AuthController {
     }
   }
 
-  @Get('/facebook/login')
   @UseGuards(AuthGuard('facebook'))
-  async getTokenAfterFacebookSignIn(): Promise<any> {
-    return HttpStatus.OK;
-  }
+  @Get('/facebook/login')
+  async getTokenAfterFacebookSignIn(@Res() res, @Req() req): Promise<any> {
+    console.log(req.user);
+}
 
-  @Get('/facebook/redirect')
+  @Get('/facebook/callback')
   @UseGuards(AuthGuard('facebook'))
   async facebookAuthRedirect(@Req() req: Request): Promise<any> {
     return {

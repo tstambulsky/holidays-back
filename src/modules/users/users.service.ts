@@ -40,6 +40,7 @@ export class UsersService {
   async findOrCreateFB(accessToken: any, refreshToken: any, profile: any, done: any): Promise<User> {
     try {
       const user = await this.userModel.findOne({ provider_id: profile.id });
+      console.log(profile)
       if (user) {
         return user;
       }
