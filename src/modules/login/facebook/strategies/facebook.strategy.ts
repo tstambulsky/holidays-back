@@ -1,6 +1,5 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Profile, Strategy } from 'passport-facebook';
-import { use } from 'passport';
 import { Inject } from '@nestjs/common';
 import { UsersService } from '../../../users/users.service';
 import { ContactsService } from '../../../contacts/contacts.service';
