@@ -1,6 +1,6 @@
-import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Param, NotFoundException, UseGuards, Query } from '@nestjs/common';
+import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Param, NotFoundException, UseGuards, Query, Post } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { UpdateUserDTO, queryDTO } from './dto/data.dto';
+import { UpdateUserDTO, queryDTO, contactsDTO } from './dto/data.dto';
 import { User } from './schema/users.schema';
 import { LoginDTO } from '../auth/dto/login.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -101,11 +101,11 @@ export class UsersController {
     }
   }
 
-  @Get('/search/contacts')
-  async getContacts(@Res() res, @Body() users: any[]){
+  @Post('/search/contacts')
+  async getContacts(@Res() res, @Body() users: contactsDTO){
     try {
-      const response = await this.userService.searchContact(users);
-      return res.satatus(HttpStatus.OK).json({
+      const response = await this.userService.searchContact(users.users);
+      return res.status(HttpStatus.OK).json({
         response
       });
     } catch (err) {
