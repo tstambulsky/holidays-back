@@ -49,7 +49,7 @@ export class AceptOrRefuseDTO {
 }
 
 export class SearchByDistanceDto {
-  readonly maxDistance: number;
+  readonly distance: number;
 }
 
 export class NewAdminDto {

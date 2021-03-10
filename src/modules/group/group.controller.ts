@@ -302,10 +302,10 @@ export class GroupController {
     }
   }
 
-  @Post('/search/distance')
-  async searchByDistance(@Res() res, @Body() data: SearchByDistanceDto, @CurrentUser() user): Promise<Group[]> {
+  @Get('/search/distance')
+  async searchByDistance(@Res() res, @Query() distance: SearchByDistanceDto, @CurrentUser() user): Promise<Group[]> {
     try {
-      const getGroup = await this.groupService.searchByDistance(user, data.maxDistance);
+      const getGroup = await this.groupService.searchByDistance(user, distance.distance);
       return res.status(HttpStatus.OK).json({
         message: 'List of groups',
         groups: getGroup
