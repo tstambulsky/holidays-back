@@ -227,17 +227,19 @@ export class InterGroupService {
   async getMyIntergroups(currentUser: any) {
     try {
       let groupId = [];
-      let interGroup = [];
+      let interGroups = [];
+
       const userInGroup = await this.groupService.getUserGroups(currentUser);
+
       userInGroup.forEach((element) => {
       groupId.push(element._id);
       });
-      groupId.forEach( async (element) => {
-      const searchGroups = await this.interGroupModel.find({ confirmed: true, active: true, $or: [ { groupOne: element }, { groupTwo: element } ] }); 
-      
-      })
-      console.log('responseee',interGroup)
-      return interGroup;
+
+      for await(let element of groupId) {
+      const searchInterGroups =  await this.interGroupModel.findOne({active: true, confirmed: true, $or: [ {groupOne: element}, {groupTwo: element}] });
+      if (searchInterGroups !== null) await interGroups.push({searchInterGroups});
+      };
+      return await interGroups;
     } catch (error) {
       throw new Error(error.message);
     }
