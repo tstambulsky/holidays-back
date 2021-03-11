@@ -14,6 +14,7 @@ import { InstagramStrategy } from '../login/instagram/strategies/instagram.strat
 import { InstagramModule } from '../login/instagram/instagram.module';
 import { ContactsModule } from '../contacts/contacts.module';
 import { ConfigService } from '@nestjs/config';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 //import { LocalStrategy } from './strategies/local.strategy';
 
 @Module({
@@ -23,6 +24,7 @@ import { ConfigService } from '@nestjs/config';
     EmailModule,
     AppleModule,
     FacebookModule,
+    CloudinaryModule,
     InstagramModule,
     ContactsModule,
     JwtModule.register({
