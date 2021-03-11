@@ -7,6 +7,8 @@ import { LoginDTO } from './dto/login.dto';
 import { RegisterDTO } from './dto/register.dto';
 import { EmailService } from '../email/email.service';
 import { TokenPayload } from './interfaces/facebook-config.interface';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+
 
 @Injectable()
 export class AuthService {
@@ -14,7 +16,8 @@ export class AuthService {
     private readonly userService: UsersService,
     private readonly emailService: EmailService,
     readonly jwtService: JwtService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly cloudinaryService: CloudinaryService
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {

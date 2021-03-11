@@ -98,19 +98,20 @@ export class GroupService {
   async createGroup(groupDTO: GroupDTO, currentUser: any): Promise<Group> {
     try {
       const userId = currentUser._id;
-      //const today = moment();
-      const alreadyInDate = await this.groupModel.findOne({ active: true, integrants: userId });
-      //if (alreadyInDate.startDate == today) throw new HttpException('It is not possible to have two groups on the same date', 404);
+      const ifExist = await this.groupModel.findOne({active: true, name: groupDTO.name});
+      if (ifExist) throw new HttpException('Name already exist', 404);
       const group = new this.groupModel(groupDTO);
       group.admin = userId;
       group.groupCreatedBy = userId;
       //@ts-ignore
       group.integrants.push(userId);
-      const fromDate = group.startDate || moment().format('YYYY-MM-DD hh:mm:ss A');
+      const fromDate = group.startDate || moment().format('YYYY-MM-DD');
       group.startDate = fromDate;
-      if (!group.endDate) group.endDate = moment(fromDate).add(12, 'hours').format('YYYY-MM-DD hh:mm:ss A');
-      console.log('Start', group.startDate);
-      console.log('finis', group.endDate);
+      const today = moment().format('YYYY-MM-DD');
+      const todayDate = moment(today + ' ' + group.startTime);
+      const passToHour = moment(group.startDate).add(moment.duration(group.startTime)).format('hh:mm:ss A');
+      group.startTime = passToHour;
+      if (!group.endTime) group.endTime = moment(todayDate).add(12, 'hours').format('hh:mm:ss A');
       const groupCreated = await group.save();
       return groupCreated;
     } catch (err) {

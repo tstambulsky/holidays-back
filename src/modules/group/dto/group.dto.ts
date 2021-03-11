@@ -7,7 +7,8 @@ import { TypeOfActivity } from '../../typeOfActivity/schema/typeOfActivity.schem
 export class GroupDTO {
   readonly name: string;
   readonly startDate: string;
-  readonly endDate?: string;
+  readonly startTime: string;
+  readonly endTime?: string;
   readonly typeOfActivity: TypeOfActivity;
   readonly meetingPlaceOne?: Meeting;
   readonly meetingPlaceTwo?: Meeting;
@@ -20,7 +21,8 @@ export class GroupDTO {
 export class UpdateGroupDTO {
   readonly name?: string;
   readonly startDate?: string;
-  readonly endDate?: string;
+  readonly startTime: string;
+  readonly endTime?: string;
   readonly typeOfActivity?: TypeOfActivity;
   readonly meetingPlaceOne?: Meeting;
   readonly meetingPlaceTwo?: Meeting;

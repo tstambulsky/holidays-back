@@ -21,6 +21,7 @@ import { InstagramModule } from './modules/login/instagram/instagram.module';
 import { InterGroupModule } from './modules/inter-group/interGroup.module';
 import { ContactsModule } from './modules/contacts/contacts.module';
 import { CalificationModule } from './modules/calification/calification.module';
+import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { CalificationModule } from './modules/calification/calification.module';
     RolModule,
     GroupModule,
     NotificationModule,
+    CloudinaryModule,
     CommentModule,
     TypeOfActivityModule,
     AuthModule,

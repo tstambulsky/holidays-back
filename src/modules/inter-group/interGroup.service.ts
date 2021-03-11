@@ -224,17 +224,20 @@ export class InterGroupService {
     }
   }
 
-  async getMyIntergroups(userId: any) {
+  async getMyIntergroups(currentUser: any) {
     try {
-      const allIntergroups = await this.interGroupModel.find({ confirmed: true, active: true }).populate('groupOne').populate('groupTwo');
-      let intergroups = [];
-      //@ts-ignore
-      const intergroupsOne = allIntergroups.filter((data) => data.groupOne.integrants.some((user: User) => user._id === userId));
-      //@ts-ignore
-      const intergroupsTwo = allIntergroups.filter((data) => data.groupTwo.integrants.some((user: User) => user._id === userId));
-      intergroups = [...intergroupsOne, ...intergroupsTwo];
-      if (intergroups.length < 0) throw new Error('This user does not has intergroups');
-      return intergroups;
+      let groupId = [];
+      let interGroup = [];
+      const userInGroup = await this.groupService.getUserGroups(currentUser);
+      userInGroup.forEach((element) => {
+      groupId.push(element._id);
+      });
+      groupId.forEach( async (element) => {
+      const searchGroups = await this.interGroupModel.find({ confirmed: true, active: true, $or: [ { groupOne: element }, { groupTwo: element } ] }); 
+      
+      })
+      console.log('responseee',interGroup)
+      return interGroup;
     } catch (error) {
       throw new Error(error.message);
     }
