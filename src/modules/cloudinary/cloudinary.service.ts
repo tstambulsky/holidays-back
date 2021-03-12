@@ -1,5 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Cloudinary } from './cloudinary.provider';
+import { cloudinaryConfig } from '../../config/cloudinary';
 @Injectable()
 export class CloudinaryService {
   private v2: any
@@ -8,9 +9,9 @@ export class CloudinaryService {
      private cloudinary
   ){
      this.cloudinary.v2.config({
-       cloud_name: 'tu cloud name',
-       api_key: 'tu api key',
-       api_secret: 'tu api secret'
+       cloud_name: cloudinaryConfig.CLOUDINARY_NAME,
+       api_key: cloudinaryConfig.CLOUDINARY_API_KEY,
+       api_secret: cloudinaryConfig.CLOUDINARY_API_SECRET
      })
     this.v2 = cloudinary.v2
   }

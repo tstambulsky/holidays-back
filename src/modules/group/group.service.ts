@@ -8,6 +8,8 @@ import { Invitation, InvitationDocument } from './schema/invitation.schema';
 import { distanceBetweenLocations } from './utils/getDistance';
 import { getYearOfPerson } from './utils/getYearByDate';
 import { checkPromedio } from './utils/checkPromedio';
+import { empty } from 'rxjs';
+import { databaseConfig } from 'src/config/database';
 const moment = require('moment');
 moment.suppressDeprecationWarnings = true;
 
@@ -385,12 +387,31 @@ export class GroupService {
         .populate('meetingPlaceOne')
         .populate('meetingPlaceTwo')
         .populate('typeOfActivity');
+        console.log(groups);
       if (groups.length < 0) throw new Error('The user does not belong to any group');
       return groups;
     } catch (err) {
       throw new Error(err.message);
     }
   }
+
+   async getOneUserGroup(currentUser: any) {
+    try {
+      const groups = await this.groupModel
+        .findOne({ active: true, integrants: currentUser })
+        .populate('integrants')
+        .populate('meetingPlaceOne')
+        .populate('meetingPlaceTwo')
+        .populate('typeOfActivity');
+        console.log(groups);
+      if (!groups) throw new Error('The user does not belong to any group');
+      return groups;
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+
 
   async searchByDistance(currentUser, maxDistance) {
     try {
@@ -491,4 +512,27 @@ export class GroupService {
       throw new Error(error.message);
     }
   }
+
+  /*async threeFilters(gender: any, distance: any, age: any, currentUser: any) {
+    try {
+      let allFilters = [];
+      let ageFilter = [];
+      let distanceFilter = [];
+      let filterGender = [];
+      if (age) {
+      ageFilter = await this.ageFilter(age);
+      }
+       if (distance) {
+      distanceFilter = await this.searchByDistance(currentUser,distance);
+      }
+       if (gender) {
+      filterGender = await this.genderFilter(gender);
+      }
+    
+      return allFilters;
+     
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }*/
 }

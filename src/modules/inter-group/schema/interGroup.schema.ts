@@ -17,11 +17,14 @@ export class InterGroup {
   @Prop([{ required: true, type: mongoose.SchemaTypes.ObjectId, ref: 'Group' }])
   groupTwo: Group;
 
-  @Prop({ default: Date.now })
+  @Prop()
   startDate: Date;
 
   @Prop()
-  endDate?: Date;
+  startTime?: string;
+
+  @Prop()
+  endTime?: string;
 
   @Prop({})
   tipeOfActivity: string;

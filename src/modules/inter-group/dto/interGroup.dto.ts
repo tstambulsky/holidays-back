@@ -9,7 +9,8 @@ export class InterGroupDTO {
   readonly groupOne?: Group;
   readonly groupTwo?: Group;
   readonly startDate?: Date;
-  readonly endDate?: Date;
+  readonly startTime?: string;
+  readonly endTime?: string;
   readonly typeOfActivity?: TypeOfActivity;
   readonly meetingPlaceOne?: Meeting;
   readonly meetingPlaceTwo?: Meeting;
@@ -21,7 +22,8 @@ export class UpdateInterGroupDTO {
   readonly groupOne?: Group;
   readonly groupTwo?: Group;
   readonly startDate?: Date;
-  readonly endDate?: Date;
+  readonly startTime?: string;
+  readonly endTime?: string;
   readonly typeOfActivity?: TypeOfActivity;
   readonly meetingPlaceOne?: Meeting;
   readonly meetingPlaceTwo?: Meeting;
@@ -42,7 +44,8 @@ export class AceptOrRefuseDTO {
 export class newProposalDto {
   readonly interGroup: InterGroup;
   readonly proposalDate: Date;
-  readonly proposalHour: Date;
+  readonly proposalHourStart: string;
+  readonly proposalHourEnd: string;
   readonly proposalPlace: Meeting;
   readonly groupSender: Group;
   readonly groupReceiver: Group;

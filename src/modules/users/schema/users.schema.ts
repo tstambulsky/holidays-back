@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
-import { City } from '../../zone/schema/city.schema';
 
 export type UserDocument = User & mongoose.Document;
 
@@ -22,7 +21,10 @@ export class User {
   apple_id?: string;
 
   @Prop({ type: [String], required: false, minItems: 0, maxItems: 6 })
-  photo?: string[];
+  photo: {
+    photoUrl: String,
+    public_id: String
+  }
 
   @Prop({ required: false })
   profilePhoto?: string;
@@ -38,9 +40,6 @@ export class User {
 
   @Prop({ enum: ['male', 'female', 'other'] })
   sex: string;
-
-  @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'City', autopopulate: true })
-  city: City;
 
   @Prop({ required: false })
   phoneNumber?: number;

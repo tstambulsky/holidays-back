@@ -2,12 +2,14 @@ import { Injectable, HttpException, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { RegisterDTO } from '../auth/dto/register.dto';
-import { UpdateUserDTO, queryDTO,  } from './dto/data.dto';
+import { UpdateUserDTO, queryDTO, PhotoDTO } from './dto/data.dto';
 import { User, UserDocument } from './schema/users.schema';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private readonly userModel: Model<UserDocument>) {}
+  constructor(@InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+  @Inject(CloudinaryService) private readonly _cloudinaryService: CloudinaryService) {}
 
   async getUsers(): Promise<User[]> {
     const users = await this.userModel.find().populate('city').exec();
@@ -101,7 +103,7 @@ export class UsersService {
     try {
       const userId = currentUser._id;
       const user = await this.userModel.findOne({ _id: userId });
-      //agregar condicion para no hacer update en fb/insta/aple
+       if (!user) throw new HttpException('You dont have access to do this action', 404)
       const updatedUser = await user.updateOne({ ...data });
       const userUpdated = await this.userModel.findOne({ _id: userId });
       return userUpdated;
@@ -166,6 +168,19 @@ export class UsersService {
       if(name.name.length === 0) throw new HttpException('Please, insert a name', 404)
       const users = await this.userModel.find({name:new RegExp(name.name, 'i') });
       return users;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async updatePhoto(data: PhotoDTO, currentUser: any): Promise<User | undefined> {
+    try {
+      const userId = currentUser._id;
+      const user = await this.userModel.findOne({_id: userId});
+      if (!user) throw new HttpException('You dont have access to do this action', 404);
+      const updatePhotoUser = await user.updateOne({ ...data });
+      const photosUpdated = await this.userModel.findOne({ _id: userId });
+      return photosUpdated;
     } catch (error) {
       throw new Error(error.message);
     }

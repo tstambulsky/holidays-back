@@ -35,3 +35,10 @@ export class queryDTO {
 export class contactsDTO {
   readonly users: any[];
 }
+
+export class PhotoDTO {
+  readonly photo: {
+    photoUrl: String,
+    public_id: String
+  };
+}
