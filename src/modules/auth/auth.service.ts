@@ -52,7 +52,7 @@ export class AuthService {
   }
 
   async registerUser(data: RegisterDTO) {
-    const { name, lastName, DNI, email, phoneNumber, password, address, birthDate, sex, city, isAdmin, latitude, longitude } = data;
+    const { name, lastName, DNI, email, phoneNumber, password, address, birthDate, sex, isAdmin, latitude, longitude } = data;
     try {
       const hashPassword = await hash(password, 12);
       const user = await this.userService.createUser({
@@ -65,7 +65,6 @@ export class AuthService {
         address,
         birthDate,
         sex,
-        city,
         isAdmin,
         latitude,
         longitude

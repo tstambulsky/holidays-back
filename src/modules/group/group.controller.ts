@@ -9,7 +9,8 @@ import {
   AceptOrRefuseDTO,
   SearchByDistanceDto,
   NewAdminDto,
-  EditPhotosDto
+  EditPhotosDto,
+  FiltersDTO
 } from './dto/group.dto';
 import { CurrentUser } from '../users/decorators/currentUser';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -393,4 +394,18 @@ export class GroupController {
       });
     }
   }
+
+  /* @Get('/groups/filters')
+  async getGroupsByFilters(@Res() res, @Query() data: FiltersDTO, @CurrentUser() user) {
+  try {
+    const getFilters = await this.groupService.threeFilters(data.gender, data.distance, data.age, user);
+    return res.status(HttpStatus.OK).json({
+      getFilters
+    });
+  } catch (error) {
+    res.status(HttpStatus.BAD_REQUEST).json({
+      error: error.message
+    });
+  }
+}*/
 }

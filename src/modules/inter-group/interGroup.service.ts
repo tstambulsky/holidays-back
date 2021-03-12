@@ -13,7 +13,8 @@ import {
 import { InvitationInterGroup, InvitationInterGroupDocument } from './schema/invitationInterGroup.schema';
 import { GroupService } from '../group/group.service';
 import { Proposal, ProposalDocument } from './schema/proposal.schema';
-import { User } from '../users/schema/users.schema';
+const moment = require('moment');
+moment.suppressDeprecationWarnings = true;
 
 @Injectable()
 export class InterGroupService {
@@ -101,7 +102,7 @@ export class InterGroupService {
       const userID = currentUser._id;
       const groupExistAndAdmin = await this.groupService.getGroup({ active: true, _id: groupSender, admin: userID });
       if (!groupExistAndAdmin) throw new Error('This group does not exist or the user is not the admin');
-      const alreadyInIntergroup = await this.interGroupModel.find({ active: true, groupOne: groupSender || groupReceiver });
+      const alreadyInIntergroup = await this.interGroupModel.find({ active: true, groupOne: groupSender || groupReceiver, confirmed: true });
       if (alreadyInIntergroup.length > 0) throw new Error('The group(s) are already in an intergroup');
       const newInvitation = new this.invitationModel(data);
       await newInvitation.save();
@@ -173,6 +174,7 @@ export class InterGroupService {
     try {
       const { interGroup, groupSender } = data;
       const userId = currentUser._id;
+      const myGroups = await this.groupService.getOneUserGroup(userId);
       const obtainInterGroup = await this.interGroupModel.findOne({ _id: interGroup });
       if (!obtainInterGroup) throw new Error('This Inter group does not exist');
       if (obtainInterGroup.confirmed) throw new Error('This Inter group is already confirmed');
@@ -212,10 +214,20 @@ export class InterGroupService {
       proposal.success = accept;
       await proposal.save();
       if (accept) {
+        const fromDate = proposal.proposalDate || moment().format('YYYY-MM-DD');
+        proposal.proposalDate = fromDate;
+        const today = moment().format('YYYY-MM-DD');
+        const todayDate = moment(today + ' ' + proposal.proposalHourStart);
+        const passToHour = moment(proposal.proposalDate).add(moment.duration(proposal.proposalHourStart)).format('hh:mm:ss A');
+        proposal.proposalHourStart = passToHour;
+        if (!proposal.proposalHourEnd) proposal.proposalHourEnd = moment(todayDate).add(12, 'hours').format('hh:mm:ss A');
         const intergroup = await this.interGroupModel.findOne({ _id: proposal.interGroup });
         intergroup.startDate = proposal.proposalDate;
+        intergroup.startTime = proposal.proposalHourStart;
+        intergroup.endTime = proposal.proposalHourEnd;
         intergroup.meetingPlaceOne = proposal.proposalPlace;
         intergroup.confirmed = true;
+        intergroup.active = true;
         await intergroup.save();
       }
       return proposal;

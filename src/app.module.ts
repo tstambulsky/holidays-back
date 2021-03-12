@@ -5,7 +5,6 @@ import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './modules/users/users.module';
 import { MeetingPlaceModule } from './modules/meeting-place/meetingPlace.module';
-import { ZoneModule } from './modules/zone/zone.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { MessageModule } from './modules/message/message.module';
 import { RolModule } from './modules/rol/rol.module';
@@ -32,7 +31,6 @@ import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
     ConfigModule.forRoot(),
     UsersModule,
     MeetingPlaceModule,
-    ZoneModule,
     ChatModule,
     MessageModule,
     RolModule,

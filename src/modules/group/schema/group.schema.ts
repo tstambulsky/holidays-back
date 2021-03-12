@@ -12,7 +12,8 @@ export class Group {
   name: string;
 
   @Prop()
-  startDate: string;
+  startDate: Date;
+  
   @Prop()
   startTime?: string;
 

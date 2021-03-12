@@ -9,11 +9,14 @@ export class Proposal {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'InterGroup' })
   interGroup: InterGroup;
 
-  @Prop({ default: Date.now })
+  @Prop()
   proposalDate: Date;
 
   @Prop({})
-  proposalHour: string;
+  proposalHourStart: string;
+
+  @Prop({})
+  proposalHourEnd: string;
 
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Meeting' })
   proposalPlace: Meeting;

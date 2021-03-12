@@ -1,6 +1,6 @@
 import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Param, NotFoundException, UseGuards, Query, Post } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { UpdateUserDTO, queryDTO, contactsDTO } from './dto/data.dto';
+import { UpdateUserDTO, queryDTO, contactsDTO, PhotoDTO } from './dto/data.dto';
 import { User } from './schema/users.schema';
 import { LoginDTO } from '../auth/dto/login.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -55,10 +55,10 @@ export class UsersController {
     }
   } */
 
-  @Put('/update/:userID')
-  async updateMeeting(@Res() res, @Param('userID') userID, @Body() updateUserDTO: UpdateUserDTO): Promise<User> {
+  @Put('/update/')
+  async updateMeeting(@Res() res, @Body() updateUserDTO: UpdateUserDTO, @CurrentUser() user): Promise<User> {
     try {
-      const updateUser = await this.userService.updateUser(userID, updateUserDTO);
+      const updateUser = await this.userService.updateUser(updateUserDTO, user);
       return res.status(HttpStatus.OK).json({
         message: 'User has been updated',
         User: updateUser
@@ -128,4 +128,18 @@ export class UsersController {
       });
     }
   }
+
+  @Put('/update/photos') 
+  async updatePhotos(@Res() res, @Body() data: PhotoDTO, @CurrentUser() user) {
+  try {
+    const response = await this.userService.updatePhoto(data, user);
+    return res.status(HttpStatus.OK).json({
+      response
+    });
+  } catch (err) {
+    return res.status(HttpStatus.BAD_REQUEST).json({
+      error: err.message
+    });
+  }
+}
 }
