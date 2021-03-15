@@ -5,8 +5,7 @@ import { parse } from 'cookie';
 import { WsException } from '@nestjs/websockets';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Message, MessageDocument } from '../../message/schema/message.schema';
-import { User } from '../../users/schema/users.schema';
+import { Message, MessageDocument } from './schema/message.schema';
 
 @Injectable()
 export class ChatService {
@@ -22,16 +21,51 @@ export class ChatService {
     return user;
   }
 
-  async saveMessage(content: string, author: User) {
+  async saveMessageGroup(content: string, currentUser: any, groupId: any) {
+    const userId = currentUser._id;
     const newMessage = await new this.messageModel({
       content,
-      author
+      author: userId,
+      group: groupId
     });
     return await newMessage.save();
   }
 
-  async getAllMessages() {
+  async getAllMessagesGroup(groupId: any) {
     return this.messageModel.find({
+      group: groupId,
+      relations: ['author']
+    });
+  }
+   async saveMessageInterGroup(content: string, currentUser: any, interGroupId: any) {
+    const userId = currentUser._id;
+    const newMessage = await new this.messageModel({
+      content,
+      author: userId,
+      intergroup: interGroupId
+    });
+    return await newMessage.save();
+  }
+
+  async getAllMessagesInterGroup(interGroupId: any) {
+    return this.messageModel.find({
+      interGroup: interGroupId,
+      relations: ['author']
+    });
+  }
+   async saveMessageAdmin(content: string, currentUser: any, admin: any) {
+    const userId = currentUser._id;
+    const newMessage = await new this.messageModel({
+      content,
+      author: userId,
+      admin: admin
+    });
+    return await newMessage.save();
+  }
+
+  async getAllMessagesUser(admin: any) {
+    return this.messageModel.find({
+      admin: admin,
       relations: ['author']
     });
   }

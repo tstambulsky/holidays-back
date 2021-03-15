@@ -6,7 +6,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './modules/users/users.module';
 import { MeetingPlaceModule } from './modules/meeting-place/meetingPlace.module';
 import { ChatModule } from './modules/chat/chat.module';
-import { MessageModule } from './modules/message/message.module';
 import { RolModule } from './modules/rol/rol.module';
 import { GroupModule } from './modules/group/group.module';
 import { NotificationModule } from './modules/notification/notification.module';
@@ -22,6 +21,7 @@ import { ContactsModule } from './modules/contacts/contacts.module';
 import { CalificationModule } from './modules/calification/calification.module';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 
+
 @Module({
   imports: [
     MongooseModule.forRoot(`${process.env.MONGODB_URI}`, {
@@ -32,7 +32,6 @@ import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
     UsersModule,
     MeetingPlaceModule,
     ChatModule,
-    MessageModule,
     RolModule,
     GroupModule,
     NotificationModule,

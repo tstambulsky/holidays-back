@@ -20,10 +20,10 @@ export class User {
   @Prop({ required: false })
   apple_id?: string;
 
-  @Prop({ type: [String], required: false, minItems: 0, maxItems: 6 })
+  @Prop({ type: [], required: false, minItems: 0, maxItems: 6 })
   photo: {
-    photoUrl: String,
-    public_id: String
+    photoUrl: string,
+    public_id: string
   }
 
   @Prop({ required: false })
