@@ -154,6 +154,20 @@ export class InterGroupController {
     }
   }
 
+  @Get('/needproposal/:groupId') 
+    async needProposal(@Res() res, @Param('groupId') groupId: any) {
+      try {
+        const response = await this.interGroupService.getInterGroupWithoutProposal(groupId);
+        return res.status(HttpStatus.OK).json({
+          response
+        });
+      } catch (error) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          error: error.message
+        });
+      }
+    }
+
   @Post('/invitation/proposal')
   async createProposalPlace(@Res() res, @Body() data: newProposalDto, @CurrentUser() user) {
     try {
