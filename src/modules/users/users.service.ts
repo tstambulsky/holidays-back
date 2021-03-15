@@ -99,11 +99,23 @@ export class UsersService {
     }
   }
 
-  async updateUser(data: UpdateUserDTO, currentUser: any): Promise<User | undefined> {
+  async updateUserLogged(data: UpdateUserDTO, currentUser: any): Promise<User | undefined> {
     try {
       const userId = currentUser._id;
       const user = await this.userModel.findOne({ _id: userId });
        if (!user) throw new HttpException('You dont have access to do this action', 404)
+      const updatedUser = await user.updateOne({ ...data });
+      const userUpdated = await this.userModel.findOne({ _id: userId });
+      return userUpdated;
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+  async updateUser(data: UpdateUserDTO, userId: any): Promise<User | undefined> {
+    try {
+      const user = await this.userModel.findOne({ _id: userId });
+       if (!user) throw new HttpException('User no exist', 404)
       const updatedUser = await user.updateOne({ ...data });
       const userUpdated = await this.userModel.findOne({ _id: userId });
       return userUpdated;
@@ -185,4 +197,25 @@ export class UsersService {
       throw new Error(error.message);
     }
   }
+
+    async setProfilePhoto(currentUser: any, file: any){
+     try {
+       const userId = currentUser._id;
+       await this.userModel.updateOne({userId, profilePhoto: file.path});
+     } catch (error) {
+       throw new Error(error.message)
+     }
+    }
+
+    async updatePhotos(currentUser: any, files: any) {
+      try {
+        const userId = currentUser._id;
+        const path = files.path;
+        const filename = files.filename;
+        await this.userModel.updateOne({userId, photo: {photoUrl: path, public_id: filename}})
+      } catch (error) {
+        throw new Error(error.message)
+      }
+    }
+
 }

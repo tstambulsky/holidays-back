@@ -1,14 +1,21 @@
-import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Param, NotFoundException, UseGuards, Query, Post } from '@nestjs/common';
+import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Param, NotFoundException, UploadedFiles, UseGuards, Query, Post, UploadedFile, UseInterceptors, Req } from '@nestjs/common';
+import { FileInterceptor, FilesInterceptor, FileFieldsInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
 import { UpdateUserDTO, queryDTO, contactsDTO, PhotoDTO } from './dto/data.dto';
 import { User } from './schema/users.schema';
 import { LoginDTO } from '../auth/dto/login.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from './decorators/currentUser';
+import { multerOptions } from '../../config/multer';
+import { Express } from 'express';
+import { diskStorage } from 'multer';
+
+
 
 @UseGuards(JwtAuthGuard)
 @Controller('/users')
 export class UsersController {
+  SERVER_URL: string = process.env.URL;
   constructor(private userService: UsersService) {}
 
   @Get('/')
@@ -55,10 +62,28 @@ export class UsersController {
     }
   } */
 
-  @Put('/update/')
-  async updateMeeting(@Res() res, @Body() updateUserDTO: UpdateUserDTO, @CurrentUser() user): Promise<User> {
+  
+  @Put('/update/:userId')
+  async updateUser(@Res() res, @Body() updateUserDTO: UpdateUserDTO, @Param('userId') user): Promise<User> {
     try {
       const updateUser = await this.userService.updateUser(updateUserDTO, user);
+      return res.status(HttpStatus.OK).json({
+        message: 'User has been updated',
+        User: updateUser
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'An error has occurred',
+        err: err.message
+      });
+    }
+  }
+
+
+  @Put('/updatelogged/')
+  async updateUserLog(@Res() res, @Body() updateUserDTO: UpdateUserDTO, @CurrentUser() user): Promise<User> {
+    try {
+      const updateUser = await this.userService.updateUserLogged(updateUserDTO, user);
       return res.status(HttpStatus.OK).json({
         message: 'User has been updated',
         User: updateUser
@@ -142,4 +167,27 @@ export class UsersController {
     });
   }
 }
+
+  @Post('/profilephoto')
+  @UseInterceptors(FileInterceptor('file', multerOptions
+  ))
+  async uploadPhotoProfile(@CurrentUser() user, @UploadedFile() file) {
+    await this.userService.setProfilePhoto(user, file);
+}
+
+  @Get('/photos/:fileId')
+  async servePhoto(@Param('fileId') fileId, @Res() res): Promise<any> {
+    res.sendFile(fileId, { root: 'assets'});
+  }
+
+  @Post('/uploadphotos')
+  @UseInterceptors(FilesInterceptor('files', 6, {
+    storage: multerOptions.storage
+    }),
+  )
+  async uploadFiles(@CurrentUser() user, @UploadedFiles() files: Express.Multer.File) {
+    await this.userService.updatePhotos(user, files)
+    console.log(files);
+}
+
 }

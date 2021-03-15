@@ -8,7 +8,7 @@ import { User, UserSchema } from './schema/users.schema';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]), EmailModule, CloudinaryModule],
+  imports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),EmailModule, CloudinaryModule],
   controllers: [UsersController],
   providers: [UsersService, EmailService],
   exports: [UsersService]

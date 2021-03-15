@@ -38,7 +38,7 @@ export class contactsDTO {
 
 export class PhotoDTO {
   readonly photo: {
-    photoUrl: String,
-    public_id: String
+    photoUrl: string,
+    public_id: string
   };
 }
