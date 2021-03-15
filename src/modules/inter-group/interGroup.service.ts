@@ -41,7 +41,7 @@ export class InterGroupService {
 
   async getInterGroup(interGroupID: any): Promise<InterGroup> {
     try {
-      const interGroup = await this.interGroupModel.findOne({ _id: interGroupID }, { active: true });
+      const interGroup = await this.interGroupModel.findOne({ _id: interGroupID, active: true });
       return interGroup;
     } catch (err) {
       console.log(err);
@@ -145,6 +145,7 @@ export class InterGroupService {
         groupOne,
         groupTwo,
         name: `${firstGroup.name} + ${secondGroup.name}`,
+        confirmed: true,
         active: false
       });
       return await createInterGroup.save();
@@ -172,7 +173,7 @@ export class InterGroupService {
 
   async getInterGroupWithoutProposal(groupId: any) {
     try {
-      const interGroup = await this.interGroupModel.findOne({active: false, confirmed: false, $or: [{groupOne: groupId}, {groupTwo: groupId}]});
+      const interGroup = await this.interGroupModel.findOne({active: false, confirmed: true, $or: [{groupOne: groupId}, {groupTwo: groupId}]});
       if (!interGroup) throw new HttpException('The intergroup does not exist or does not need proposals.', 404);
       return interGroup;
     } catch (error) {
@@ -236,7 +237,6 @@ export class InterGroupService {
         intergroup.startTime = proposal.proposalHourStart;
         intergroup.endTime = proposal.proposalHourEnd;
         intergroup.meetingPlaceOne = proposal.proposalPlace;
-        intergroup.confirmed = true;
         intergroup.active = true;
         await intergroup.save();
       }
