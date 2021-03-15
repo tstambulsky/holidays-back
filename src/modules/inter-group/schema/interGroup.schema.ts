@@ -35,7 +35,7 @@ export class InterGroup {
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Meeting' })
   meetingPlaceTwo?: Meeting;
 
-  @Prop({ default: true })
+  @Prop({ default: false })
   active: boolean;
 
   @Prop({ default: false })

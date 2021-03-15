@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { AuthService } from '../../auth/auth.service';
 import { Socket } from 'socket.io';
 import { parse } from 'cookie';
@@ -36,7 +36,7 @@ export class ChatService {
 
   async getAllMessagesGroup(groupId: any, currentUser: any) {
     const group = await this.groupService.getGroup({ active: true, _id: groupId, integrants: currentUser._id});
-    if (!group) throw new HttpException('The user does not belong to the group or the group does not exist.', 404);
+    if (!group) throw new WsException('The user does not belong to the group or the group does not exist.');
     return this.messageModel.find({
       group: groupId,
       relations: ['author']
@@ -54,9 +54,9 @@ export class ChatService {
 
   async getAllMessagesInterGroup(interGroupId: any, groupId: any, currentUser: any) {
     const group = await this.groupService.getGroup({ active: true, _id: groupId, integrants: currentUser._id});
-    if (!group) throw new HttpException('The user does not belong to the group or the group does not exist.', 404);
+    if (!group) throw new WsException('The user does not belong to the group or the group does not exist.');
     const interGroup = await this.interGroupService.getInterGroup({active: true, $or: [{groupOne: groupId}, {groupTwo: groupId}]});
-    if (!interGroup) throw new HttpException('The intergroup does not exist or the group does not belong to this intergroup', 404);
+    if (!interGroup) throw new WsException('The intergroup does not exist or the group does not belong to this intergroup');
     return this.messageModel.find({
       interGroup: interGroupId,
       relations: ['author']
@@ -75,7 +75,7 @@ export class ChatService {
 
   async getAllMessagesUser(admin: any, groupId: any) {
     const group = await this.groupService.getGroup({active: true, _id: groupId, admin})
-    if (!group) throw new HttpException('The group does not exist or you are not the admin of the group', 404);
+    if (!group) throw new WsException('The group does not exist or you are not the admin of the group');
     return this.messageModel.find({
       admin,
       groupId,
