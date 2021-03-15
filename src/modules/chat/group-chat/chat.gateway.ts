@@ -1,8 +1,11 @@
 import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer, OnGatewayConnection, ConnectedSocket } from '@nestjs/websockets';
+import { UseGuards } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
 import { MessageDTO } from './dto/message.dto';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection {
   @WebSocketServer()
@@ -26,8 +29,8 @@ export class ChatGateway implements OnGatewayConnection {
   @SubscribeMessage('request_all_messages_group')
   async requestAllMessages(@MessageBody() data: MessageDTO, @ConnectedSocket() socket: Socket) {
     const { group } = data;
-    await this.chatService.getUserFromSocket(socket);
-    const messages = await this.chatService.getAllMessagesGroup(group);
+    const author = await this.chatService.getUserFromSocket(socket);
+    const messages = await this.chatService.getAllMessagesGroup(group, author);
 
     socket.emit('send_all_mesages_group', messages);
   }

@@ -158,13 +158,23 @@ export class InterGroupService {
       const { invitationId } = data;
       const userID = currentUser._id;
       const invitation = await this.invitationModel.findOne({ _id: invitationId });
-      if (!invitation) throw new Error('This invitation does not exist');
-      if (!invitation.active) throw new Error('This invitation was canceled');
+      if (!invitation) throw new HttpException('This invitation does not exist', 404);
+      if (!invitation.active) throw new HttpException('This invitation was canceled', 404);
       const group = await this.groupService.getGroup({ _id: invitation.groupReceiver });
-      if (group.admin != userID) throw new Error('You are not the admin of the group.');
+      if (group.admin != userID) throw new HttpException('You are not the admin of the group.', 404);
       invitation.active = false;
       await invitation.save();
       return group;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async getInterGroupWithoutProposal(groupId: any) {
+    try {
+      const interGroup = await this.interGroupModel.findOne({active: false, confirmed: false, $or: [{groupOne: groupId}, {groupTwo: groupId}]});
+      if (!interGroup) throw new HttpException('The intergroup does not exist or does not need proposals.', 404);
+      return interGroup;
     } catch (error) {
       throw new Error(error.message);
     }
