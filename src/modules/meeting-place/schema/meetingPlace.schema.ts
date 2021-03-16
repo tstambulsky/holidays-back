@@ -23,6 +23,13 @@ export class Meeting {
   @Prop()
   photo: string;
 
+  @Prop({ type: [{}], required: false, minItems: 0, maxItems: 6 })
+  photos: [{
+    photoUrl: String,
+    public_id: String
+  }
+]
+
   @Prop({ default: true })
   active: boolean;
 

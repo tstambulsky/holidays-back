@@ -3,9 +3,7 @@ import { GroupService } from './group.service';
 import { GroupController } from './group.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Group, GroupSchema } from './schema/group.schema';
-import { UsersService } from '../users/users.service';
-import { InterGroupModule } from '../inter-group/interGroup.module';
-import { InterGroupService } from '../inter-group/interGroup.service';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 import { UsersModule } from '../users/users.module';
 import { Invitation, InvitationSchema } from './schema/invitation.schema';
 
@@ -13,9 +11,10 @@ import { Invitation, InvitationSchema } from './schema/invitation.schema';
   imports: [
     MongooseModule.forFeature([
       { name: Group.name, schema: GroupSchema },
-      { name: Invitation.name, schema: InvitationSchema }
+      { name: Invitation.name, schema: InvitationSchema },
     ]),
-    forwardRef(() => UsersModule) 
+    forwardRef(() => UsersModule),
+    CloudinaryModule
   ],
   controllers: [GroupController],
   providers: [GroupService],

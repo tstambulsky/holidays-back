@@ -40,7 +40,7 @@ export class ChatService {
     return this.messageModel.find({
       group: groupId,
       relations: ['author']
-    });
+    }).sort({datefield: -1});
   }
    async saveMessageInterGroup(content: string, currentUser: any, interGroupId: any) {
     const userId = currentUser._id;
@@ -60,7 +60,7 @@ export class ChatService {
     return this.messageModel.find({
       interGroup: interGroupId,
       relations: ['author']
-    });
+    }).sort({datefield: -1});
   }
    async saveMessageAdmin(content: string, currentUser: any, admin: any, groupId: any) {
     const userId = currentUser._id;
@@ -80,6 +80,6 @@ export class ChatService {
       admin,
       groupId,
       relations: ['author']
-    });
+    }).sort({datefield: -1});
   }
 }

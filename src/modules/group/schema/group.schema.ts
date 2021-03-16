@@ -35,8 +35,8 @@ export class Group {
   @Prop({})
   description: string;
 
-  @Prop({ type: [String], required: false })
-  photos?: string[];
+  @Prop({ type: String, required: false })
+  photo?: string;
 
   @Prop({ default: true })
   active: boolean;

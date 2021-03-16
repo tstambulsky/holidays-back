@@ -15,7 +15,7 @@ export class CloudinaryService {
      })
     this.v2 = cloudinary.v2
   }
-  async upload(file:any){
+  async upload(file: any){
     return await this.v2.uploader.upload(file)
   }
 }

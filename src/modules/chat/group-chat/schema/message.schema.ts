@@ -10,7 +10,7 @@ export type MessageDocument = Message & mongoose.Document;
 @Schema({ timestamps: true })
 export class Message {
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'User', required: true, length: 255, autopopulate: true })
-  author: mongoose.Types.ObjectId;
+  author: User;
   @Prop({ required: true, length: 255 })
   content: string;
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Group'})
