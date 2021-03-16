@@ -1,15 +1,19 @@
-import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post, UseGuards } from '@nestjs/common';
+import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post, UseGuards, UseInterceptors, UploadedFile, UploadedFiles } from '@nestjs/common';
+import { FileInterceptor, FilesInterceptor, FileFieldsInterceptor } from '@nestjs/platform-express';
 import { MeetingPlaceService } from './meetingPlace.service';
 import { Meeting } from './schema/meetingPlace.schema';
 import { MeetingDTO, UpdateMeetingDTO } from './dto/meeting.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { multerOptions } from '../../config/multer';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller()
 export class MeetingPlaceController {
-  constructor(private meetingPlaceService: MeetingPlaceService) {}
+  constructor(private meetingPlaceService: MeetingPlaceService,
+    private readonly _cloudinaryService: CloudinaryService) {}
 
-  @Get('/meetingplace')
+  @Get('')
   async getMeetings(@Res() res): Promise<Meeting[]> {
     try {
       const meetings = await this.meetingPlaceService.getAll();
@@ -100,4 +104,28 @@ export class MeetingPlaceController {
       });
     }
   }
+  @Post('/meetingplace/photo/:meetingId')
+  @UseInterceptors(FileInterceptor('file', multerOptions
+  ))
+  async uploadPhotoProfile(@Param('meetingId') meetingId, @UploadedFile() file,) {
+    await this.meetingPlaceService.setMeetingPhoto(meetingId, file);
+    await this._cloudinaryService.upload(file.path);
+}
+
+  @Post('/meetingplace/uploadphotos/:meetingId')
+  @UseInterceptors(FilesInterceptor('files', 6, {
+    storage: multerOptions.storage
+    }),
+  )
+  async uploadFiles(@Param('meetingId') meetingId, @UploadedFiles() files: Express.Multer.File) {
+    await this.meetingPlaceService.updatePhotos(meetingId, files)
+    //console.log(files);
+
+  }
+
+  @Get('/meetingplace/photos/:fileId')
+  async servePhoto(@Param('fileId') fileId, @Res() res): Promise<any> {
+    res.sendFile(fileId, { root: 'assets'});
+  }
+
 }

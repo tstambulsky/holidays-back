@@ -201,7 +201,8 @@ export class UsersService {
     async setProfilePhoto(currentUser: any, file: any){
      try {
        const userId = currentUser._id;
-       await this.userModel.updateOne({userId, profilePhoto: file.path});
+       const user = await this.userModel.findOne({_id: userId });
+       await user.updateOne({profilePhoto: file.filename})
      } catch (error) {
        throw new Error(error.message)
      }
@@ -210,10 +211,12 @@ export class UsersService {
     async updatePhotos(currentUser: any, files: any) {
       try {
         const userId = currentUser._id;
-        const path = files.path;
-        const filename = files.filename;
-        await this.userModel.updateOne({userId, photo: {photoUrl: path, public_id: filename}})
-      } catch (error) {
+        for await(let file of files){
+        const user = await this.userModel.findOne({_id: userId});
+        user.photos.push({photoUrl: file.path, public_id: file.filename});
+        await this._cloudinaryService.upload(file.path)
+        await user.save();
+      }}catch (error) {
         throw new Error(error.message)
       }
     }

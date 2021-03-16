@@ -470,7 +470,7 @@ export class GroupService {
     }
   }
 
-  async setGroupPhotos(currentUser: any, data: EditPhotosDto) {
+  /*async setGroupPhotos(currentUser: any, data: EditPhotosDto) {
     try {
       const { photos, groupId } = data;
       const userId = currentUser._id;
@@ -483,7 +483,7 @@ export class GroupService {
     } catch (error) {
       throw new Error(error.message);
     }
-  }
+  }*/ 
   async groupsCreatedByUser(currentUser: any) {
     try {
       const userId = currentUser._id;
@@ -512,6 +512,18 @@ export class GroupService {
       throw new Error(error.message);
     }
   }
+
+  async setGroupPhoto(currentUser: any, groupId: any, file: any){
+     try {
+       const userId = currentUser._id;
+       const group = await this.groupModel.findOne({_id: groupId, admin: userId});
+       if(!group) throw new HttpException('The group does not exist or you are not the admin of the group.', 404);
+       await group.updateOne({ photo: file.filename });
+       return group;
+     } catch (error) {
+       throw new Error(error.message)
+     }
+    }
 
   /*async threeFilters(gender: any, distance: any, age: any, currentUser: any) {
     try {

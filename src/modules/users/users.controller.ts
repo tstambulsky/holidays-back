@@ -8,6 +8,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from './decorators/currentUser';
 import { multerOptions } from '../../config/multer';
 import { Express } from 'express';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { diskStorage } from 'multer';
 
 
@@ -16,7 +17,8 @@ import { diskStorage } from 'multer';
 @Controller('/users')
 export class UsersController {
   SERVER_URL: string = process.env.URL;
-  constructor(private userService: UsersService) {}
+  constructor(private userService: UsersService, 
+    private _cloudinaryService: CloudinaryService) {}
 
   @Get('/')
   async getUsers(@Res() res) {
@@ -154,7 +156,7 @@ export class UsersController {
     }
   }
 
-  @Put('/update/photos') 
+  /*@Put('/update/photos') 
   async updatePhotos(@Res() res, @Body() data: PhotoDTO, @CurrentUser() user) {
   try {
     const response = await this.userService.updatePhoto(data, user);
@@ -166,13 +168,14 @@ export class UsersController {
       error: err.message
     });
   }
-}
+}*/
 
-  @Post('/profilephoto')
+  @Post('/photos/profilephoto')
   @UseInterceptors(FileInterceptor('file', multerOptions
   ))
   async uploadPhotoProfile(@CurrentUser() user, @UploadedFile() file) {
     await this.userService.setProfilePhoto(user, file);
+    await this._cloudinaryService.upload(file.path);
 }
 
   @Get('/photos/:fileId')
@@ -186,8 +189,8 @@ export class UsersController {
     }),
   )
   async uploadFiles(@CurrentUser() user, @UploadedFiles() files: Express.Multer.File) {
-    await this.userService.updatePhotos(user, files)
-    console.log(files);
+    await this.userService.updatePhotos(user, files);
+    //console.log(files);
 }
 
 }

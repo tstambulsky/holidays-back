@@ -3,10 +3,12 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Meeting, MeetingDocument } from './schema/meetingPlace.schema';
 import { MeetingDTO, UpdateMeetingDTO } from './dto/meeting.dto';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class MeetingPlaceService {
-  constructor(@InjectModel(Meeting.name) private readonly meetingModel: Model<MeetingDocument>) {}
+  constructor(@InjectModel(Meeting.name) private readonly meetingModel: Model<MeetingDocument>,
+  private readonly _cloudinaryService: CloudinaryService) {}
 
   async getAll(): Promise<Meeting[]> {
     const meetings = await this.meetingModel.find();
@@ -69,4 +71,27 @@ export class MeetingPlaceService {
       throw new Error(err.message);
     }
   }
+
+  async setMeetingPhoto(meetingId: any, file: any){
+     try {
+       const meeting = await this.meetingModel.findOne({_id: meetingId});
+       await meeting.updateOne({ photo: file.filename });
+       return meeting;
+     } catch (error) {
+       throw new Error(error.message)
+     }
+    }
+
+     async updatePhotos(meetingId: any, files: any) {
+      try {
+        for await(let file of files){
+        const meeting = await this.meetingModel.findOne({_id: meetingId});
+        meeting.photos.push({photoUrl: file.path, public_id: file.filename});
+        await this._cloudinaryService.upload(file.path)
+        await meeting.save();
+      }}catch (error) {
+        throw new Error(error.message)
+      }
+    }
+
 }

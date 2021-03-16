@@ -1,4 +1,5 @@
-import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post, UseGuards } from '@nestjs/common';
+import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post, UseInterceptors, UseGuards, UploadedFile } from '@nestjs/common';
+import { FileInterceptor, FilesInterceptor, FileFieldsInterceptor } from '@nestjs/platform-express';
 import { GroupService } from './group.service';
 import { Group } from './schema/group.schema';
 import {
@@ -15,11 +16,14 @@ import {
 import { CurrentUser } from '../users/decorators/currentUser';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { contactsDTO } from '../users/dto/data.dto';
+import { multerOptions } from '../../config/multer';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller('group')
 export class GroupController {
-  constructor(private readonly groupService: GroupService) {}
+  constructor(private readonly groupService: GroupService,
+    private readonly _cloudinaryService: CloudinaryService) {}
 
   @Get()
   async getGroups(@Res() res): Promise<Group[]> {
@@ -336,12 +340,12 @@ export class GroupController {
     }
   }
 
-  @Post('/update/photos')
-  async editPhotos(@Res() res, @Body() data: EditPhotosDto, @CurrentUser() user) {
+  @Post('/update/photo/:groupId')
+  async groupPhoto(@Res() res, @Param('groupId') groupId, @Body() file: any, @CurrentUser() user) {
     try {
-      const response = await this.groupService.setGroupPhotos(data, user);
+      const response = await this.groupService.setGroupPhoto(user, groupId, file);
       return res.status(HttpStatus.OK).json({
-        message: 'Photos updated',
+        message: 'Photo updated',
         response
       });
     } catch (error) {
@@ -351,6 +355,14 @@ export class GroupController {
       });
     }
   }
+
+  @Post('/photo/:groupId')
+  @UseInterceptors(FileInterceptor('file', multerOptions
+  ))
+  async uploadPhotoProfile(@CurrentUser() user, @Param('groupId') groupId, @UploadedFile() file) {
+    await this.groupService.setGroupPhoto(user, groupId, file);
+    await this._cloudinaryService.upload(file.path);
+}
 
   @Get('/groupsuser/createdbyuser')
   async getGroupsCreatedByUser(@Res() res, @CurrentUser() user) {
@@ -393,6 +405,11 @@ export class GroupController {
         error: error.message
       });
     }
+  }
+
+  @Get('/groups/photo/:fileId')
+  async servePhoto(@Param('fileId') fileId, @Res() res): Promise<any> {
+    res.sendFile(fileId, { root: 'assets'});
   }
 
   /* @Get('/groups/filters')

@@ -20,11 +20,12 @@ export class User {
   @Prop({ required: false })
   apple_id?: string;
 
-  @Prop({ type: [], required: false, minItems: 0, maxItems: 6 })
-  photo: {
-    photoUrl: string,
-    public_id: string
+  @Prop({ type: [{}], required: false, minItems: 0, maxItems: 6 })
+  photos: [{
+    photoUrl: String,
+    public_id: String
   }
+]
 
   @Prop({ required: false })
   profilePhoto?: string;
