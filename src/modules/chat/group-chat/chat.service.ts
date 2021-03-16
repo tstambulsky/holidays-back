@@ -54,7 +54,7 @@ export class ChatService {
 
   async getAllMessagesInterGroup(interGroupId: any, groupId: any, currentUser: any) {
     const group = await this.groupService.getGroup({ active: true, _id: groupId, integrants: currentUser._id});
-    if (!group) throw new WsException('The user does not belong to the group or the group does not exist.');
+    if (!group) throw new WsException('The user does not belong to the group of the intergroup the group does not exist.');
     const interGroup = await this.interGroupService.getInterGroup({active: true, $or: [{groupOne: groupId}, {groupTwo: groupId}]});
     if (!interGroup) throw new WsException('The intergroup does not exist or the group does not belong to this intergroup');
     return this.messageModel.find({
@@ -63,21 +63,22 @@ export class ChatService {
     }).sort({datefield: -1});
   }
    async saveMessageAdmin(content: string, currentUser: any, admin: any, groupId: any) {
-    const userId = currentUser._id;
+    const group = await this.groupService.getGroup({active: true, admin});
+    if (!group) throw new WsException('The group does not exist or the user is not the admin of the group.')
     const newMessage = await new this.messageModel({
       content,
-      author: userId,
+      author: currentUser._id,
       groupId,
-      admin: admin
+      adminUser: admin
     });
     return await newMessage.save();
   }
 
-  async getAllMessagesUser(admin: any, groupId: any) {
+  async getAllMessagesAdmin(admin: any, groupId: any) {
     const group = await this.groupService.getGroup({active: true, _id: groupId, admin})
     if (!group) throw new WsException('The group does not exist or you are not the admin of the group');
     return this.messageModel.find({
-      admin,
+      adminUser: admin,
       groupId,
       relations: ['author']
     }).sort({datefield: -1});
