@@ -13,7 +13,7 @@ export class MeetingPlaceController {
   constructor(private meetingPlaceService: MeetingPlaceService,
     private readonly _cloudinaryService: CloudinaryService) {}
 
-  @Get('')
+  @Get('/meetingplace')
   async getMeetings(@Res() res): Promise<Meeting[]> {
     try {
       const meetings = await this.meetingPlaceService.getAll();
