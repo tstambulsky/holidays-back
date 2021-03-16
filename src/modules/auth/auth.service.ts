@@ -8,6 +8,7 @@ import { RegisterDTO } from './dto/register.dto';
 import { EmailService } from '../email/email.service';
 import { TokenPayload } from './interfaces/facebook-config.interface';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { tokenConfig } from '../../config/token';
 
 
 @Injectable()
