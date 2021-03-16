@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { AuthService } from '../../auth/auth.service';
 import { Socket } from 'socket.io';
 import { parse } from 'cookie';
+import { UsersService } from '../../users/users.service';
 import { WsException } from '@nestjs/websockets';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -12,7 +13,7 @@ import { InterGroupService } from '../../inter-group/interGroup.service';
 @Injectable()
 export class ChatService {
   constructor(private readonly authService: AuthService, @InjectModel(Message.name) private messageModel: Model<MessageDocument>,
-  private readonly groupService: GroupService, private readonly interGroupService: InterGroupService) {}
+  private readonly groupService: GroupService, private readonly interGroupService: InterGroupService, private readonly usersService: UsersService) {}
 
   async getUserFromSocket(socket: Socket) {
     const cookie = socket.handshake.headers.cookie;
@@ -21,6 +22,7 @@ export class ChatService {
     if (!user) {
       throw new WsException('Invalid credentials.');
     }
+    console.log('usuario',user);
     return user;
   }
 
@@ -31,7 +33,8 @@ export class ChatService {
       author: userId,
       group: groupId
     });
-    return await newMessage.save();
+     await newMessage.save();
+     return newMessage
   }
 
   async getAllMessagesGroup(groupId: any, currentUser: any) {

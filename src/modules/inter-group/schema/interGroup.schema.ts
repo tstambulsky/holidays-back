@@ -11,10 +11,10 @@ export class InterGroup {
   @Prop()
   name: string;
   
-  @Prop([{ required: true, type: mongoose.SchemaTypes.ObjectId, ref: 'Group' }])
+  @Prop({ required: true, type: mongoose.SchemaTypes.ObjectId, ref: 'Group' })
   groupOne: Group;
 
-  @Prop([{ required: true, type: mongoose.SchemaTypes.ObjectId, ref: 'Group' }])
+  @Prop({ required: true, type: mongoose.SchemaTypes.ObjectId, ref: 'Group' })
   groupTwo: Group;
 
   @Prop()
