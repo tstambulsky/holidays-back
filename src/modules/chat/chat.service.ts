@@ -92,10 +92,11 @@ async getUserFromSocket(socket: Socket) {
     }
   }
 
-  async getChatAdmin(groupId: any) {
+  async getChatAdmin(currentUser: any) {
     try {
-      const group = await this.groupService.getGroup(groupId);
-      return await this.chatModel.find({ adminUser: group.admin })
+      const chats = await this.chatModel.find({ adminUser: currentUser._id })
+      if (!chats) throw new WsException('The user is not an admin of any group');
+      return chats;      
     } catch (error) {
       throw new Error(error)
     }
