@@ -1,11 +1,12 @@
-import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post } from '@nestjs/common';
+import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post, UseGuards } from '@nestjs/common';
 import { ZoneService } from './zone.service';
 import { CreateCityDTO, UpdateCityDTO, CreateStateDTO, UpdateStateDTO, CreateCountryDTO, UpdateCountryDTO } from './dto/zone.dto';
-import { IZone } from './interfaces/zone.interface';
 import { City } from './schema/city.schema';
 import { State } from './schema/state.schema';
 import { Country } from './schema/country.schema';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('zone')
 export class ZoneController {
   constructor(private zoneService: ZoneService) {}
@@ -40,6 +41,18 @@ export class ZoneController {
     }
   }
 
+  @Get('/citybystate/:stateId')
+async getCityState(@Res() res, @Param('stateId') stateId) {
+    try {
+      const city = await this.zoneService.getCitiesByState(stateId);
+      return res.status(HttpStatus.OK).json(city);
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'An error has ocurred',
+        err: err.message
+      });
+    }
+  }
   @Post('/city')
   async createCity(@Res() res, @Body() createCityDTO: CreateCityDTO): Promise<string> {
     try {

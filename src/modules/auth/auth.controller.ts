@@ -16,9 +16,8 @@ import {
 import { AxiosResponse } from 'axios';
 import { AccessTokenDto } from './dto/accessToken.dto';
 import { RefreshAccessTokenDto } from './dto/refreshAccessToken.dto';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { LoginResDTO } from './dto/login.dto';
-import { RegisterResDTO } from './dto/register.dto';
 import { LoginDTO, AppleLoginDTO } from './dto/login.dto';
 import { RegisterDTO } from './dto/register.dto';
 import { AuthService } from './auth.service';
@@ -31,7 +30,7 @@ import { AuthGuard } from '@nestjs/passport';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('/api/login')
+  @Post('/login')
   async login(@Res() res, @Body() data: LoginDTO): Promise<LoginResDTO> {
     try {
       const userLogedd = await this.authService.login(data);
@@ -42,43 +41,43 @@ export class AuthController {
     } catch (err) {
       console.log('Error in login');
       return res.status(HttpStatus.NOT_FOUND).json({
-        message: 'Error: User not logged!',
+        message: err.message,
         status: 404
       });
     }
   }
 
-  @Get('/auth/facebook/login')
   @UseGuards(AuthGuard('facebook'))
-  async getTokenAfterFacebookSignIn(@Req() req) {
+  @Get('/facebook/login')
+  async getTokenAfterFacebookSignIn(@Res() res, @Req() req): Promise<any> {
     console.log(req.user);
-  }
+}
 
-  @Get('/facebook/redirect')
+  @Get('/facebook/callback')
   @UseGuards(AuthGuard('facebook'))
-  async facebookAuthRedirect(@Req() req: Request) {
+  async facebookAuthRedirect(@Req() req: Request): Promise<any> {
     return {
       statusCode: HttpStatus.OK,
       data: req.user
     };
   }
 
-  @Get('/auth/instagram/login')
+  @Get('/instagram/login')
   @UseGuards(AuthGuard('instagram'))
-  async getTokenAfterInstagramSignIn(@Req() req) {
-    console.log(req.user);
+  async getTokenAfterInstagramSignIn(): Promise<any> {
+    return HttpStatus.OK;
   }
 
   @Get('/instagram/redirect')
   @UseGuards(AuthGuard('instagram'))
-  async instagramAuthRedirect(@Req() req: Request) {
+  async instagramAuthRedirect(@Req() req: Request): Promise<any> {
     return {
       statusCode: HttpStatus.OK,
       data: req.user
     };
   }
 
-  @Post('/api/register')
+  @Post('/register')
   async registerUser(@Res() res, @Body() registerDTO: RegisterDTO) {
     try {
       const createUser = await this.authService.registerUser(registerDTO);
@@ -89,13 +88,13 @@ export class AuthController {
       }
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({
-        message: 'Error: User not created!',
+        message: err.message,
         status: 400
       });
     }
   }
 
-  @Post('/api//send-recover')
+  @Post('/send-recover')
   async sendRecoverPassword(@Res() res, @Body() forgotPasswordDTO: ForgotPasswordDTO) {
     const { email } = forgotPasswordDTO;
     try {
@@ -106,7 +105,7 @@ export class AuthController {
     }
   }
 
-  @Post('/api//confirm-recover')
+  @Post('/confirm-recover')
   async confirmRecoverPassword(@Res() res, @Body() token: TokenCodeDTO) {
     const { code } = token;
     try {
@@ -118,7 +117,7 @@ export class AuthController {
     }
   }
 
-  @Post('/api//change-password')
+  @Post('/change-password')
   async changePassword(@Res() res, @Body() changePasswordDTO: ChangePasswordDTO) {
     const { email, password } = changePasswordDTO;
     try {

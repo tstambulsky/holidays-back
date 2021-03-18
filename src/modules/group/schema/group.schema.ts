@@ -1,34 +1,65 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Meeting } from '../../meeting-place/schema/meetingPlace.schema';
 import { User } from '../../users/schema/users.schema';
-
+import { Meeting } from '../../meeting-place/schema/meetingPlace.schema';
+import { TypeOfActivity } from '../../typeOfActivity/schema/typeOfActivity.schema';
 import * as mongoose from 'mongoose';
 
 export type GroupDocument = Group & mongoose.Document;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Group {
-  @Prop({ default: true })
+  @Prop({})
   name: string;
-  @Prop({ required: true, default: Date.now })
-  startDate: Date;
-  @Prop({ required: true, default: Date.now })
-  startTime: Date;
+
   @Prop()
-  endTime?: Date;
-  @Prop({ required: true })
-  typeOfActivity: string;
-  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'User' })
+  startDate: Date;
+  
+  @Prop()
+  startTime?: string;
+
+  @Prop()
+  endTime?: string;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'TypeOfActivity' })
+  typeOfActivity: TypeOfActivity;
+
+  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }])
   integrants: User;
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Meeting' })
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Meeting' })
   meetingPlaceOne: Meeting;
+
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Meeting' })
   meetingPlaceTwo?: Meeting;
-  @Prop({ required: true })
+
+  @Prop({})
   description: string;
-  @Prop({ type: [String], required: false })
-  photos?: string;
+
+  @Prop({ type: String, required: false })
+  photo?: string;
+
+  @Prop({ default: true })
+  active: boolean;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  admin: User;
+
+  @Prop()
+  averageAge: number;
+
+  @Prop()
+  calificationsAverage: number;
+
+  @Prop()
+  percentageOfMale: number;
+
+  @Prop()
+  percentageOfFemale: number;
+
+  @Prop()
+  percentageOfNoGender: number;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  groupCreatedBy: User;
 }
 export const GroupSchema = SchemaFactory.createForClass(Group);
-
-GroupSchema.set('timestamps', true);

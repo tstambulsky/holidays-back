@@ -12,6 +12,9 @@ import { FacebookStrategy } from '../login/facebook/strategies/facebook.strategy
 import { FacebookModule } from '../login/facebook/facebook.module';
 import { InstagramStrategy } from '../login/instagram/strategies/instagram.strategy';
 import { InstagramModule } from '../login/instagram/instagram.module';
+import { ContactsModule } from '../contacts/contacts.module';
+import { ConfigService } from '@nestjs/config';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 //import { LocalStrategy } from './strategies/local.strategy';
 
 @Module({
@@ -21,14 +24,16 @@ import { InstagramModule } from '../login/instagram/instagram.module';
     EmailModule,
     AppleModule,
     FacebookModule,
+    CloudinaryModule,
     InstagramModule,
+    ContactsModule,
     JwtModule.register({
       secret: tokenConfig.secretKey,
       signOptions: { expiresIn: tokenConfig.expirationDay }
     })
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, FacebookStrategy, InstagramStrategy],
+  providers: [AuthService, JwtStrategy, FacebookStrategy, InstagramStrategy, ConfigService],
   exports: [AuthService]
 })
 export class AuthModule {}

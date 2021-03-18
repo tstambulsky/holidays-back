@@ -1,16 +1,18 @@
-import { Injectable, HttpException, NotFoundException } from '@nestjs/common';
+import { Injectable, HttpException, Inject } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { UserDTO, UpdateUserDTO } from './dto/data.dto';
-import { LoginDTO } from '../auth/dto/login.dto';
+import { RegisterDTO } from '../auth/dto/register.dto';
+import { UpdateUserDTO, queryDTO, PhotoDTO } from './dto/data.dto';
 import { User, UserDocument } from './schema/users.schema';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private readonly userModel: Model<UserDocument>) {}
+  constructor(@InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+  @Inject(CloudinaryService) private readonly _cloudinaryService: CloudinaryService) {}
 
   async getUsers(): Promise<User[]> {
-    const users = await this.userModel.find();
+    const users = await this.userModel.find().populate('city').exec();
     if (!users) {
       throw new HttpException('Not Found', 404);
     }
@@ -19,7 +21,7 @@ export class UsersService {
 
   async getUserByEmail(email: string): Promise<any> {
     try {
-      const user = await this.userModel.findOne({ email: email });
+      const user = await this.userModel.findOne({active: true, email: email });
       return user;
     } catch (err) {
       console.log(err);
@@ -27,10 +29,9 @@ export class UsersService {
     }
   }
 
-  async getUserById(userID: string): Promise<User> {
+  async getUserById(userId: any): Promise<User> {
     try {
-      const user = await this.userModel.findById({ _id: userID });
-      console.log(user);
+      const user = await this.userModel.findById({ _id: userId });
       return user;
     } catch (err) {
       console.log(err);
@@ -38,48 +39,55 @@ export class UsersService {
     }
   }
 
-  async findOrCreateFB(accessToken: any, refreshToken: any, profile: any, done: any) {
+  async findOrCreateFB(accessToken: any, refreshToken: any, profile: any, done: any): Promise<User> {
     try {
-      console.log(profile);
       const user = await this.userModel.findOne({ provider_id: profile.id });
+      console.log(profile)
+      if (user) {
+        return user;
+      }
       const createUser = new this.userModel({
-        provider_id: profile.id,
         provider: profile.provider,
+        provider_id: profile.id,
         name: profile.name.givenName,
         lastName: profile.name.familyName,
         email: profile.emails[0].value,
         photo: profile.photos[0].value
       });
-      return createUser.save();
-    } catch (err) {
-      console.log(err);
-      throw new Error(err.message);
-    }
-  }
-  
-
-   async findOrCreateInstagram(accessToken: any, refreshToken: any, profile: any, done: any) {
-    try {
-      console.log(profile);
-      const user = await this.userModel.findOne({ provider_id: profile.id });
-      const createUser = new this.userModel({
-        provider_id: profile.id,
-        provider: profile.provider,
-        name: profile.name.givenName,
-        lastName: profile.name.familyName,
-        email: profile.emails[0].value,
-        photo: profile.photos[0].value
-      });
-      return createUser.save();
+      await createUser.save();
+      return createUser;
     } catch (err) {
       console.log(err);
       throw new Error(err.message);
     }
   }
 
-  async createUser(userDTO: UserDTO): Promise<User> {
+  async findOrCreateInstagram(accessToken: any, refreshToken: any, profile: any, done: any) {
+    try {
+      const user = await this.userModel.findOne({ provider_id: profile.id });
+      if (user) {
+        return user;
+      }
+      const createUser = await new this.userModel({
+        provider: profile.provider,
+        provider_id: profile.provider.id,
+        name: profile.name.givenName,
+        lastName: profile.name.familyName,
+        email: profile.emails[0].value,
+        photo: profile.photos[0].value
+      });
+      await createUser.save();
+      return createUser;
+    } catch (err) {
+      console.log(err);
+      throw new Error(err.message);
+    }
+  }
+
+  async createUser(userDTO: RegisterDTO): Promise<User> {
     const user = await new this.userModel(userDTO);
-    return user.save();
+    await user.save();
+    return user;
   }
 
   async findOneUser(data: any) {
@@ -91,24 +99,127 @@ export class UsersService {
     }
   }
 
-  async updateUser(userID: any, data: UpdateUserDTO): Promise<User | undefined> {
+  async updateUserLogged(data: UpdateUserDTO, currentUser: any): Promise<User | undefined> {
     try {
-      const user = await this.userModel.findOne({ _id: userID });
-      //agregar condicion para no hacer update en fb/insta/aple
+      const userId = currentUser._id;
+      const user = await this.userModel.findOne({ _id: userId });
+       if (!user) throw new HttpException('You dont have access to do this action', 404)
       const updatedUser = await user.updateOne({ ...data });
-      const userUpdated = await this.userModel.findOne({ _id: userID });
+      const userUpdated = await this.userModel.findOne({ _id: userId });
       return userUpdated;
     } catch (err) {
       throw new Error(err.message);
     }
   }
 
-  async deleteUser(userID: any): Promise<string> {
+  async updateUser(data: UpdateUserDTO, userId: any): Promise<User | undefined> {
     try {
-      await this.userModel.deleteOne({ _id: userID });
+      const user = await this.userModel.findOne({ _id: userId });
+       if (!user) throw new HttpException('User no exist', 404)
+      const updatedUser = await user.updateOne({ ...data });
+      const userUpdated = await this.userModel.findOne({ _id: userId });
+      return userUpdated;
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+  async toInactiveUser(userId: any): Promise<string> {
+    try {
+      const user = await this.userModel.findById(userId);
+      if (!user) {
+        throw new HttpException('Not Found', 404);
+      }
+      user.active = false;
+      await user.save();
+      return 'User change to inactive';
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+  async deleteUser(userId: any): Promise<string> {
+    try {
+      await this.userModel.deleteOne({ _id: userId });
       return 'User deleted';
     } catch (err) {
       throw new Error(err.message);
     }
   }
+
+
+  async changeUserCalifications(userId: any, sum: boolean): Promise<User> {
+    try {
+      const user = await this.userModel.findOne({ _id: userId });
+      if (!user) throw new Error('This user does not exist');
+      user.points = sum ? user.points + 1 : user.points - 1;
+      await user.save();
+      return user;
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+  async searchContact(users: any[]) {
+    try {
+      let allUsers = [];
+      const usersFiltered = users.filter((element) => element.email !== null && element.phone !== null);
+      for await (let user of usersFiltered) {
+        const data = await this.userModel.findOne({ $or: [{ email: user.email }, { phoneNumber: user.phone }] });
+        if (data !== null) {
+          allUsers.push(data);
+        }
+      }
+      return allUsers;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+  
+  async searchByName(name: queryDTO) {
+    try {
+      if(name.name.length === 0) throw new HttpException('Please, insert a name', 404)
+      const users = await this.userModel.find({name:new RegExp(name.name, 'i') });
+      return users;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async updatePhoto(data: PhotoDTO, currentUser: any): Promise<User | undefined> {
+    try {
+      const userId = currentUser._id;
+      const user = await this.userModel.findOne({_id: userId});
+      if (!user) throw new HttpException('You dont have access to do this action', 404);
+      const updatePhotoUser = await user.updateOne({ ...data });
+      const photosUpdated = await this.userModel.findOne({ _id: userId });
+      return photosUpdated;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+    async setProfilePhoto(currentUser: any, file: any){
+     try {
+       const userId = currentUser._id;
+       const user = await this.userModel.findOne({_id: userId });
+       await user.updateOne({profilePhoto: file.filename})
+     } catch (error) {
+       throw new Error(error.message)
+     }
+    }
+
+    async updatePhotos(currentUser: any, files: any) {
+      try {
+        const userId = currentUser._id;
+        for await(let file of files){
+        const user = await this.userModel.findOne({_id: userId});
+        user.photos.push({photoUrl: file.path, public_id: file.filename});
+        await this._cloudinaryService.upload(file.path)
+        await user.save();
+      }}catch (error) {
+        throw new Error(error.message)
+      }
+    }
+
 }

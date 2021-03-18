@@ -3,10 +3,12 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Meeting, MeetingDocument } from './schema/meetingPlace.schema';
 import { MeetingDTO, UpdateMeetingDTO } from './dto/meeting.dto';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class MeetingPlaceService {
-  constructor(@InjectModel(Meeting.name) private readonly meetingModel: Model<MeetingDocument>) {}
+  constructor(@InjectModel(Meeting.name) private readonly meetingModel: Model<MeetingDocument>,
+  private readonly _cloudinaryService: CloudinaryService) {}
 
   async getAll(): Promise<Meeting[]> {
     const meetings = await this.meetingModel.find();
@@ -19,7 +21,6 @@ export class MeetingPlaceService {
   async getMeeting(meetingID: any): Promise<Meeting> {
     try {
       const meeting = await this.meetingModel.findOne({ _id: meetingID });
-      console.log(meeting);
       return meeting;
     } catch (err) {
       console.log(err);
@@ -27,11 +28,11 @@ export class MeetingPlaceService {
     }
   }
 
-  async createMeeting(meetingDTO: MeetingDTO): Promise<string> {
+  async createMeeting(meetingDTO: MeetingDTO): Promise<Meeting> {
     try {
-      const meeting = await new this.meetingModel(meetingDTO);
-      await meeting.save();
-      return 'Meeting place created';
+      const meeting = new this.meetingModel(meetingDTO);
+      const place = await meeting.save();
+      return place;
     } catch (err) {
       throw new Error(err.message);
     }
@@ -40,7 +41,7 @@ export class MeetingPlaceService {
   async updateMeeting(meetingID: any, data: UpdateMeetingDTO): Promise<Meeting | undefined> {
     try {
       const meeting = await this.meetingModel.findOne({ _id: meetingID });
-      const updatedMeeting = await meeting.updateOne({ ...data });
+      await meeting.updateOne({ ...data });
       const meetingUpdated = await this.meetingModel.findOne({ _id: meetingID });
       return meetingUpdated;
     } catch (err) {
@@ -56,4 +57,41 @@ export class MeetingPlaceService {
       throw new Error(err.message);
     }
   }
+
+  async toInactiveMeeting(meetingID: any): Promise<string> {
+    try {
+      const meeting = await this.meetingModel.findById(meetingID);
+      if (!meeting) {
+        throw new HttpException('Not Found', 404);
+      }
+      meeting.active = false;
+      await meeting.save();
+      return 'Meeting change to inactive';
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+  async setMeetingPhoto(meetingId: any, file: any){
+     try {
+       const meeting = await this.meetingModel.findOne({_id: meetingId});
+       await meeting.updateOne({ photo: file.filename });
+       return meeting;
+     } catch (error) {
+       throw new Error(error.message)
+     }
+    }
+
+     async updatePhotos(meetingId: any, files: any) {
+      try {
+        for await(let file of files){
+        const meeting = await this.meetingModel.findOne({_id: meetingId});
+        meeting.photos.push({photoUrl: file.path, public_id: file.filename});
+        await this._cloudinaryService.upload(file.path)
+        await meeting.save();
+      }}catch (error) {
+        throw new Error(error.message)
+      }
+    }
+
 }

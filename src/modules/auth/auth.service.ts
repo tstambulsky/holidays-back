@@ -1,14 +1,26 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { hash, compare } from 'bcrypt';
+import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../users/users.service';
 import { LoginDTO } from './dto/login.dto';
 import { RegisterDTO } from './dto/register.dto';
 import { EmailService } from '../email/email.service';
+import { TokenPayload } from './interfaces/facebook-config.interface';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { tokenConfig } from '../../config/token';
+
+
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly userService: UsersService, private readonly emailService: EmailService, readonly jwtService: JwtService) {}
+  constructor(
+    private readonly userService: UsersService,
+    private readonly emailService: EmailService,
+    readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+    private readonly cloudinaryService: CloudinaryService
+  ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.userService.getUserByEmail(email);
@@ -22,7 +34,7 @@ export class AuthService {
     const { email, password } = data;
     try {
       const userLoged = await this.validateUser(email, password);
-      const payload = { email: userLoged.email };
+      const payload = { email: userLoged.email, _id: userLoged._id };
       return {
         token: this.jwtService.sign(payload),
         user: userLoged
@@ -32,11 +44,20 @@ export class AuthService {
     }
   }
 
+    async getUserFromAuthenticationToken(token: string) {
+    const payload: TokenPayload = await this.jwtService.verify(token, {
+      secret: tokenConfig.secretKey
+    });
+    if (payload) {
+      return this.userService.getUserById(payload._id);
+    }
+  }
+
   async registerUser(data: RegisterDTO) {
-    const { name, lastName, DNI, email, phoneNumber, password, address } = data;
+    const { name, lastName, DNI, email, phoneNumber, password, address, birthDate, city, state, sex, isAdmin, latitude, longitude } = data;
     try {
-      const userExist = await this.userService.getUserByEmail(email);
-      if (userExist) return { response: 'User already exist' };
+      const ifExist = await this.userService.getUserByEmail(email);
+      if (ifExist) throw new HttpException('Email already exist', 404);
       const hashPassword = await hash(password, 12);
       const user = await this.userService.createUser({
         name,
@@ -45,7 +66,14 @@ export class AuthService {
         email,
         phoneNumber,
         password: hashPassword,
-        address
+        address,
+        birthDate,
+        city,
+        state,
+        sex,
+        isAdmin,
+        latitude,
+        longitude
       });
       return user;
     } catch (err) {
@@ -85,7 +113,6 @@ export class AuthService {
       await user.save();
       return 'Confirmed code!';
     } catch (err) {
-      console.log();
       throw new Error(err.message);
     }
   }

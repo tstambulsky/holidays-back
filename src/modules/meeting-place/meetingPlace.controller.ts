@@ -1,13 +1,19 @@
-import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post } from '@nestjs/common';
+import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post, UseGuards, UseInterceptors, UploadedFile, UploadedFiles } from '@nestjs/common';
+import { FileInterceptor, FilesInterceptor, FileFieldsInterceptor } from '@nestjs/platform-express';
 import { MeetingPlaceService } from './meetingPlace.service';
 import { Meeting } from './schema/meetingPlace.schema';
 import { MeetingDTO, UpdateMeetingDTO } from './dto/meeting.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { multerOptions } from '../../config/multer';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller()
 export class MeetingPlaceController {
-  constructor(private meetingPlaceService: MeetingPlaceService) {}
+  constructor(private meetingPlaceService: MeetingPlaceService,
+    private readonly _cloudinaryService: CloudinaryService) {}
 
-  @Get('/meetingPlace')
+  @Get('/meetingplace')
   async getMeetings(@Res() res): Promise<Meeting[]> {
     try {
       const meetings = await this.meetingPlaceService.getAll();
@@ -23,7 +29,7 @@ export class MeetingPlaceController {
     }
   }
 
-  @Get('/meetingPlace/:meetingID')
+  @Get('/meetingplace/:meetingID')
   async getMeeting(@Res() res, @Param('meetingID') meetingID) {
     try {
       const meetings = await this.meetingPlaceService.getMeeting(meetingID);
@@ -37,12 +43,13 @@ export class MeetingPlaceController {
     }
   }
 
-  @Post('/meetingPlace')
-  async createMeeting(@Res() res, @Body() createMeetingDTO: MeetingDTO): Promise<string> {
+  @Post('/meetingplace')
+  async createMeeting(@Res() res, @Body() createMeetingDTO: MeetingDTO): Promise<Meeting> {
     try {
-      await this.meetingPlaceService.createMeeting(createMeetingDTO);
+      const response = await this.meetingPlaceService.createMeeting(createMeetingDTO);
       return res.status(HttpStatus.OK).json({
-        message: 'Meeting place has been created'
+        message: 'Meeting place has been created',
+        data: response
       });
     } catch (err) {
       res.status(HttpStatus.BAD_REQUEST).json({
@@ -52,7 +59,7 @@ export class MeetingPlaceController {
     }
   }
 
-  @Put('/meetingPlace/update/:meetingID')
+  @Put('/meetingplace/update/:meetingID')
   async updateMeeting(@Res() res, @Param('meetingID') meetingID, @Body() updateMeetingDTO: UpdateMeetingDTO): Promise<Meeting> {
     try {
       const updateMeeting = await this.meetingPlaceService.updateMeeting(meetingID, updateMeetingDTO);
@@ -68,7 +75,7 @@ export class MeetingPlaceController {
     }
   }
 
-  @Delete('/meetingPlace/delete/:meetingID')
+  @Delete('/meetingplace/delete/:meetingID')
   async deleteMeeting(@Res() res, @Param('meetingID') meetingID): Promise<string> {
     try {
       await this.meetingPlaceService.deleteMeeting(meetingID);
@@ -82,4 +89,43 @@ export class MeetingPlaceController {
       });
     }
   }
+
+  @Put('/meetingplace/remove/:meetingID')
+  async inactiveGroup(@Res() res, @Param('meetingID') meetingID): Promise<string> {
+    try {
+      await this.meetingPlaceService.toInactiveMeeting(meetingID);
+      return res.status(HttpStatus.OK).json({
+        message: 'Meeting removed'
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: err.message,
+        err: err.message
+      });
+    }
+  }
+  @Post('/meetingplace/photo/:meetingId')
+  @UseInterceptors(FileInterceptor('file', multerOptions
+  ))
+  async uploadPhotoProfile(@Param('meetingId') meetingId, @UploadedFile() file,) {
+    await this.meetingPlaceService.setMeetingPhoto(meetingId, file);
+    await this._cloudinaryService.upload(file.path);
+}
+
+  @Post('/meetingplace/uploadphotos/:meetingId')
+  @UseInterceptors(FilesInterceptor('files', 6, {
+    storage: multerOptions.storage
+    }),
+  )
+  async uploadFiles(@Param('meetingId') meetingId, @UploadedFiles() files: Express.Multer.File) {
+    await this.meetingPlaceService.updatePhotos(meetingId, files)
+    //console.log(files);
+
+  }
+
+  @Get('/meetingplace/photos/:fileId')
+  async servePhoto(@Param('fileId') fileId, @Res() res): Promise<any> {
+    res.sendFile(fileId, { root: 'assets'});
+  }
+
 }
