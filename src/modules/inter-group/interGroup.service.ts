@@ -1,4 +1,4 @@
-import { Injectable, HttpException } from '@nestjs/common';
+import { Injectable, HttpException, Inject, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { InterGroup, InterGroupDocument } from './schema/interGroup.schema';
@@ -13,6 +13,7 @@ import {
 import { InvitationInterGroup, InvitationInterGroupDocument } from './schema/invitationInterGroup.schema';
 import { GroupService } from '../group/group.service';
 import { Proposal, ProposalDocument } from './schema/proposal.schema';
+import { ChatService } from '../chat/chat.service';
 const moment = require('moment');
 moment.suppressDeprecationWarnings = true;
 
@@ -22,7 +23,8 @@ export class InterGroupService {
     @InjectModel(InterGroup.name) private readonly interGroupModel: Model<InterGroupDocument>,
     @InjectModel(InvitationInterGroup.name) private readonly invitationModel: Model<InvitationInterGroupDocument>,
     @InjectModel(Proposal.name) private readonly proposalModel: Model<ProposalDocument>,
-    private readonly groupService: GroupService
+    private readonly groupService: GroupService,
+     @Inject(forwardRef(() => ChatService)) private chatService: ChatService
   ) {}
 
   async getInterGroups(): Promise<InterGroup[]> {
@@ -148,7 +150,11 @@ export class InterGroupService {
         confirmed: true,
         active: false
       });
-      return await createInterGroup.save();
+      await createInterGroup.save();
+      const interGroupChat = await this.chatService.createInterGroupChat(createInterGroup._id)
+      interGroupChat.name = createInterGroup.name;
+      await interGroupChat.save();
+      return createInterGroup;
     } catch (error) {
       throw new Error(error.message);
     }
@@ -259,6 +265,27 @@ export class InterGroupService {
 
       for await(let element of groupId) {
       const searchInterGroups =  await this.interGroupModel.findOne({active: true, confirmed: true, $or: [ {groupOne: element}, {groupTwo: element}] });
+      if (searchInterGroups !== null) await interGroups.push({searchInterGroups});
+      };
+      return await interGroups;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async getMyIntergroupsNoActives(currentUser: any) {
+    try {
+      let groupId = [];
+      let interGroups = [];
+
+      const userInGroup = await this.groupService.getUserGroups(currentUser);
+
+      userInGroup.forEach((element) => {
+      groupId.push(element._id);
+      });
+
+      for await(let element of groupId) {
+      const searchInterGroups =  await this.interGroupModel.findOne({active: false, confirmed: true, $or: [ {groupOne: element}, {groupTwo: element}] });
       if (searchInterGroups !== null) await interGroups.push({searchInterGroups});
       };
       return await interGroups;

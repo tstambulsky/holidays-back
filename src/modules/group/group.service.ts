@@ -8,8 +8,7 @@ import { Invitation, InvitationDocument } from './schema/invitation.schema';
 import { distanceBetweenLocations } from './utils/getDistance';
 import { getYearOfPerson } from './utils/getYearByDate';
 import { checkPromedio } from './utils/checkPromedio';
-import { empty } from 'rxjs';
-import { databaseConfig } from 'src/config/database';
+import { ChatService } from '../chat/chat.service';
 const moment = require('moment');
 moment.suppressDeprecationWarnings = true;
 
@@ -18,7 +17,8 @@ export class GroupService {
   constructor(
     @InjectModel(Group.name) private readonly groupModel: Model<GroupDocument>,
     @InjectModel(Invitation.name) private readonly invitationModel: Model<InvitationDocument>,
-    @Inject(forwardRef(() => UsersService)) private userService: UsersService
+    @Inject(forwardRef(() => UsersService)) private userService: UsersService,
+    @Inject(forwardRef(() => ChatService)) private chatService: ChatService
   ) {}
 
   async getGroups(): Promise<Group[]> {
@@ -115,6 +115,12 @@ export class GroupService {
       group.startTime = passToHour;
       if (!group.endTime) group.endTime = moment(todayDate).add(12, 'hours').format('hh:mm:ss A');
       const groupCreated = await group.save();
+      const chat = await this.chatService.createGroupChat(groupCreated._id);
+      chat.name = groupCreated.name;
+      await chat.save();
+      const admin = await this.chatService.createAdminChat(groupCreated._id);
+      admin.name = `Admin chat of ${groupCreated.name}`
+      await admin.save();
       return groupCreated;
     } catch (err) {
       throw new Error(err.message);
@@ -387,7 +393,6 @@ export class GroupService {
         .populate('meetingPlaceOne')
         .populate('meetingPlaceTwo')
         .populate('typeOfActivity');
-        console.log(groups);
       if (groups.length < 0) throw new Error('The user does not belong to any group');
       return groups;
     } catch (err) {
@@ -501,7 +506,6 @@ export class GroupService {
       let allGroups = [];
       const groupsFiltered = groupsContacts.filter((element) => element._id !== null);
       for await (let group of groupsFiltered) {
-        console.log('info', group)
         const data = await this.groupModel.find({integrants: group._id})
         if (data) {
           allGroups.push(data);
@@ -524,6 +528,8 @@ export class GroupService {
        throw new Error(error.message)
      }
     }
+
+
 
   /*async threeFilters(gender: any, distance: any, age: any, currentUser: any) {
     try {

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { hash, compare } from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
@@ -9,6 +9,7 @@ import { EmailService } from '../email/email.service';
 import { TokenPayload } from './interfaces/facebook-config.interface';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { tokenConfig } from '../../config/token';
+
 
 
 @Injectable()
@@ -43,18 +44,20 @@ export class AuthService {
     }
   }
 
-  public async getUserFromAuthenticationToken(token: string) {
-    const payload: TokenPayload = this.jwtService.verify(token, {
-      secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET')
+    async getUserFromAuthenticationToken(token: string) {
+    const payload: TokenPayload = await this.jwtService.verify(token, {
+      secret: tokenConfig.secretKey
     });
-    if (payload.userId) {
-      return this.userService.getUserById(payload.userId);
+    if (payload) {
+      return this.userService.getUserById(payload._id);
     }
   }
 
   async registerUser(data: RegisterDTO) {
     const { name, lastName, DNI, email, phoneNumber, password, address, birthDate, sex, isAdmin, latitude, longitude } = data;
     try {
+      const ifExist = await this.userService.getUserById({active: true, email: data.email});
+      if (ifExist) throw new HttpException('Email already exist', 404);
       const hashPassword = await hash(password, 12);
       const user = await this.userService.createUser({
         name,
