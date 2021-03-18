@@ -5,7 +5,10 @@ import { ChatService } from './chat.service';
 import { MessageDTO } from './dto/message.dto'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-@WebSocketGateway()
+@WebSocketGateway({cors : {
+  origin: process.env.URL,
+  credentials: true
+}})
 export class ChatGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
