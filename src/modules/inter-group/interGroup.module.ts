@@ -6,6 +6,7 @@ import { InterGroup, InterGroupSchema } from './schema/interGroup.schema';
 import { GroupModule } from '../group/group.module';
 import { InvitationInterGroup, InvitationInterGroupSchema } from './schema/invitationInterGroup.schema';
 import { Proposal, ProposalSchema } from './schema/proposal.schema';
+import { ChatModule } from '../chat/chat.module';
 
 @Module({
   imports: [
@@ -14,7 +15,8 @@ import { Proposal, ProposalSchema } from './schema/proposal.schema';
       { name: InvitationInterGroup.name, schema: InvitationInterGroupSchema },
       { name: Proposal.name, schema: ProposalSchema }
     ]),
-    forwardRef(() => GroupModule)
+    forwardRef(() => GroupModule),
+    forwardRef(() => ChatModule)
   ],
   controllers: [InterGroupController],
   providers: [InterGroupService],

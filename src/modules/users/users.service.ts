@@ -132,7 +132,7 @@ export class UsersService {
       }
       user.active = false;
       await user.save();
-      return 'Meeting change to inactive';
+      return 'User change to inactive';
     } catch (err) {
       throw new Error(err.message);
     }
@@ -175,6 +175,7 @@ export class UsersService {
       throw new Error(error.message);
     }
   }
+  
   async searchByName(name: queryDTO) {
     try {
       if(name.name.length === 0) throw new HttpException('Please, insert a name', 404)

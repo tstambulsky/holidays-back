@@ -6,6 +6,7 @@ import { Group, GroupSchema } from './schema/group.schema';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 import { UsersModule } from '../users/users.module';
 import { Invitation, InvitationSchema } from './schema/invitation.schema';
+import { ChatModule } from '../chat/chat.module'
 
 @Module({
   imports: [
@@ -14,7 +15,8 @@ import { Invitation, InvitationSchema } from './schema/invitation.schema';
       { name: Invitation.name, schema: InvitationSchema },
     ]),
     forwardRef(() => UsersModule),
-    CloudinaryModule
+    CloudinaryModule,
+    forwardRef(() => ChatModule)
   ],
   controllers: [GroupController],
   providers: [GroupService],
