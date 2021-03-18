@@ -42,10 +42,10 @@ export class User {
   birthDate: Date;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'City'})
-  city: City;
+  city?: City;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'State'})
-  state: State;
+  state?: State;
 
   @Prop({ enum: ['male', 'female', 'other'] })
   sex: string;
