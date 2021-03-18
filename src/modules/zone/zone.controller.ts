@@ -7,7 +7,7 @@ import { Country } from './schema/country.schema';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
-@Controller('zone')
+@Controller('/api/zone')
 export class ZoneController {
   constructor(private zoneService: ZoneService) {}
 

@@ -12,7 +12,7 @@ import { CurrentUser } from '../users/decorators/currentUser';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
-@Controller('intergroup')
+@Controller('/api/intergroup')
 export class InterGroupController {
   constructor(private readonly interGroupService: InterGroupService) {}
 

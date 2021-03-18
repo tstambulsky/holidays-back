@@ -11,7 +11,7 @@ async function bootstrap() {
     origin: process.env.URL,
     credentials: true
   });
-  app.setGlobalPrefix('/api');
+  //app.setGlobalPrefix('/api');
   await app.listen(globalConfig.port, () => logger.log(`Server started on port ${globalConfig.port}`));
 }
 
