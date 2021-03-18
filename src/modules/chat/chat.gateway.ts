@@ -25,7 +25,7 @@ export class ChatGateway implements OnGatewayConnection {
     const author = await this.chatService.getUserFromSocket(socket);
     const message = await this.chatService.saveMessageGroup(content, author, group);
 
-    this.server.sockets.emit('receive_message_group', message);
+    await this.server.sockets.emit('receive_message_group', message);
   }
 
   @SubscribeMessage('request_all_messages_group')
@@ -34,7 +34,7 @@ export class ChatGateway implements OnGatewayConnection {
     const author = await this.chatService.getUserFromSocket(socket);
     const messages = await this.chatService.getAllMessagesGroup(group, author);
 
-    socket.emit('send_all_mesages_group', messages);
+    await socket.emit('send_all_mesages_group', messages);
   }
 
   @SubscribeMessage('send_message_inter_group')
@@ -52,7 +52,7 @@ export class ChatGateway implements OnGatewayConnection {
     const author = await this.chatService.getUserFromSocket(socket);
     const messages = await this.chatService.getAllMessagesInterGroup(author, group, interGroup);
 
-    socket.emit('send_all_mesages_inter_group', messages);
+    await socket.emit('send_all_mesages_inter_group', messages);
   }
 
   @SubscribeMessage('send_message_admin')
@@ -70,6 +70,6 @@ export class ChatGateway implements OnGatewayConnection {
     const author = await this.chatService.getUserFromSocket(socket);
     const messages = await this.chatService.getAllMessagesAdmin(group, adminUser);
 
-    socket.emit('send_all_mesages_admin', messages);
+    await socket.emit('send_all_mesages_admin', messages);
   }
 }

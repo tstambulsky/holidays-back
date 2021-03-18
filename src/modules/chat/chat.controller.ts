@@ -1,7 +1,9 @@
 import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post, UseGuards, UseInterceptors, UploadedFile, UploadedFiles } from '@nestjs/common';
 import { CurrentUser } from 'src/modules/users/decorators/currentUser';
+import { MessageDTO } from './dto/message.dto'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ChatService } from './chat.service';
+import { PRIORITY_HIGHEST } from 'constants';
 
 @UseGuards(JwtAuthGuard)
 @Controller('/api/chat')
@@ -49,5 +51,89 @@ export class ChatController {
       })
     }
   };
+
+  @Post('/sendgroup')
+  async sendmessagegroup(@Res() res, @Body() data: MessageDTO, @CurrentUser() user) {
+    try {
+      const response = await this.chatService.saveMessageGroup(data.content, user, data.group);
+      res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (err) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        error: err.message
+      });
+    }
+  }
+
+   @Get('/savegroup')
+  async savemessagegroup(@Res() res, @Body() data: MessageDTO, @CurrentUser() user) {
+    try {
+      const response = await this.chatService.getAllMessagesGroup(data.group, user);
+      res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (err) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        error: err.message
+      });
+    }
+  }
+
+  @Post('/sendintergroup')
+  async sendmessageintergroup(@Res() res, @Body() data: MessageDTO, @CurrentUser() user) {
+    try {
+      const response = await this.chatService.saveMessageInterGroup(data.content, user, data.group, data.interGroup);
+      res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (err) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        error: err.message
+      });
+    }
+  }
+
+   @Get('/saveintergroup')
+  async savemessageintergroup(@Res() res, @Body() data: MessageDTO, @CurrentUser() user) {
+    try {
+      const response = await this.chatService.getAllMessagesInterGroup(user, data.group, data.interGroup);
+      res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (err) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        error: err.message
+      });
+    }
+  }
+
+  @Post('/sendadmin')
+  async sendmessageadmin(@Res() res, @Body() data: MessageDTO, @CurrentUser() user) {
+    try {
+      const response = await this.chatService.saveMessageAdmin(data.content, user, data.adminUser, data.group);
+      res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (err) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        error: err.message
+      });
+    }
+  }
+
+   @Get('/saveadmin')
+  async savemessageadmin(@Res() res, @Body() data: MessageDTO, @CurrentUser() user) {
+    try {
+      const response = await this.chatService.getAllMessagesAdmin(data.adminUser, data.group);
+      res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (err) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        error: err.message
+      });
+    }
+  }
 
 }

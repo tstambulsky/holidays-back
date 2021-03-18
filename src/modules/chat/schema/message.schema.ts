@@ -12,6 +12,10 @@ export class Message {
   chat: Chat
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'User', required: true, length: 255, autopopulate: true })
   author: User;
+  @Prop()
+  name: string;
+  @Prop()
+  image: string;
   @Prop({ required: true, length: 255 })
   content: string;
   @Prop({ default: Date.now })

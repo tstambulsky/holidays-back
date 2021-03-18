@@ -51,6 +51,16 @@ export class InterGroupService {
     }
   }
 
+  async getInterGroupChat(groupId: any): Promise<InterGroup> {
+    try {
+      const interGroup = await this.interGroupModel.findOne({active: true, $or: [{groupOne: groupId}, {groupTwo: groupId }]});
+      return interGroup;
+    } catch (err) {
+      console.log(err);
+      throw new Error(err.message);
+    }
+  }
+
   async createInterGroup(interGroupDTO: InterGroupDTO): Promise<InterGroup> {
     try {
       const interGroup = new this.interGroupModel(interGroupDTO);
