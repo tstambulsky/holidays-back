@@ -5,11 +5,7 @@ import { ChatService } from './chat.service';
 import { MessageDTO } from './dto/message.dto'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-@WebSocketGateway({transports: ['websocket',  'flashsocket', 'htmlfile', 'xhr-polling', 'jsonp-polling', 'polling'], cors : {
-  origin: process.env.URL,
-  credentials: true
-},
-allowEIO3: true})
+@WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
