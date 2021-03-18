@@ -280,8 +280,8 @@ export class InterGroupService {
 
       const userInGroup = await this.groupService.getUserGroups(currentUser);
 
-      userInGroup.forEach((element) => {
-      groupId.push(element._id);
+      userInGroup.forEach((elements) => {
+      groupId.push(elements._id);
       });
 
       for await(let element of groupId) {
