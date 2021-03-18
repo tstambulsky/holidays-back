@@ -21,7 +21,7 @@ export class UsersService {
 
   async getUserByEmail(email: string): Promise<any> {
     try {
-      const user = await this.userModel.findOne({ email: email });
+      const user = await this.userModel.findOne({active: true, email: email });
       return user;
     } catch (err) {
       console.log(err);

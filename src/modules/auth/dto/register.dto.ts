@@ -10,15 +10,15 @@ export class RegisterDTO {
 
   readonly DNI: number;
 
-  email: string;
+  readonly email: string;
 
   readonly phoneNumber: number;
 
   readonly birthDate: Date;
 
-  readonly city: City;
+  readonly city?: City;
 
-  readonly state: State;
+  readonly state?: State;
 
   readonly sex: string;
 
