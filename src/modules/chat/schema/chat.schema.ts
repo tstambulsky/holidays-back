@@ -19,11 +19,11 @@ export class Chat {
   adminUser: User;
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'User'})
   userToAdmin: User;
-  @Prop({ default: true})
+  @Prop({ default: false})
   pending: boolean;
-  @Prop({ default: true})
+  @Prop({ default: false})
   place: boolean;
-  @Prop({ default: true})
+  @Prop({ default: false})
   setTimeAndPlace: boolean;
   @Prop({ default: Date.now})
   date: Date
