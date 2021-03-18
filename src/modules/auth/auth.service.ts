@@ -54,7 +54,7 @@ export class AuthService {
   }
 
   async registerUser(data: RegisterDTO) {
-    const { name, lastName, DNI, email, phoneNumber, password, address, birthDate, sex, isAdmin, latitude, longitude } = data;
+    const { name, lastName, DNI, email, phoneNumber, password, address, birthDate, city, state, sex, isAdmin, latitude, longitude } = data;
     try {
       const ifExist = await this.userService.getUserById({active: true, email: data.email});
       if (ifExist) throw new HttpException('Email already exist', 404);
@@ -68,6 +68,8 @@ export class AuthService {
         password: hashPassword,
         address,
         birthDate,
+        city,
+        state,
         sex,
         isAdmin,
         latitude,

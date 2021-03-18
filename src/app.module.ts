@@ -20,6 +20,7 @@ import { InterGroupModule } from './modules/inter-group/interGroup.module';
 import { ContactsModule } from './modules/contacts/contacts.module';
 import { CalificationModule } from './modules/calification/calification.module';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
+import { ZoneModule } from './modules/zone/zone.module'
 
 
 @Module({
@@ -45,6 +46,7 @@ import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
     InstagramModule,
     InterGroupModule,
     ContactsModule,
+    ZoneModule,
     CalificationModule
   ],
   controllers: [AppController],

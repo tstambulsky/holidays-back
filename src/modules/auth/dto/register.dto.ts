@@ -1,6 +1,7 @@
 import { Prop } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
-import { User } from '../../users/schema/users.schema';
+import { State } from '../../zone/schema/state.schema';
+import { City } from '../../zone/schema/city.schema';
 
 export class RegisterDTO {
   readonly name: string;
@@ -14,6 +15,10 @@ export class RegisterDTO {
   readonly phoneNumber: number;
 
   readonly birthDate: Date;
+
+  readonly city: City;
+
+  readonly state: State;
 
   readonly sex: string;
 

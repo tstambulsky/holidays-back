@@ -1,4 +1,6 @@
 import { Document } from 'mongoose';
+import { State } from '../../zone/schema/state.schema';
+import { City } from '../../zone/schema/city.schema';
 
 export interface UserDTO extends Document {
   readonly name: string;
@@ -8,6 +10,8 @@ export interface UserDTO extends Document {
   readonly phoneNumber: number;
   readonly password: string;
   readonly address: string;
+  readonly city: City;
+  readonly state: State;
   readonly passwordRecover?: string;
   readonly confirmPasswordRecover?: boolean;
   readonly latitude: number;
@@ -20,6 +24,8 @@ export class UpdateUserDTO {
   readonly DNI?: number;
   readonly email?: string;
   readonly phoneNumber?: number;
+  readonly city: City;
+  readonly state: State;
   readonly password?: string;
   readonly address?: string;
   readonly passwordRecover?: string;
