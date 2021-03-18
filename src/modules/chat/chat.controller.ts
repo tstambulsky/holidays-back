@@ -36,10 +36,10 @@ export class ChatController {
     }
   };
 
-  @Get('/admin/:groupId')
-  async getAdminChat(@Res() res, @Param('groupId') groupId, @CurrentUser() user) {
+  @Get('/admin/')
+  async getAdminChat(@Res() res, @CurrentUser() user) {
     try {
-      const response = await this.chatService.getChatAdmin(groupId)
+      const response = await this.chatService.getChatAdmin(user)
       res.status(HttpStatus.OK).json({
         response
       })
