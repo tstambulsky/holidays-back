@@ -55,13 +55,6 @@ async getUserFromSocket(socket: Socket) {
     return await chat.save();
   }
 
-  /* async userToAdminChat(currentUser: any, chatId: any) {
-     try {
-       const chat = await this.chatModel.findOne({_id: chatId})
-       chat.userToAdmin = currentUser
-     }
-   }*/
-
   async getChatGroupUser(currentUser: any) {
     try {
       let allChats = [];
