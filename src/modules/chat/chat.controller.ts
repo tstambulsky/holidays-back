@@ -4,7 +4,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ChatService } from './chat.service';
 
 @UseGuards(JwtAuthGuard)
-@Controller('/chat')
+@Controller('/api/chat')
 export class ChatController {
   constructor(private chatService: ChatService) { }
 

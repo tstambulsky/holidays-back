@@ -8,7 +8,7 @@ import { multerOptions } from '../../config/multer';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @UseGuards(JwtAuthGuard)
-@Controller()
+@Controller('/api')
 export class MeetingPlaceController {
   constructor(private meetingPlaceService: MeetingPlaceService,
     private readonly _cloudinaryService: CloudinaryService) {}

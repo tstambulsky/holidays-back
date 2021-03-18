@@ -5,7 +5,7 @@ import { CurrentUser } from '../users/decorators/currentUser';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
-@Controller('/calification')
+@Controller('/api/calification')
 export class CalificationController {
   constructor(private calificationService: CalificationService) {}
 

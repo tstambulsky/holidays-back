@@ -21,7 +21,7 @@ import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { ETIME } from 'constants';
 
 @UseGuards(JwtAuthGuard)
-@Controller('group')
+@Controller('/api/group')
 export class GroupController {
   constructor(private readonly groupService: GroupService,
     private readonly _cloudinaryService: CloudinaryService) {}

@@ -14,7 +14,7 @@ import { diskStorage } from 'multer';
 
 
 @UseGuards(JwtAuthGuard)
-@Controller('/users')
+@Controller('/api/users')
 export class UsersController {
   SERVER_URL: string = process.env.URL;
   constructor(private userService: UsersService, 

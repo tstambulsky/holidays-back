@@ -4,7 +4,7 @@ import { TypeActivityDTO } from './dto/typeOfActivity.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
-@Controller('/typeofactivity')
+@Controller('/api/typeofactivity')
 export class TypeOfActivityController {
   constructor(private typeOfActivityService: TypeOfActivityService) {}
 
