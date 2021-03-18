@@ -5,7 +5,7 @@ import { ChatService } from './chat.service';
 import { MessageDTO } from './dto/message.dto'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-@WebSocketGateway({transports: ['websocket'], cors : {
+@WebSocketGateway({transports: ['websocket',  'flashsocket', 'htmlfile', 'xhr-polling', 'jsonp-polling', 'polling'], cors : {
   origin: process.env.URL,
   credentials: true
 },
