@@ -7,7 +7,7 @@ export type CityDocument = City & mongoose.Document;
 
 @Schema()
 export class City {
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   postalCode: number;
   @Prop({ required: true })
   name: string;
