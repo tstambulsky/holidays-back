@@ -7,9 +7,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 
 @UseGuards(JwtAuthGuard)
-@WebSocketGateway({
-  transports: ['websocket']
-})
+@WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
