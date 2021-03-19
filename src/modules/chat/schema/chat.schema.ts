@@ -17,8 +17,6 @@ export class Chat {
   interGroup: InterGroup;
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'User'})
   adminUser: User;
-  @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'User'})
-  userToAdmin: User;
   @Prop({ default: false})
   pending: boolean;
   @Prop({ default: false})
