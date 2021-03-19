@@ -3,7 +3,6 @@ import { CurrentUser } from 'src/modules/users/decorators/currentUser';
 import { MessageDTO } from './dto/message.dto'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ChatService } from './chat.service';
-import { PRIORITY_HIGHEST } from 'constants';
 
 @UseGuards(JwtAuthGuard)
 @Controller('/api/chat')
@@ -125,7 +124,7 @@ export class ChatController {
    @Get('/saveadmin')
   async savemessageadmin(@Res() res, @Body() data: MessageDTO, @CurrentUser() user) {
     try {
-      const response = await this.chatService.getAllMessagesAdmin(data.adminUser, data.group);
+      const response = await this.chatService.getAllMessagesAdmin(data.adminUser, data.group, user);
       res.status(HttpStatus.OK).json({
         response
       });

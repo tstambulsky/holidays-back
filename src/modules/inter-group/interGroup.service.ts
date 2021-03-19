@@ -51,9 +51,10 @@ export class InterGroupService {
     }
   }
 
-  async getInterGroupChat(groupId: any): Promise<InterGroup> {
+  async getInterGroupChat(group: any): Promise<InterGroup> {
     try {
-      const interGroup = await this.interGroupModel.findOne({active: true, $or: [{groupOne: groupId}, {groupTwo: groupId }]});
+      const id = group._id;
+      const interGroup = await this.interGroupModel.findOne({$or: [{groupOne: id}, {groupTwo: id }], confirmed: true, });
       return interGroup;
     } catch (err) {
       console.log(err);

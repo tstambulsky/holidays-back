@@ -35,6 +35,38 @@ export class GroupService {
     return groups;
   }
 
+  async getGroupChat(groupId: any, currentUser: any) {
+    try {
+      const userId = currentUser._id;
+      const group = await this.groupModel.findOne({active: true, _id: groupId, integrants: userId})
+      if (!group) throw new HttpException('Group does not exist or you dont belong to this group', 404)
+      return group;
+    } catch (error){
+      throw new Error(error)
+    }
+  }
+
+   async getGroupAdmin(groupId: any, admin: any) {
+    try {
+      const group = await this.groupModel.findOne({active: true, _id: groupId, admin: admin})
+      if (!group) throw new HttpException('Group does not exist or you dont belong to this group', 404)
+      return group;
+    } catch (error){
+      throw new Error(error)
+    }
+  }
+
+  async getGroupAdminAndUser(groupId: any, admin: any, currentUser: any) {
+    try {
+      const userId = currentUser._id;
+      const group = await this.groupModel.findOne({active: true, _id: groupId, admin: admin, integrants: userId})
+      if (!group) throw new HttpException('Group does not exist or you dont belong to this group', 404)
+      return group;
+    } catch (error){
+      throw new Error(error)
+    }
+  }
+
   async getGroup(groupId: any): Promise<Group> {
     try {
       const group: any = await this.groupModel
@@ -119,7 +151,7 @@ export class GroupService {
       chat.name = groupCreated.name;
       await chat.save();
       const admin = await this.chatService.createAdminChat(groupCreated._id);
-      admin.name = `Admin chat of ${groupCreated.name}`
+      admin.name = `Admin chat of ${groupCreated.name}`,
       await admin.save();
       return groupCreated;
     } catch (err) {
