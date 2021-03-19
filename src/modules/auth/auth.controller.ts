@@ -26,11 +26,11 @@ import * as jwt from 'jsonwebtoken';
 import { AppleService } from '../login/apple/apple.service';
 import { AuthGuard } from '@nestjs/passport';
 
-@Controller()
+@Controller('/api')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('/api/login')
+  @Post('/login')
   async login(@Res() res, @Body() data: LoginDTO): Promise<LoginResDTO> {
     try {
       const userLogedd = await this.authService.login(data);
