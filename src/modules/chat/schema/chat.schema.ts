@@ -17,6 +17,8 @@ export class Chat {
   interGroup: InterGroup;
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'User'})
   adminUser: User;
+  @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'User'})
+  user: User;
   @Prop({ default: false})
   pending: boolean;
   @Prop({ default: false})
@@ -25,5 +27,7 @@ export class Chat {
   setTimeAndPlace: boolean;
   @Prop({ default: Date.now})
   date: Date
+  @Prop({ default: true })
+  active: boolean;
 }
 export const ChatSchema = SchemaFactory.createForClass(Chat);
