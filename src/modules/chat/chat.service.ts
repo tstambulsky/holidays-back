@@ -62,7 +62,7 @@ async getUserFromSocket(socket: Socket) {
       const groups = await this.groupService.getUserGroups(currentUser)
       for await (let group of groups) {
         console.log(group.id);
-        const chat = await this.chatModel.find({ group: group._id })
+        const chat = await this.chatModel.find({ group: group._id, active: true })
         if (chat) {
           allChats.push(chat)
         }
@@ -84,7 +84,7 @@ async getUserFromSocket(socket: Socket) {
         interGroupsId.push(element.searchInterGroups._id)
       });
       for await (let element of interGroupsId) {
-        const chat = await this.chatModel.findOne({ interGroup: element._id });
+        const chat = await this.chatModel.findOne({ interGroup: element._id, active: true });
         if (chat !== null) await allChats.push(chat);
       }
       return allChats;
@@ -95,7 +95,7 @@ async getUserFromSocket(socket: Socket) {
 
   async getChatAdmin(currentUser: any) {
     try {
-      const chats = await this.chatModel.find({ adminUser: currentUser._id })
+      const chats = await this.chatModel.find({ adminUser: currentUser._id, active: true })
       if (!chats) throw new WsException('The user is not an admin of any group');
       return chats;      
     } catch (error) {
@@ -103,12 +103,33 @@ async getUserFromSocket(socket: Socket) {
     }
   }
 
+  async getChatAdminUser(currentUser: any, user: any) {
+     try {
+      const chats = await this.chatModel.findOne({ adminUser: currentUser._id, user: user, active: true})
+      if (!chats) throw new WsException('You are not the admin or the user does not exist.');
+      return chats;      
+    } catch (error) {
+      throw new Error(error)
+    }
+  }
+
+   async getChatUserAdmin(currentUser: any, user: any) {
+     try {
+      const chats = await this.chatModel.findOne({ adminUser: user , user: currentUser._id, active: true})
+      if (!chats) throw new WsException('You do not have chats with this admin');
+      return chats;      
+    } catch (error) {
+      throw new Error(error)
+    }
+  }
+
+
   async saveMessageGroup(content: string, currentUser: any, groupId: any) {
     const userId = currentUser._id;
     const user = await this.usersService.getUserById(userId)
     const group = await this.groupService.getGroup({ active: true, integrants: userId, _id: groupId })
     if (!group) throw new WsException('Group does not exist or user does not belong to the group')
-    const chat = await this.chatModel.findOne({ group: groupId })
+    const chat = await this.chatModel.findOne({ group: groupId, active: true })
     const newMessage = await new this.messageModel({
       content,
       name: user.name,
@@ -124,7 +145,7 @@ async getUserFromSocket(socket: Socket) {
   async getAllMessagesGroup(groupId: any, currentUser: any) {
     const group = await this.groupService.getGroup({ active: true, _id: groupId, integrants: currentUser._id });
     if (!group) throw new WsException('The user does not belong to the group or the group does not exist.');
-    const chat = await this.chatModel.findOne({ group: groupId })
+    const chat = await this.chatModel.findOne({ group: groupId, active: true  })
     const messages =  await this.messageModel.find({
       chat: chat._id,
     }).sort({ date: -1 });
@@ -138,7 +159,7 @@ async getUserFromSocket(socket: Socket) {
     const group = await this.groupService.getGroupChat(groupId, user);
     const interGroup = await this.interGroupService.getInterGroupChat(group);
     if (!interGroup) throw new WsException('The user does not belong to the intergroup or the intergroup does not exist.')
-    const chat = await this.chatModel.findOne({ interGroup: interGroupId });
+    const chat = await this.chatModel.findOne({ interGroup: interGroupId, active: true });
     const newMessage = await new this.messageModel({
       content,
       name: user.name,
@@ -157,7 +178,7 @@ async getUserFromSocket(socket: Socket) {
     const group = await this.groupService.getGroupChat(groupId, user);
     const interGroup = await this.interGroupService.getInterGroupChat(group);
     if (!interGroup) throw new WsException('The user does not belong to the intergroup or the intergroup does not exist.')
-    const chat = await this.chatModel.findOne({ interGroup: interGroupId })
+    const chat = await this.chatModel.findOne({ interGroup: interGroupId, active: true })
     return await this.messageModel.find({
       chat: chat._id,
     }).sort({ date: -1 });
@@ -168,7 +189,7 @@ async getUserFromSocket(socket: Socket) {
     const user = await this.usersService.getUserById(userId)
     const group = await this.groupService.getGroupAdmin(groupId, admin);
     if (!group) throw new WsException('The group does not exist');
-    const chat = await this.chatModel.findOne({ adminUser: admin, group: groupId })
+    const chat = await this.chatModel.findOne({ adminUser: admin, group: groupId, active: true  })
     const newMessage = await new this.messageModel({
       content,
       name: user.name,
@@ -183,7 +204,7 @@ async getUserFromSocket(socket: Socket) {
   async getAllMessagesAdmin(admin: any, groupId: any, currentUser: any) {
     const group = await this.groupService.getGroupAdminAndUser(groupId, admin, currentUser);
     if (!group) throw new WsException('The group does not exist or you are not the admin of the group');
-    const chat = await this.chatModel.findOne({ adminUser: admin, group: groupId })
+    const chat = await this.chatModel.findOne({ adminUser: admin, group: groupId, active: true })
     const id = chat._id;
     return await this.messageModel.find({
       chat: id
