@@ -169,13 +169,9 @@ async getUserFromSocket(socket: Socket) {
     if (!interGroup) throw new WsException('The intergroup does not exist.');
     const groupOne = interGroup.groupOne;
     const groupTwo = interGroup.groupTwo;
-    const userInGroup = await this.groupService.getOneUserWithGroup(currentUser, groupOne)
-    if (!userInGroup) {
-      userInGroupTwo = await this.groupService.getOneUserWithGroup(currentUser, groupTwo)
-    }
-    if (!userInGroupTwo) {
-      throw new WsException('The user does not belong to some group');
-    }
+    const userInGroup = await this.groupService.getOneUserWithGroup(currentUser, groupOne);
+    if (userInGroup === null) userInGroupTwo = await this.groupService.getOneUserWithGroup(currentUser, groupTwo);
+    if (userInGroupTwo === null) throw new WsException('The user does not belong to some group');
     const chat = await this.chatModel.findOne({ interGroup: interGroupId, active: true });
     const newMessage = await new this.messageModel({
       content,
@@ -197,12 +193,8 @@ async getUserFromSocket(socket: Socket) {
     const groupOne = interGroup.groupOne;
     const groupTwo = interGroup.groupTwo;
     const userInGroup = await this.groupService.getOneUserWithGroup(currentUser, groupOne)
-    if (userInGroup === null) {
-      userInGroupTwo = await this.groupService.getOneUserWithGroup(currentUser, groupTwo)
-    }
-    if (userInGroupTwo === null) {
-      throw new WsException('The user does not belong to some group');
-    }
+    if (userInGroup === null) userInGroupTwo = await this.groupService.getOneUserWithGroup(currentUser, groupTwo)
+    if (userInGroupTwo === null) throw new WsException('The user does not belong to some group');
     const chat = await this.chatModel.findOne({ interGroup: interGroupId, active: true })
     return await this.messageModel.find({
       chat: chat._id,
