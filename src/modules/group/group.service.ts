@@ -312,7 +312,11 @@ export class GroupService {
       if (alreadyInvite.length > 0) throw new Error('User already invite');
       const newInvitation = new this.invitationModel(data);
       await newInvitation.save();
-      return newInvitation;
+      const admin = await this.chatService.createAdminChat(group);
+      admin.name = `Admin chat of ${groupExist.name}`,
+      admin.user = user;
+      await admin.save();
+      return 'Request sent to the group admin.';
     } catch (error) {
       throw new Error(error.message);
     }

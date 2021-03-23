@@ -78,9 +78,11 @@ async getUserFromSocket(socket: Socket) {
       let allChats = [];
       let interGroupsId = [];
       const interGroups = await this.interGroupService.getMyIntergroupsNoActives(currentUser);
+      console.log('intergroups', interGroups);
       interGroups.forEach((element) => {
-        interGroupsId.push(element.searchInterGroups._id)
+        interGroupsId.push(element.searchInterGroups._id);
       });
+      console.log('intergruposid', interGroupsId)
       for await (let element of interGroupsId) {
         const chat = await this.chatModel.findOne({ interGroup: element._id, active: true });
         if (chat !== null) await allChats.push(chat);
