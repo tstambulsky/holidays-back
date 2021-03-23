@@ -476,15 +476,12 @@ export class GroupService {
     try {
       const groupId = group._id;
       const userId = currentUser._id;
-      console.log('group', groupId);
-      console.log('user', userId);
       const groups = await this.groupModel
         .findOne({ active: true, integrants: userId, _id: groupId })
         .populate('integrants')
         .populate('meetingPlaceOne')
         .populate('meetingPlaceTwo')
         .populate('typeOfActivity');
-        console.log(groups);
       return groups;
     } catch (err) {
       throw new Error(err.message);
