@@ -85,7 +85,7 @@ async getUserFromSocket(socket: Socket) {
       console.log('intergruposid', interGroupsId)
       for await (let element of interGroupsId) {
         const chat = await this.chatModel.findOne({ interGroup: element._id, active: true });
-        if (chat !== null) await allChats.push(chat);
+        if (chat !== null) allChats.push(chat);
       }
       return allChats;
     } catch (error) {

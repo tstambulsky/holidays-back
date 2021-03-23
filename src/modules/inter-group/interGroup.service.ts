@@ -329,10 +329,11 @@ export class InterGroupService {
       });
 
       for await(let element of groupId) {
+        console.log('elementelement', element)
       const searchInterGroups =  await this.interGroupModel.findOne({confirmed: true, $or: [ {groupOne: element}, {groupTwo: element}] });
-      if (searchInterGroups !== null) await interGroups.push({searchInterGroups});
+      if (searchInterGroups !== null) interGroups.push({searchInterGroups});
       };
-      return await interGroups;
+      return interGroups;
     } catch (error) {
       throw new Error(error.message);
     }
