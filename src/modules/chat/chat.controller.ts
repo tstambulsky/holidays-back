@@ -37,10 +37,24 @@ export class ChatController {
     }
   };
 
-  @Get('/admin/')
-  async getAdminChat(@Res() res, @CurrentUser() user) {
+  @Get('/adminuser')
+  async getUserAdminChat(@Res() res,@Body() user: any, @CurrentUser() admin) {
     try {
-      const response = await this.chatService.getChatAdmin(user)
+      const response = await this.chatService.getChatAdminUser(admin, user)
+      res.status(HttpStatus.OK).json({
+        response
+      })
+    } catch (error) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        error: error.message
+      })
+    }
+  };
+
+  @Get('/usertoadmin')
+  async getAdminChat(@Res() res,@Body() user: any, @CurrentUser() admin) {
+    try {
+      const response = await this.chatService.getChatAdmin(admin, user)
       res.status(HttpStatus.OK).json({
         response
       })

@@ -103,9 +103,9 @@ async getUserFromSocket(socket: Socket) {
     }
   }
 
-  async getChatAdmin(currentUser: any) {
+  async getChatAdmin(currentUser: any, user:any) {
     try {
-      const chats = await this.chatModel.find({ adminUser: currentUser._id, active: true })
+      const chats = await this.chatModel.find({ adminUser: user._id, user: currentUser._id, active: true })
       if (!chats) throw new WsException('The user is not an admin of any group');
       return chats;      
     } catch (error) {
@@ -221,9 +221,9 @@ async getUserFromSocket(socket: Socket) {
   }
 
   async getAllMessagesAdmin(admin: any, groupId: any, currentUser: any) {
-    const group = await this.groupService.getGroupAdminAndUser(groupId, admin, currentUser);
+    const group = await this.groupService.getGroupAdmin(groupId, admin);
     if (!group) throw new WsException('The group does not exist or you are not the admin of the group');
-    const chat = await this.chatModel.findOne({ adminUser: admin, group: groupId, active: true })
+    const chat = await this.chatModel.findOne({ adminUser: admin, group: groupId, active: true, user: currentUser._id })
     const id = chat._id;
     return await this.messageModel.find({
       chat: id
