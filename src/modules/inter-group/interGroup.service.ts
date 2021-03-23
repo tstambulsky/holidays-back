@@ -51,6 +51,28 @@ export class InterGroupService {
     }
   }
 
+   async getInterGroupInactive(interGroupID: any): Promise<InterGroup> {
+    try {
+      const interGroup = await this.interGroupModel.findOne({ _id: interGroupID});
+      return interGroup;
+    } catch (err) {
+      console.log(err);
+      throw new Error(err.message);
+    }
+  }
+
+  async getInterGroupUsers(interGroupID: any, group: any): Promise<InterGroup> {
+    try {
+      const interGroup = await this.interGroupModel.findOne({ _id: interGroupID, active: true, $or: [{groupOne: group}, {groupTwo: group}] });
+      if (!interGroup) throw new HttpException('The user does not belong to the group/intergroup', 404);
+      return interGroup;
+    } catch (err) {
+      console.log(err);
+      throw new Error(err.message);
+    }
+  }
+
+
   async getInterGroupChat(group: any): Promise<InterGroup> {
     try {
       const id = group._id;
