@@ -8,8 +8,10 @@ import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private readonly userModel: Model<UserDocument>,
-  @Inject(CloudinaryService) private readonly _cloudinaryService: CloudinaryService) {}
+  constructor(
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    @Inject(CloudinaryService) private readonly _cloudinaryService: CloudinaryService
+  ) {}
 
   async getUsers(): Promise<User[]> {
     const users = await this.userModel.find().populate('city').exec();
@@ -21,7 +23,7 @@ export class UsersService {
 
   async getUserByEmail(email: string): Promise<any> {
     try {
-      const user = await this.userModel.findOne({active: true, email: email });
+      const user = await this.userModel.findOne({ active: true, email: email });
       return user;
     } catch (err) {
       console.log(err);
@@ -42,7 +44,7 @@ export class UsersService {
   async findOrCreateFB(accessToken: any, refreshToken: any, profile: any, done: any): Promise<User> {
     try {
       const user = await this.userModel.findOne({ provider_id: profile.id });
-      console.log(profile)
+      console.log(profile);
       if (user) {
         return user;
       }
@@ -103,7 +105,7 @@ export class UsersService {
     try {
       const userId = currentUser._id;
       const user = await this.userModel.findOne({ _id: userId });
-       if (!user) throw new HttpException('You dont have access to do this action', 404)
+      if (!user) throw new HttpException('You dont have access to do this action', 404);
       const updatedUser = await user.updateOne({ ...data });
       const userUpdated = await this.userModel.findOne({ _id: userId });
       return userUpdated;
@@ -115,7 +117,7 @@ export class UsersService {
   async updateUser(data: UpdateUserDTO, userId: any): Promise<User | undefined> {
     try {
       const user = await this.userModel.findOne({ _id: userId });
-       if (!user) throw new HttpException('User no exist', 404)
+      if (!user) throw new HttpException('User no exist', 404);
       const updatedUser = await user.updateOne({ ...data });
       const userUpdated = await this.userModel.findOne({ _id: userId });
       return userUpdated;
@@ -147,7 +149,6 @@ export class UsersService {
     }
   }
 
-
   async changeUserCalifications(userId: any, sum: boolean): Promise<User> {
     try {
       const user = await this.userModel.findOne({ _id: userId });
@@ -175,11 +176,11 @@ export class UsersService {
       throw new Error(error.message);
     }
   }
-  
+
   async searchByName(name: queryDTO) {
     try {
-      if(name.name.length === 0) throw new HttpException('Please, insert a name', 404)
-      const users = await this.userModel.find({name:new RegExp(name.name, 'i') });
+      if (name.name.length === 0) throw new HttpException('Please, insert a name', 404);
+      const users = await this.userModel.find({ name: new RegExp(name.name, 'i') });
       return users;
     } catch (error) {
       throw new Error(error.message);
@@ -189,7 +190,7 @@ export class UsersService {
   async updatePhoto(data: PhotoDTO, currentUser: any): Promise<User | undefined> {
     try {
       const userId = currentUser._id;
-      const user = await this.userModel.findOne({_id: userId});
+      const user = await this.userModel.findOne({ _id: userId });
       if (!user) throw new HttpException('You dont have access to do this action', 404);
       const updatePhotoUser = await user.updateOne({ ...data });
       const photosUpdated = await this.userModel.findOne({ _id: userId });
@@ -199,27 +200,36 @@ export class UsersService {
     }
   }
 
-    async setProfilePhoto(currentUser: any, file: any){
-     try {
-       const userId = currentUser._id;
-       const user = await this.userModel.findOne({_id: userId });
-       await user.updateOne({profilePhoto: file.filename})
-     } catch (error) {
-       throw new Error(error.message)
-     }
+  async setProfilePhoto(currentUser: any, file: any) {
+    try {
+      const userId = currentUser._id;
+      const user = await this.userModel.findOne({ _id: userId });
+      await user.updateOne({ profilePhoto: file.filename });
+    } catch (error) {
+      throw new Error(error.message);
     }
+  }
 
-    async updatePhotos(currentUser: any, files: any) {
-      try {
-        const userId = currentUser._id;
-        for await(let file of files){
-        const user = await this.userModel.findOne({_id: userId});
-        user.photos.push({photoUrl: file.path, public_id: file.filename});
-        await this._cloudinaryService.upload(file.path)
+  async updatePhotos(currentUser: any, files: any) {
+    try {
+      const userId = currentUser._id;
+      for await (let file of files) {
+        const user = await this.userModel.findOne({ _id: userId });
+        user.photos.push({ photoUrl: file.path, public_id: file.filename });
+        await this._cloudinaryService.upload(file.path);
         await user.save();
-      }}catch (error) {
-        throw new Error(error.message)
       }
+    } catch (error) {
+      throw new Error(error.message);
     }
+  }
 
+  async getByDeviceToken(token: string) {
+    try {
+      const search = await this.userModel.findOne({ deviceToken: token });
+      return search;
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
 }

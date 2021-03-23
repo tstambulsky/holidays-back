@@ -16,6 +16,7 @@ export interface UserDTO extends Document {
   readonly confirmPasswordRecover?: boolean;
   readonly latitude: number;
   readonly longitude: number;
+  readonly deviceToken?: string;
 }
 
 export class UpdateUserDTO {
@@ -32,6 +33,7 @@ export class UpdateUserDTO {
   readonly confirmPasswordRecover?: boolean;
   readonly latitude?: number;
   readonly longitude?: number;
+  readonly deviceToken?: string;
 }
 
 export class queryDTO {
@@ -44,7 +46,7 @@ export class contactsDTO {
 
 export class PhotoDTO {
   readonly photo: {
-    photoUrl: any,
-    public_id: any
+    photoUrl: any;
+    public_id: any;
   };
 }
