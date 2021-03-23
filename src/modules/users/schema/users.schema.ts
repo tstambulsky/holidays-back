@@ -20,14 +20,18 @@ export class User {
   provider_id: string;
 
   @Prop({ required: false })
+  deviceToken?: string;
+
+  @Prop({ required: false })
   apple_id?: string;
 
   @Prop({ type: [{}], required: false, minItems: 0, maxItems: 6 })
-  photos: [{
-    photoUrl: String,
-    public_id: String
-  }
-]
+  photos: [
+    {
+      photoUrl: String;
+      public_id: String;
+    }
+  ];
 
   @Prop({ required: false })
   profilePhoto?: string;
@@ -41,10 +45,10 @@ export class User {
   @Prop()
   birthDate: Date;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'City'})
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'City' })
   city?: City;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'State'})
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'State' })
   state?: State;
 
   @Prop({ enum: ['male', 'female', 'other'] })
