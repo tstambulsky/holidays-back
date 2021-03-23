@@ -8,8 +8,8 @@ export class EmailService {
     try {
       let transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
+        port: 465,
+        secure: true,
         auth: {
           user: emailConfig.user,
           pass: emailConfig.password
@@ -29,14 +29,14 @@ export class EmailService {
 
   async sendRecoveryPassword(email: string, code: string) {
     try {
-      const url = `http://localhost:4000/${code}`;
+      const url = emailConfig.url + code;
       const message = {
         from: 'Traiiner',
         to: email,
         suject: 'Recover Password',
         text: 'Click on the link to complete the password change',
-        html: `<b>YOUR CODE</b> <a href='#'>${url}</a>`
-      };
+        html: `<b>YOUR CODE</b> <br> <a href='#'>${url}</a>`
+      }
       await this.sendEmail(message);
       return true;
     } catch (err) {

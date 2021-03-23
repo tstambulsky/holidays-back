@@ -150,9 +150,6 @@ export class GroupService {
       const chat = await this.chatService.createGroupChat(groupCreated._id);
       chat.name = groupCreated.name;
       await chat.save();
-      const admin = await this.chatService.createAdminChat(groupCreated._id);
-      admin.name = `Admin chat of ${groupCreated.name}`,
-      await admin.save();
       return groupCreated;
     } catch (err) {
       throw new Error(err.message);
@@ -323,6 +320,29 @@ export class GroupService {
     }
   }
 
+  async requestToJoinGroup(currentUser: any, data: RequestToGroupDTO) {
+    try {
+      const userId = currentUser._id;
+      const { group } = data;
+      const groupExist = await this.groupModel.findOne({ _id: group }).populate('integrants');
+      if (!groupExist) throw new Error('This group does not exist');
+      const isIngroup = await this.groupModel.findOne({ _id: group, integrants: userId });
+      if (isIngroup) throw new Error('This user is already in the group');
+      const alreadyInvite = await this.invitationModel.find({ user: userId, group, active: true });
+      if (alreadyInvite.length > 0) throw new Error('User already invite');
+      const newInvitation = new this.invitationModel(data);
+      newInvitation.user = userId;
+      await newInvitation.save();
+      const admin = await this.chatService.createAdminChat(group);
+      admin.name = `Admin chat of ${groupExist.name}`,
+      admin.user = userId;
+      await admin.save();
+      return 'Request sent to the group admin.'
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
   async getInvitationToGroup(groupId: any) {
     try {
       const invitations = await this.invitationModel
@@ -350,11 +370,15 @@ export class GroupService {
       if (group.admin != userId) throw new Error('This user is not the admin of this group');
       invitation.success = true;
       invitation.active = false;
+      invitation.fromAdmin = true;
       await invitation.save();
       //@ts-ignore
       group.integrants.push(user);
       await group.save();
-      return group;
+      const chats = await this.chatService.getChatAdminUser(currentUser, user);
+      chats.active = false;
+      await chats.save();
+      return 'The user has been added to the group'
     } catch (error) {
       throw new Error(error.message);
     }
@@ -396,21 +420,21 @@ export class GroupService {
       const userId = currentUser._id;
       const user = await this.userService.getUserById(userId);
       if (!user) throw new Error('This user does not exist');
-      const invitation = await this.invitationModel.findOne({ _id: invitationId, fromAdmin: true, active: true });
+      const invitation = await this.invitationModel.findOne({ _id: invitationId, fromAdmin: false, active: true });
       if (!invitation) throw new Error('Bad invitation');
       if (success) {
         const group = await this.groupModel.findOne({ _id: invitation.group }).populate('integrants');
         //@ts-ignore
-        group.integrants.push(user);
-        await group.save();
-        invitation.success = true;
-        invitation.active = false;
+        const admin = await this.chatService.createAdminChat(group._id);
+        admin.name = `Admin chat of ${group.name}`,
+        admin.user = userId;
+      await admin.save();
       } else {
         invitation.success = false;
         invitation.active = false;
       }
       await invitation.save();
-      return 'User added to group';
+      return 'User pending acceptance by the admin.';
     } catch (error) {
       throw new Error(error.message);
     }
@@ -507,20 +531,6 @@ export class GroupService {
     }
   }
 
-  /*async setGroupPhotos(currentUser: any, data: EditPhotosDto) {
-    try {
-      const { photos, groupId } = data;
-      const userId = currentUser._id;
-      const group = await this.groupModel.findOne({ _id: groupId, active: true });
-      if (!group) throw new HttpException('This group does not exist', 404);
-      if (group.admin != userId) throw new Error('You dont have permission to edit photos.');
-      group.photos = photos;
-      await group.save();
-      return 'Updated photos';
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  }*/ 
   async groupsCreatedByUser(currentUser: any) {
     try {
       const userId = currentUser._id;
@@ -560,8 +570,6 @@ export class GroupService {
        throw new Error(error.message)
      }
     }
-
-
 
   /*async threeFilters(gender: any, distance: any, age: any, currentUser: any) {
     try {
