@@ -3,20 +3,41 @@ import * as mongoose from 'mongoose';
 
 export type MeetingDocument = Meeting & mongoose.Document;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Meeting {
-  @Prop({ required: true })
+  @Prop()
   name: string;
+
   @Prop()
   address: string;
-  @Prop({ type: [Number], required: true }) //[Long - Lat]
-  location: string;
-  @Prop({ required: true })
+
+  @Prop()
+  latitude: number;
+
+  @Prop()
+  longitude: number;
+
+  @Prop()
   description: string;
+
   @Prop()
   photo: string;
+
+  @Prop({ type: [{}], required: false, minItems: 0, maxItems: 6 })
+  photos: [{
+    photoUrl: String,
+    public_id: String
+  }
+]
+
+  @Prop({ default: true })
+  active: boolean;
+
+  @Prop({ default: false })
+  isStore: boolean;
+
 }
+
 export const MeetingPlaceSchema = SchemaFactory.createForClass(Meeting);
 
-MeetingPlaceSchema.set('timestamps', true);
 MeetingPlaceSchema.index({ location: '2dsphere' });

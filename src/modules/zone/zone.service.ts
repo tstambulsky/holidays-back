@@ -33,6 +33,16 @@ export class ZoneService {
     }
   }
 
+  async getCitiesByState(stateId: any) {
+    try {
+      const cities = await this.cityModel.find({ state: stateId})
+      if (!cities) throw new HttpException('State id not found', 404);
+      return cities
+    } catch (err) {
+      throw new Error(err.message)
+    }
+  }
+
   async createCity(cityDTO: CreateCityDTO): Promise<string> {
     try {
       const city = await new this.cityModel(cityDTO);

@@ -8,7 +8,8 @@ async function bootstrap() {
   const logger: Logger = new Logger('main.ts');
   const app = await NestFactory.create(AppModule);
   app.enableCors();
-  await app.listen(globalConfig.port, globalConfig.host, () => logger.log(`Server started on port ${globalConfig.port}`));
+  //app.setGlobalPrefix('/api');
+  await app.listen(globalConfig.port, () => logger.log(`Server started on port ${globalConfig.port}`));
 }
 
 bootstrap();
