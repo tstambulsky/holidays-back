@@ -37,7 +37,6 @@ export class GroupService {
 
   async getGroupChat(groupId: any, currentUser: any) {
     try {
-      console.log(currentUser._id);
       const group = await this.groupModel.findOne({active: true, _id: groupId, integrants: currentUser._id})
       if (!group) throw new HttpException('Group does not exist or you dont belong to this group', 404)
       return group;
@@ -124,7 +123,6 @@ export class GroupService {
       group.percentageOfNoGender = percentlyNoGender;
       return group;
     } catch (err) {
-      console.log(err);
       throw new Error(err.message);
     }
   }
@@ -464,7 +462,6 @@ export class GroupService {
         .populate('meetingPlaceOne')
         .populate('meetingPlaceTwo')
         .populate('typeOfActivity');
-        console.log(groups);
       if (!groups) throw new Error('The user does not belong to any group');
       return groups;
     } catch (err) {
@@ -501,7 +498,6 @@ export class GroupService {
       const groupsFiltered = allGroups.filter((element) => element.meetingPlaceOne !== null);
       for (let data of groupsFiltered) {
         const distance = distanceBetweenLocations(user, data.meetingPlaceOne);
-        console.log(distance)
         if (distance < maxDistance) {
           groupsInRange.push(data);
         }
@@ -522,7 +518,6 @@ export class GroupService {
         const groupsFiltered = allGroups.filter((element) => element.meetingPlaceOne !== null);
         for (let data of groupsFiltered) {
         const distance = distanceBetweenLocations(user, data.meetingPlaceOne);
-        console.log(distance)
         if (distance < 5) {
           groupsInRange.push(data);
         }
