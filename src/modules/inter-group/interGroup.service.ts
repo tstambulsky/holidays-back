@@ -164,6 +164,7 @@ export class InterGroupService {
       await createInterGroup.save();
       const interGroupChat = await this.chatService.createInterGroupChat(createInterGroup._id)
       interGroupChat.name = createInterGroup.name;
+      interGroupChat.setTimeAndPlace = true;
       await interGroupChat.save();
       return createInterGroup;
     } catch (error) {
@@ -210,6 +211,11 @@ export class InterGroupService {
       if (groupSend.admin != userId) throw new Error('You are not the admin of the group.');
       const proposal = new this.proposalModel(data);
       await proposal.save();
+      const chat = await this.chatService.getInterGroup(obtainInterGroup._id);
+      chat.place = true;
+      chat.setTimeAndPlace = false;
+      chat.pending = true;
+      await chat.save();
       return 'Proposal Sended';
     } catch (error) {
       throw new Error(error.message);
@@ -256,6 +262,15 @@ export class InterGroupService {
         intergroup.meetingPlaceOne = proposal.proposalPlace;
         intergroup.active = true;
         await intergroup.save();
+        const chat = await this.chatService.getInterGroup(proposal.interGroup);
+        chat.place = false;
+        await chat.save();
+      } else {
+        const chat = await this.chatService.getInterGroup(proposal.interGroup);
+        chat.place = false;
+        chat.pending = false;
+        chat.setTimeAndPlace = true;
+        await chat.save();
       }
       return proposal;
     } catch (error) {

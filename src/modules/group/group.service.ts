@@ -37,8 +37,8 @@ export class GroupService {
 
   async getGroupChat(groupId: any, currentUser: any) {
     try {
-      const userId = currentUser._id;
-      const group = await this.groupModel.findOne({active: true, _id: groupId, integrants: userId})
+      console.log(currentUser._id);
+      const group = await this.groupModel.findOne({active: true, _id: groupId, integrants: currentUser._id})
       if (!group) throw new HttpException('Group does not exist or you dont belong to this group', 404)
       return group;
     } catch (error){
