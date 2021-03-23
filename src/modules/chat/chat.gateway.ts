@@ -39,18 +39,18 @@ export class ChatGateway implements OnGatewayConnection {
 
   @SubscribeMessage('send_message_inter_group')
   async listenForMessagesInter(@MessageBody() data: MessageDTO, @ConnectedSocket() socket: Socket) {
-    const { content, group, interGroup } = data;
+    const { content, interGroup } = data;
     const author = await this.chatService.getUserFromSocket(socket);
-    const message = await this.chatService.saveMessageInterGroup(content, author, group, interGroup);
+    const message = await this.chatService.saveMessageInterGroup(content, author, interGroup);
 
     await this.server.sockets.emit('receive_message_inter_group', message);
   }
 
   @SubscribeMessage('request_all_messages_inter_group')
   async requestAllMessagesInter(@MessageBody() data: MessageDTO, @ConnectedSocket() socket: Socket) {
-    const { group, interGroup } = data;
+    const { interGroup } = data;
     const author = await this.chatService.getUserFromSocket(socket);
-    const messages = await this.chatService.getAllMessagesInterGroup(author, group, interGroup);
+    const messages = await this.chatService.getAllMessagesInterGroup(author, interGroup);
 
     await socket.emit('send_all_mesages_inter_group', messages);
   }

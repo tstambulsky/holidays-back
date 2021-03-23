@@ -163,12 +163,22 @@ async getUserFromSocket(socket: Socket) {
     return messages;
   }
 
-  async saveMessageInterGroup(content: string, currentUser: any, groupId: any, interGroupId: any) {
+  async saveMessageInterGroup(content: string, currentUser: any, interGroupId: any) {
+    let userInGroupTwo;
     const userId = currentUser._id;
     const user = await this.usersService.getUserById(userId)
-    const group = await this.groupService.getGroupChat(groupId, currentUser);
-    const interGroup = await this.interGroupService.getInterGroupChat(group);
-    if (!interGroup) throw new WsException('The user does not belong to the intergroup or the intergroup does not exist.')
+    //const group = await this.groupService.getGroupChat(groupId, currentUser);
+    const interGroup = await this.interGroupService.getInterGroupInactive(interGroupId);
+    if (!interGroup) throw new WsException('The intergroup does not exist.');
+    const groupOne = interGroup.groupOne;
+    const groupTwo = interGroup.groupTwo;
+    const userInGroup = await this.groupService.getOneUserWithGroup(currentUser, groupOne)
+    if (userInGroup == null) {
+      userInGroupTwo = await this.groupService.getOneUserWithGroup(currentUser, groupTwo)
+    }
+    if (userInGroupTwo == null) {
+      throw new WsException('The user does not belong to some group');
+    }
     const chat = await this.chatModel.findOne({ interGroup: interGroupId, active: true });
     const newMessage = await new this.messageModel({
       content,
@@ -182,12 +192,22 @@ async getUserFromSocket(socket: Socket) {
   }
 
 
-  async getAllMessagesInterGroup(currentUser: any, groupId: any, interGroupId: any) {
+  async getAllMessagesInterGroup(currentUser: any, interGroupId: any) {
+    let userInGroupTwo;
     const userId = currentUser._id;
     const user = await this.usersService.getUserById(userId)
-    const group = await this.groupService.getGroupChat(groupId, user);
-    const interGroup = await this.interGroupService.getInterGroupChat(group);
-    if (!interGroup) throw new WsException('The user does not belong to the intergroup or the intergroup does not exist.')
+    //const group = await this.groupService.getGroupChat(groupId, currentUser);
+    const interGroup = await this.interGroupService.getInterGroupInactive(interGroupId);
+    if (!interGroup) throw new WsException('The intergroup does not exist.');
+    const groupOne = interGroup.groupOne;
+    const groupTwo = interGroup.groupTwo;
+    const userInGroup = await this.groupService.getOneUserWithGroup(currentUser, groupOne)
+    if (userInGroup == null) {
+      userInGroupTwo = await this.groupService.getOneUserWithGroup(currentUser, groupTwo)
+    }
+    if (userInGroupTwo == null) {
+      throw new WsException('The user does not belong to some group');
+    }
     const chat = await this.chatModel.findOne({ interGroup: interGroupId, active: true })
     return await this.messageModel.find({
       chat: chat._id,
