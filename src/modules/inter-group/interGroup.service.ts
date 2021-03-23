@@ -46,7 +46,6 @@ export class InterGroupService {
       const interGroup = await this.interGroupModel.findOne({ _id: interGroupID, active: true });
       return interGroup;
     } catch (err) {
-      console.log(err);
       throw new Error(err.message);
     }
   }
@@ -56,7 +55,6 @@ export class InterGroupService {
       const interGroup = await this.interGroupModel.findOne({ _id: interGroupID});
       return interGroup;
     } catch (err) {
-      console.log(err);
       throw new Error(err.message);
     }
   }
@@ -67,7 +65,6 @@ export class InterGroupService {
       if (!interGroup) throw new HttpException('The user does not belong to the group/intergroup', 404);
       return interGroup;
     } catch (err) {
-      console.log(err);
       throw new Error(err.message);
     }
   }
@@ -79,7 +76,6 @@ export class InterGroupService {
       const interGroup = await this.interGroupModel.findOne({$or: [{groupOne: id}, {groupTwo: id }], confirmed: true, });
       return interGroup;
     } catch (err) {
-      console.log(err);
       throw new Error(err.message);
     }
   }

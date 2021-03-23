@@ -61,7 +61,6 @@ async getUserFromSocket(socket: Socket) {
       let allChats = [];
       const groups = await this.groupService.getUserGroups(currentUser)
       for await (let group of groups) {
-        console.log(group.id);
         const chat = await this.chatModel.find({ group: group._id, active: true })
         if (chat) {
           allChats.push(chat)
@@ -79,7 +78,6 @@ async getUserFromSocket(socket: Socket) {
       let allChats = [];
       let interGroupsId = [];
       const interGroups = await this.interGroupService.getMyIntergroupsNoActives(currentUser);
-      console.log('intergroupsasd', interGroups)
       interGroups.forEach((element) => {
         interGroupsId.push(element.searchInterGroups._id)
       });
@@ -115,7 +113,7 @@ async getUserFromSocket(socket: Socket) {
 
   async getChatAdminUser(currentUser: any, user: any) {
      try {
-      const chats = await this.chatModel.findOne({ adminUser: currentUser._id, user: user, active: true})
+      const chats = await this.chatModel.findOne({ adminUser: currentUser._id, user: user._id, active: true})
       if (!chats) throw new WsException('You are not the admin or the user does not exist.');
       return chats;      
     } catch (error) {
@@ -159,7 +157,6 @@ async getUserFromSocket(socket: Socket) {
     const messages =  await this.messageModel.find({
       chat: chat._id,
     }).sort({ date: -1 });
-    console.log(messages);
     return messages;
   }
 
@@ -200,10 +197,8 @@ async getUserFromSocket(socket: Socket) {
     const groupOne = interGroup.groupOne;
     const groupTwo = interGroup.groupTwo;
     const userInGroup = await this.groupService.getOneUserWithGroup(currentUser, groupOne)
-    console.log('asdasd', userInGroup);
     if (userInGroup === null) {
       userInGroupTwo = await this.groupService.getOneUserWithGroup(currentUser, groupTwo)
-      console.log('brugrourgogr', userInGroupTwo)
     }
     if (userInGroupTwo === null) {
       throw new WsException('The user does not belong to some group');
