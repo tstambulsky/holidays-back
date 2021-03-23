@@ -173,10 +173,10 @@ async getUserFromSocket(socket: Socket) {
     const groupOne = interGroup.groupOne;
     const groupTwo = interGroup.groupTwo;
     const userInGroup = await this.groupService.getOneUserWithGroup(currentUser, groupOne)
-    if (userInGroup == null) {
+    if (!userInGroup) {
       userInGroupTwo = await this.groupService.getOneUserWithGroup(currentUser, groupTwo)
     }
-    if (userInGroupTwo == null) {
+    if (!userInGroupTwo) {
       throw new WsException('The user does not belong to some group');
     }
     const chat = await this.chatModel.findOne({ interGroup: interGroupId, active: true });
@@ -194,18 +194,18 @@ async getUserFromSocket(socket: Socket) {
 
   async getAllMessagesInterGroup(currentUser: any, interGroupId: any) {
     let userInGroupTwo;
-    const userId = currentUser._id;
-    const user = await this.usersService.getUserById(userId)
     //const group = await this.groupService.getGroupChat(groupId, currentUser);
     const interGroup = await this.interGroupService.getInterGroupInactive(interGroupId);
     if (!interGroup) throw new WsException('The intergroup does not exist.');
     const groupOne = interGroup.groupOne;
     const groupTwo = interGroup.groupTwo;
     const userInGroup = await this.groupService.getOneUserWithGroup(currentUser, groupOne)
-    if (userInGroup == null) {
+    console.log('asdasd', userInGroup);
+    if (userInGroup === null) {
       userInGroupTwo = await this.groupService.getOneUserWithGroup(currentUser, groupTwo)
+      console.log('brugrourgogr', userInGroupTwo)
     }
-    if (userInGroupTwo == null) {
+    if (userInGroupTwo === null) {
       throw new WsException('The user does not belong to some group');
     }
     const chat = await this.chatModel.findOne({ interGroup: interGroupId, active: true })
