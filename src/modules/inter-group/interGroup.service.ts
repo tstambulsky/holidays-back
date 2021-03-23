@@ -321,6 +321,7 @@ export class InterGroupService {
     try {
       let groupId = [];
       let interGroups = [];
+      let searchInterGroups;
 
       const userInGroup = await this.groupService.getUserGroups(currentUser);
 
@@ -329,9 +330,8 @@ export class InterGroupService {
       });
 
       for await(let element of groupId) {
-        console.log('elementelement', element)
-      const searchInterGroups =  await this.interGroupModel.findOne({confirmed: true, $or: [ {groupOne: element}, {groupTwo: element}] });
-      if (searchInterGroups !== null) interGroups.push({searchInterGroups});
+       searchInterGroups =  await this.interGroupModel.findOne({confirmed: true, $or: [ {groupOne: element}, {groupTwo: element}] });
+      if (searchInterGroups) interGroups.push({searchInterGroups});
       };
       return interGroups;
     } catch (error) {
