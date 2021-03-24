@@ -37,10 +37,10 @@ export class ChatController {
     }
   };
 
-  @Get('/adminuser')
-  async getUserAdminChat(@Res() res,@Body() user: any, @CurrentUser() admin) {
+  @Get('/adminuser/:groupId')
+  async getUserAdminChat(@Res() res,@Param('groupId') groupId: any, @CurrentUser() user) {
     try {
-      const response = await this.chatService.getChatAdminUser(admin, user)
+      const response = await this.chatService.getChatAdmin(user, groupId)
       res.status(HttpStatus.OK).json({
         response
       })
@@ -51,10 +51,10 @@ export class ChatController {
     }
   };
 
-  @Get('/usertoadmin')
-  async getAdminChat(@Res() res,@Body() user: any, @CurrentUser() admin) {
+  @Get('/usertoadmin/:groupId')
+  async getAdminChat(@Res() res,@Param('groupId') groupId: any, @CurrentUser() user) {
     try {
-      const response = await this.chatService.getChatAdmin(admin, user)
+      const response = await this.chatService.getChatAdminUser(user, groupId)
       res.status(HttpStatus.OK).json({
         response
       })

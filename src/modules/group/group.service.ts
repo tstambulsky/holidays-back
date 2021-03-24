@@ -313,7 +313,7 @@ export class GroupService {
       const newInvitation = new this.invitationModel(data);
       await newInvitation.save();
       const admin = await this.chatService.createAdminChat(group);
-      admin.name = `Admin chat of ${groupExist.name}`,
+      admin.name = `${userExist.name} ${userExist.lastName} + Admin chat of ${groupExist.name}`,
       admin.user = user;
       await admin.save();
       return 'Request sent to the group admin.';
@@ -377,7 +377,7 @@ export class GroupService {
       //@ts-ignore
       group.integrants.push(user);
       await group.save();
-      const chats = await this.chatService.getChatAdminUser(currentUser, user);
+      const chats = await this.chatService.getChatAdminUser(currentUser, group._id);
       chats.active = false;
       await chats.save();
       return 'The user has been added to the group'
@@ -562,8 +562,8 @@ export class GroupService {
     try {
      const groupsContacts = await this.userService.searchContact(users);
       let allGroups = [];
-      const groupsFiltered = groupsContacts.filter((element) => element._id !== null);
-      for await (let group of groupsFiltered) {
+      const setGroups = new Set(groupsContacts);
+      for await (let group of setGroups) {
         const data = await this.groupModel.find({integrants: group._id})
         if (data) {
           allGroups.push(data);
