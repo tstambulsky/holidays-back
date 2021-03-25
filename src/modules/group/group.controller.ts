@@ -409,7 +409,6 @@ export class GroupController {
   }
 
   @Post('/groups/contacts')
-  @UseInterceptors(new SizeLimitInterceptor(1024 * 1024 * 10))
   async getGroupsOfMyContacts(@Res() res, @Body() users: contactsDTO) {
     try {
       const getGroups = await this.groupService.groupsOfMyContacts(users.users)
