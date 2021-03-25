@@ -171,8 +171,7 @@ export class UsersService {
           allUsers.push(data);
         }
       }
-      const myUsers = new Set(allUsers);
-      return myUsers;
+      return allUsers;
     } catch (error) {
       throw new Error(error.message);
     }

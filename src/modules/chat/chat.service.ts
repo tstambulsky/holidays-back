@@ -103,10 +103,9 @@ async getUserFromSocket(socket: Socket) {
     }
   }
 
-  async getChatAdminUser(currentUser: any, groupId: any) {
+  async getChatAdminUser(currentUser: any) {
     try {
-      const group = await this.groupService.getGroup(groupId);
-      const chats = await this.chatModel.findOne({ adminUser: group.admin, group: groupId, user: currentUser._id, active: true })
+      const chats = await this.chatModel.find({ user: currentUser._id, active: true })
       if (!chats) throw new WsException('The user is not an admin of any group');
       return chats;      
     } catch (error) {
@@ -114,10 +113,20 @@ async getUserFromSocket(socket: Socket) {
     }
   }
 
-  async getChatAdmin(currentUser: any, groupId: any) {
+  async getOneChatAdminUser(currentUser: any, groupId: any) {
+    try {
+      const chats = await this.chatModel.findOne({ user: currentUser._id, group: groupId, active: true })
+      if (!chats) throw new WsException('The user is not an admin of any group');
+      return chats;      
+    } catch (error) {
+      throw new Error(error)
+    }
+  }
+
+
+  async getChatAdmin(currentUser: any) {
      try {
-      const group = await this.groupService.getGroup(groupId);
-      const chats = await this.chatModel.find({ adminUser: currentUser._id, group: groupId, active: true})
+      const chats = await this.chatModel.find({ adminUser: currentUser._id, active: true})
       if (!chats) throw new WsException('You are not the admin or the user does not exist.');
       return chats;      
     } catch (error) {
