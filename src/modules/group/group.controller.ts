@@ -15,6 +15,7 @@ import {
 } from './dto/group.dto';
 import { CurrentUser } from '../users/decorators/currentUser';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { Limit } from '../auth/guards/limit.guard';
 import { contactsDTO } from '../users/dto/data.dto';
 import { multerOptions } from '../../config/multer';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
@@ -408,6 +409,7 @@ export class GroupController {
     }
   }
 
+  @Limit(1024 * 1024)
   @Post('/groups/contacts')
   async getGroupsOfMyContacts(@Res() res, @Body() users: contactsDTO) {
     try {
