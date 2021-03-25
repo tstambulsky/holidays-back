@@ -18,7 +18,6 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { contactsDTO } from '../users/dto/data.dto';
 import { multerOptions } from '../../config/multer';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
-import { SizeLimitInterceptor } from '../auth/interceptors/limit.interceptor';
 
 
 @UseGuards(JwtAuthGuard)
