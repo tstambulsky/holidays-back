@@ -122,9 +122,9 @@ export class ChatController {
   }
 
   @Post('/sendadmin')
-  async sendmessageadmin(@Res() res, @Body() data: MessageDTO,) {
+  async sendmessageadmin(@Res() res, @Body() data: MessageDTO,@CurrentUser() user) {
     try {
-      const response = await this.chatService.saveMessageAdmin(data.content, data.adminUser, data.group, data.user);
+      const response = await this.chatService.saveMessageAdmin(data.content, data.chatId, data.group, user);
       res.status(HttpStatus.OK).json({
         response
       });

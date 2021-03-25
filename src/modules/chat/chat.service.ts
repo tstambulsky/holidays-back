@@ -214,17 +214,18 @@ async getUserFromSocket(socket: Socket) {
     }).sort({ date: -1 });
   }
 
-  async saveMessageAdmin(content: string, admin: any, groupId: any, user: any) {
-    const userExist = await this.usersService.getUserById(user)
-    const group = await this.groupService.getGroupAdmin(groupId, admin);
+  async saveMessageAdmin(content: string, chatId: any, groupId: any, currentUser: any) {
+    const userId = currentUser._id;
+    const userExist = await this.usersService.getUserById(userId)
+    const chat = await this.chatModel.findOne({_id: chatId, active: true  });
+    const group = await this.groupService.getGroupAdmin(groupId, chat.adminUser);
     if (!group) throw new WsException('The group does not exist');
-    const chat = await this.chatModel.findOne({ adminUser: admin, user, group: groupId, active: true  })
     const newMessage = await new this.messageModel({
       content,
       name: userExist.name,
       image: userExist.profilePhoto,
       group: groupId,
-      author: user,
+      author: userId,
       chat: chat._id,
     });
     return await newMessage.save();
