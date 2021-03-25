@@ -15,11 +15,11 @@ import {
 } from './dto/group.dto';
 import { CurrentUser } from '../users/decorators/currentUser';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { Limit } from '../auth/guards/limit.guard';
 import { contactsDTO } from '../users/dto/data.dto';
 import { multerOptions } from '../../config/multer';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
-import { ETIME } from 'constants';
+import { SizeLimitInterceptor } from '../auth/interceptors/limit.interceptor';
+
 
 @UseGuards(JwtAuthGuard)
 @Controller('/api/group')
@@ -409,8 +409,8 @@ export class GroupController {
     }
   }
 
-  @Limit(1024 * 1024)
   @Post('/groups/contacts')
+  @UseInterceptors(new SizeLimitInterceptor(1024 * 1024 * 10))
   async getGroupsOfMyContacts(@Res() res, @Body() users: contactsDTO) {
     try {
       const getGroups = await this.groupService.groupsOfMyContacts(users.users)
