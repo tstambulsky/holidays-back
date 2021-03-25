@@ -316,7 +316,7 @@ export class GroupService {
       admin.name = `${userExist.name} ${userExist.lastName} + Admin chat of ${groupExist.name}`,
       admin.user = user;
       await admin.save();
-      return 'Request sent to the group admin.';
+      return 'Request sent to the user or admin';
     } catch (error) {
       throw new Error(error.message);
     }
@@ -584,6 +584,21 @@ export class GroupService {
      } catch (error) {
        throw new Error(error.message)
      }
+    }
+
+    /*async getGroupsBestCalificated() {
+      try {
+        let allGroups = [];
+        let allIntegrants = [];
+        const groups = await this.groupModel.find({active: true})
+        for await (let group of groups) {
+          allIntegrants.push(group.integrants);
+          allIntegrants.forEach((element) => {
+            element.cal
+          })
+         
+        }
+      } 
     }
 
   /*async threeFilters(gender: any, distance: any, age: any, currentUser: any) {

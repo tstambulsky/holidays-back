@@ -122,9 +122,9 @@ export class ChatController {
   }
 
   @Post('/sendadmin')
-  async sendmessageadmin(@Res() res, @Body() data: MessageDTO, @CurrentUser() user) {
+  async sendmessageadmin(@Res() res, @Body() data: MessageDTO,) {
     try {
-      const response = await this.chatService.saveMessageAdmin(data.content, user, data.adminUser, data.group);
+      const response = await this.chatService.saveMessageAdmin(data.content, data.adminUser, data.group, data.user);
       res.status(HttpStatus.OK).json({
         response
       });
@@ -136,9 +136,9 @@ export class ChatController {
   }
 
    @Get('/saveadmin')
-  async savemessageadmin(@Res() res, @Body() data: MessageDTO, @CurrentUser() user) {
+  async savemessageadmin(@Res() res, @Body() data: MessageDTO) {
     try {
-      const response = await this.chatService.getAllMessagesAdmin(data.adminUser, data.group, user);
+      const response = await this.chatService.getAllMessagesAdmin(data.chatId);
       res.status(HttpStatus.OK).json({
         response
       });
