@@ -9,7 +9,6 @@ import { CurrentUser } from './decorators/currentUser';
 import { multerOptions } from '../../config/multer';
 import { Express } from 'express';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
-import { SizeLimitInterceptor } from '../auth/interceptors/limit.interceptor';
 
 
 
@@ -130,7 +129,6 @@ export class UsersController {
   }
 
   @Post('/search/contacts')
-  @UseInterceptors(new SizeLimitInterceptor(1024 * 1024 * 10))
   async getContacts(@Res() res, @Body() users: contactsDTO){
     try {
       const response = await this.userService.searchContact(users.users);
