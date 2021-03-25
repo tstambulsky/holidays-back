@@ -5,6 +5,7 @@ import { UpdateUserDTO, queryDTO, contactsDTO, PhotoDTO } from './dto/data.dto';
 import { User } from './schema/users.schema';
 import { LoginDTO } from '../auth/dto/login.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { Limit } from '../auth/guards/limit.guard';
 import { CurrentUser } from './decorators/currentUser';
 import { multerOptions } from '../../config/multer';
 import { Express } from 'express';
@@ -128,6 +129,7 @@ export class UsersController {
     }
   }
 
+  @Limit(1024 * 1024)
   @Post('/search/contacts')
   async getContacts(@Res() res, @Body() users: contactsDTO){
     try {
