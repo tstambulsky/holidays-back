@@ -10,7 +10,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors();
   app.use(json({limit: '50mb'}));
-  app.use(urlencoded({limit: '50mb', extended: true}))
+  app.use(urlencoded({limit: '50mb', 
+  parameterLimit: 100000,
+  extended: true}))
   //app.setGlobalPrefix('/api');
   await app.listen(globalConfig.port, () => logger.log(`Server started on port ${globalConfig.port}`));
 }
