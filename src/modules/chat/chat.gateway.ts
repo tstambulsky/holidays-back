@@ -57,9 +57,9 @@ export class ChatGateway implements OnGatewayConnection {
 
   @SubscribeMessage('send_message_admin')
   async listenForMessagesAdmin(@MessageBody() data: MessageDTO, @ConnectedSocket() socket: Socket) {
-    const { content, adminUser, group } = data;
+    const { content, chatId, group } = data;
     const author = await this.chatService.getUserFromSocket(socket);
-    const message = await this.chatService.saveMessageAdmin(content, author, adminUser, group);
+    const message = await this.chatService.saveMessageAdmin(content, chatId, group, author);
 
     await this.server.sockets.emit('receive_message_admin', message);
   }
