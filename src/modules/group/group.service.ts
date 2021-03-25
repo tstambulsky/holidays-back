@@ -316,13 +316,13 @@ export class GroupService {
       admin.name = `${userExist.name} ${userExist.lastName} + Admin chat of ${groupExist.name}`,
       admin.user = user;
       await admin.save();
-      return 'Request sent to the user or admin';
+      return newInvitation;
     } catch (error) {
       throw new Error(error.message);
     }
   }
 
-  async requestToJoinGroup(currentUser: any, data: RequestToGroupDTO) {
+  /*async requestToJoinGroup(currentUser: any, data: RequestToGroupDTO) {
     try {
       const userId = currentUser._id;
       const { group } = data;
@@ -343,7 +343,7 @@ export class GroupService {
     } catch (error) {
       throw new Error(error.message);
     }
-  }
+  }*/
 
   async getInvitationToGroup(groupId: any) {
     try {
@@ -372,7 +372,6 @@ export class GroupService {
       if (group.admin != userId) throw new Error('This user is not the admin of this group');
       invitation.success = true;
       invitation.active = false;
-      invitation.fromAdmin = true;
       await invitation.save();
       //@ts-ignore
       group.integrants.push(user);
@@ -380,7 +379,7 @@ export class GroupService {
       const chats = await this.chatService.getOneChatAdminUser(currentUser, invitation.group);
       chats.active = false;
       await chats.save();
-      return 'The user has been added to the group'
+      return group;
     } catch (error) {
       throw new Error(error.message);
     }
@@ -397,6 +396,9 @@ export class GroupService {
       if (group.admin != userId) throw new Error('This user is not the admin of this group');
       invitation.active = false;
       await invitation.save();
+      const chats = await this.chatService.getOneChatAdminUser(currentUser, invitation.group);
+      chats.active = false;
+      await chats.save();
       return group;
     } catch (error) {
       throw new Error(error.message);
@@ -422,7 +424,7 @@ export class GroupService {
       const userId = currentUser._id;
       const user = await this.userService.getUserById(userId);
       if (!user) throw new Error('This user does not exist');
-      const invitation = await this.invitationModel.findOne({ _id: invitationId, fromAdmin: false, active: true });
+      const invitation = await this.invitationModel.findOne({ _id: invitationId, fromAdmin: true, active: true });
       if (!invitation) throw new Error('Bad invitation');
       if (success) {
         const group = await this.groupModel.findOne({ _id: invitation.group }).populate('integrants');

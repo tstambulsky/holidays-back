@@ -267,7 +267,7 @@ export class GroupController {
     }
   }
 
-  @Post('/invitation/usertoadmin')
+  /*@Post('/invitation/usertoadmin')
   async sendInvitationToAdmin(@Res() res, @Body() data: RequestToGroupDTO, @CurrentUser() user) {
     try {
       const response = await this.groupService.requestToJoinGroup(user, data);
@@ -279,7 +279,7 @@ export class GroupController {
         err: err.message
       })
     }
-  }
+  }*/
 
   @Get('/request/user')
   async getMyRequestsToJoinGroup(@Res() res, @CurrentUser() user) {
