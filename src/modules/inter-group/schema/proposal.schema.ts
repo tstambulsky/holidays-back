@@ -10,13 +10,10 @@ export class Proposal {
   interGroup: InterGroup;
 
   @Prop()
-  proposalDate: Date;
-
-  @Prop({})
-  proposalHourStart: string;
-
-  @Prop({})
-  proposalHourEnd: string;
+  proposalStartDate: Date;
+  
+  @Prop()
+  proposalEndDate: Date;
 
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Meeting' })
   proposalPlace: Meeting;

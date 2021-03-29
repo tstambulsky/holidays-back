@@ -137,18 +137,12 @@ export class GroupService {
       group.groupCreatedBy = userId;
       //@ts-ignore
       group.integrants.push(userId);
-      const fromDate = group.startDate || moment().format('YYYY-MM-DD');
-      group.startDate = fromDate;
-      const today = moment().format('YYYY-MM-DD');
-      const todayDate = moment(today + ' ' + group.startTime);
-      const passToHour = moment(group.startDate).add(moment.duration(group.startTime)).format('hh:mm:ss A');
-      group.startTime = passToHour;
-      if (!group.endTime) group.endTime = moment(todayDate).add(12, 'hours').format('hh:mm:ss A');
-      const groupCreated = await group.save();
-      const chat = await this.chatService.createGroupChat(groupCreated._id);
-      chat.name = groupCreated.name;
+      if (!group.endDate) group.endDate = moment(group.startDate).add(12, 'hours').format('YYYY-MM-DD HH:mm A')
+      await group.save();
+      const chat = await this.chatService.createGroupChat(group._id);
+      chat.name = group.name;
       await chat.save();
-      return groupCreated;
+      return group;
     } catch (err) {
       throw new Error(err.message);
     }
@@ -376,7 +370,7 @@ export class GroupService {
       //@ts-ignore
       group.integrants.push(user);
       await group.save();
-      const chats = await this.chatService.getOneChatAdminUser(currentUser, invitation.group);
+      const chats = await this.chatService.getOneChatAdmin(currentUser, invitation.group);
       chats.active = false;
       await chats.save();
       return group;
@@ -396,7 +390,7 @@ export class GroupService {
       if (group.admin != userId) throw new Error('This user is not the admin of this group');
       invitation.active = false;
       await invitation.save();
-      const chats = await this.chatService.getOneChatAdminUser(currentUser, invitation.group);
+      const chats = await this.chatService.getOneChatAdmin(currentUser, invitation.group);
       chats.active = false;
       await chats.save();
       return group;
@@ -426,19 +420,22 @@ export class GroupService {
       if (!user) throw new Error('This user does not exist');
       const invitation = await this.invitationModel.findOne({ _id: invitationId, fromAdmin: true, active: true });
       if (!invitation) throw new Error('Bad invitation');
+      const group = await this.groupModel.findOne({ _id: invitation.group }).populate('integrants');
       if (success) {
-        const group = await this.groupModel.findOne({ _id: invitation.group }).populate('integrants');
         //@ts-ignore
-        const admin = await this.chatService.createAdminChat(group._id);
-        admin.name = `Admin chat of ${group.name}`,
-        admin.user = userId;
-      await admin.save();
+        group.integrants.push(user);
+        await group.save();
+        invitation.success = true;
+        invitation.active = false;
       } else {
         invitation.success = false;
         invitation.active = false;
       }
       await invitation.save();
-      return 'User pending acceptance by the admin.';
+      const admin = await this.chatService.getOneChatAdminUser(currentUser, group._id);
+      admin.active = false;
+      await admin.save();
+      return 'The changes to your invitation have been saved.';
     } catch (error) {
       throw new Error(error.message);
     }

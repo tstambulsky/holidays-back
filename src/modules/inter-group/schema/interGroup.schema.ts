@@ -23,12 +23,6 @@ export class InterGroup {
   @Prop({ required: false })
   endDate: Date;
 
-  @Prop()
-  startTime?: string;
-
-  @Prop()
-  endTime?: string;
-
   @Prop({})
   tipeOfActivity: string;
 
