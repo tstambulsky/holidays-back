@@ -458,10 +458,10 @@ export class GroupService {
     }
   }
 
-   async getOneUserGroup(currentUser: any) {
+   async getOneUserGroup(currentUser: any, groupId: any) {
     try {
       const groups = await this.groupModel
-        .findOne({ active: true, integrants: currentUser })
+        .findOne({ active: true, integrants: currentUser, _id: groupId })
         .populate('integrants')
         .populate('meetingPlaceOne')
         .populate('meetingPlaceTwo')
