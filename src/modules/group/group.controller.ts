@@ -18,7 +18,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { contactsDTO } from '../users/dto/data.dto';
 import { multerOptions } from '../../config/multer';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
-import { ETIME } from 'constants';
+
 
 @UseGuards(JwtAuthGuard)
 @Controller('/api/group')
@@ -267,7 +267,7 @@ export class GroupController {
     }
   }
 
-  @Post('/invitation/usertoadmin')
+  /*@Post('/invitation/usertoadmin')
   async sendInvitationToAdmin(@Res() res, @Body() data: RequestToGroupDTO, @CurrentUser() user) {
     try {
       const response = await this.groupService.requestToJoinGroup(user, data);
@@ -279,7 +279,7 @@ export class GroupController {
         err: err.message
       })
     }
-  }
+  }*/
 
   @Get('/request/user')
   async getMyRequestsToJoinGroup(@Res() res, @CurrentUser() user) {

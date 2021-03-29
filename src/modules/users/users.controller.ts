@@ -9,7 +9,7 @@ import { CurrentUser } from './decorators/currentUser';
 import { multerOptions } from '../../config/multer';
 import { Express } from 'express';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
-import { diskStorage } from 'multer';
+
 
 
 

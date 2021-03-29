@@ -39,36 +39,36 @@ export class ChatGateway implements OnGatewayConnection {
 
   @SubscribeMessage('send_message_inter_group')
   async listenForMessagesInter(@MessageBody() data: MessageDTO, @ConnectedSocket() socket: Socket) {
-    const { content, interGroup } = data;
+    const { content, invitation } = data;
     const author = await this.chatService.getUserFromSocket(socket);
-    const message = await this.chatService.saveMessageInterGroup(content, author, interGroup);
+    const message = await this.chatService.saveMessageInterGroup(content, author, invitation);
 
     await this.server.sockets.emit('receive_message_inter_group', message);
   }
 
   @SubscribeMessage('request_all_messages_inter_group')
   async requestAllMessagesInter(@MessageBody() data: MessageDTO, @ConnectedSocket() socket: Socket) {
-    const { interGroup } = data;
+    const { invitation } = data;
     const author = await this.chatService.getUserFromSocket(socket);
-    const messages = await this.chatService.getAllMessagesInterGroup(author, interGroup);
+    const messages = await this.chatService.getAllMessagesInterGroup(author, invitation);
 
     await socket.emit('send_all_mesages_inter_group', messages);
   }
 
   @SubscribeMessage('send_message_admin')
   async listenForMessagesAdmin(@MessageBody() data: MessageDTO, @ConnectedSocket() socket: Socket) {
-    const { content, adminUser, group } = data;
+    const { content, chatId, group } = data;
     const author = await this.chatService.getUserFromSocket(socket);
-    const message = await this.chatService.saveMessageAdmin(content, author, adminUser, group);
+    const message = await this.chatService.saveMessageAdmin(content, chatId, group, author);
 
     await this.server.sockets.emit('receive_message_admin', message);
   }
 
   @SubscribeMessage('request_all_messages_admin')
   async requestAllMessagesAdmin(@MessageBody() data: MessageDTO, @ConnectedSocket() socket: Socket) {
-    const { group, adminUser } = data;
+    const { chatId } = data;
     const author = await this.chatService.getUserFromSocket(socket);
-    const messages = await this.chatService.getAllMessagesAdmin(group, adminUser, author);
+    const messages = await this.chatService.getAllMessagesAdmin(chatId);
 
     await socket.emit('send_all_mesages_admin', messages);
   }

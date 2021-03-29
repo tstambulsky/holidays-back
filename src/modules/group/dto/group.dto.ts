@@ -8,8 +8,6 @@ export class GroupDTO {
   readonly name: string;
   readonly startDate: Date;
   readonly endDate: Date;
-  readonly startTime: string;
-  readonly endTime?: string;
   readonly typeOfActivity: TypeOfActivity;
   readonly meetingPlaceOne?: Meeting;
   readonly meetingPlaceTwo?: Meeting;
@@ -23,8 +21,6 @@ export class UpdateGroupDTO {
   readonly name?: string;
   readonly startDate?: Date;
   readonly endDate?: Date;
-  readonly startTime?: string;
-  readonly endTime?: string;
   readonly typeOfActivity?: TypeOfActivity;
   readonly meetingPlaceOne?: Meeting;
   readonly meetingPlaceTwo?: Meeting;

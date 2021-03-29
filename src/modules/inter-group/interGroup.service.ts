@@ -79,6 +79,7 @@ export class InterGroupService {
       throw new Error(err.message);
     }
   }
+  
 
   async createInterGroup(interGroupDTO: InterGroupDTO): Promise<InterGroup> {
     try {
@@ -137,6 +138,9 @@ export class InterGroupService {
       if (alreadyInIntergroup.length > 0) throw new Error('The group(s) are already in an intergroup');
       const newInvitation = new this.invitationModel(data);
       await newInvitation.save();
+      const interGroupChat = await this.chatService.createInterGroupChatInvitation(newInvitation._id);
+      interGroupChat.pending = true;
+      await interGroupChat.save();
       return newInvitation;
     } catch (error) {
       throw new Error(error.message);
@@ -167,6 +171,7 @@ export class InterGroupService {
       const groupReceivInvitation = await this.groupService.getGroup({ _id: invitation.groupReceiver });
       if (groupReceivInvitation.admin != userID) throw new Error('You are not the admin of the group.');
       invitation.success = true;
+      invitation.active = false;
       await invitation.save();
       const groupOne = invitation.groupSender;
       const groupTwo = invitation.groupReceiver;
@@ -180,10 +185,11 @@ export class InterGroupService {
         active: false
       });
       await createInterGroup.save();
-      const interGroupChat = await this.chatService.createInterGroupChat(createInterGroup._id)
-      interGroupChat.name = createInterGroup.name;
-      interGroupChat.setTimeAndPlace = true;
-      await interGroupChat.save();
+      const chat = await this.chatService.getInterGroupByInvitation(invitation._id);
+      chat.interGroup = createInterGroup._id;
+      chat.name = createInterGroup.name;
+      chat.pending = false;
+      chat.save();
       return createInterGroup;
     } catch (error) {
       throw new Error(error.message);
@@ -201,6 +207,9 @@ export class InterGroupService {
       if (group.admin != userID) throw new HttpException('You are not the admin of the group.', 404);
       invitation.active = false;
       await invitation.save();
+      const chat = await this.chatService.getInterGroupByInvitation(invitation._id);
+      chat.pending = false;
+      await chat.save();
       return group;
     } catch (error) {
       throw new Error(error.message);
@@ -224,10 +233,13 @@ export class InterGroupService {
       const myGroups = await this.groupService.getOneUserGroup(userId);
       const obtainInterGroup = await this.interGroupModel.findOne({ _id: interGroup });
       if (!obtainInterGroup) throw new Error('This Inter group does not exist');
-      if (obtainInterGroup.confirmed) throw new Error('This Inter group is already confirmed');
+      if (obtainInterGroup.active) throw new Error('This Inter group is already active');
       const groupSend = await this.groupService.getGroup(groupSender);
       if (groupSend.admin != userId) throw new Error('You are not the admin of the group.');
       const proposal = new this.proposalModel(data);
+        if (!proposal.proposalEndDate) {
+          proposal.proposalEndDate = moment(proposal.proposalStartDate).add(12, 'hours').format('YYYY-MM-DD hh:mm:ss')
+        }
       await proposal.save();
       const chat = await this.chatService.getInterGroup(obtainInterGroup._id);
       chat.place = true;
@@ -266,17 +278,9 @@ export class InterGroupService {
       proposal.success = accept;
       await proposal.save();
       if (accept) {
-        const fromDate = proposal.proposalDate || moment().format('YYYY-MM-DD');
-        proposal.proposalDate = fromDate;
-        const today = moment().format('YYYY-MM-DD');
-        const todayDate = moment(today + ' ' + proposal.proposalHourStart);
-        const passToHour = moment(proposal.proposalDate).add(moment.duration(proposal.proposalHourStart)).format('hh:mm:ss A');
-        proposal.proposalHourStart = passToHour;
-        if (!proposal.proposalHourEnd) proposal.proposalHourEnd = moment(todayDate).add(12, 'hours').format('hh:mm:ss A');
         const intergroup = await this.interGroupModel.findOne({ _id: proposal.interGroup });
-        intergroup.startDate = proposal.proposalDate;
-        intergroup.startTime = proposal.proposalHourStart;
-        intergroup.endTime = proposal.proposalHourEnd;
+        intergroup.startDate = proposal.proposalStartDate;
+        intergroup.endDate = proposal.proposalEndDate;
         intergroup.meetingPlaceOne = proposal.proposalPlace;
         intergroup.active = true;
         await intergroup.save();
@@ -334,6 +338,16 @@ export class InterGroupService {
       if (searchInterGroups) interGroups.push({searchInterGroups});
       };
       return interGroups;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async getInvitationId(invitationId: any) {
+    try {
+      const invitation = await this.invitationModel.findOne({_id: invitationId})
+      if (!invitation) throw new HttpException('Invitation does not exist', 404);
+      return invitation;
     } catch (error) {
       throw new Error(error.message);
     }

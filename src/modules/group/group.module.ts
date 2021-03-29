@@ -7,7 +7,7 @@ import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 import { UsersModule } from '../users/users.module';
 import { Invitation, InvitationSchema } from './schema/invitation.schema';
 import { ChatModule } from '../chat/chat.module';
-import { NotificationService } from '../notification/notification.service';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
@@ -17,10 +17,11 @@ import { NotificationService } from '../notification/notification.service';
     ]),
     forwardRef(() => UsersModule),
     CloudinaryModule,
-    forwardRef(() => ChatModule)
+    forwardRef(() => ChatModule),
+    NotificationModule
   ],
   controllers: [GroupController],
-  providers: [GroupService, NotificationService],
+  providers: [GroupService],
   exports: [GroupService]
 })
 export class GroupModule {}
