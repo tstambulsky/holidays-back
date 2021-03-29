@@ -141,6 +141,7 @@ export class GroupService {
       await group.save();
       const chat = await this.chatService.createGroupChat(group._id);
       chat.name = group.name;
+      chat.image = group.photo;
       await chat.save();
       return group;
     } catch (err) {
@@ -579,6 +580,9 @@ export class GroupService {
        const group = await this.groupModel.findOne({_id: groupId, admin: userId});
        if(!group) throw new HttpException('The group does not exist or you are not the admin of the group.', 404);
        await group.updateOne({ photo: file.filename });
+       const chat = await this.chatService.getChatbyGroup(groupId);
+       chat.image = group.photo;
+       chat.save();
        return group;
      } catch (error) {
        throw new Error(error.message)
