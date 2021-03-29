@@ -7,8 +7,7 @@ import { TypeOfActivity } from '../../typeOfActivity/schema/typeOfActivity.schem
 export class GroupDTO {
   readonly name: string;
   readonly startDate: Date;
-  readonly startTime: string;
-  readonly endTime?: string;
+  readonly endDate: Date;
   readonly typeOfActivity: TypeOfActivity;
   readonly meetingPlaceOne?: Meeting;
   readonly meetingPlaceTwo?: Meeting;
@@ -21,8 +20,7 @@ export class GroupDTO {
 export class UpdateGroupDTO {
   readonly name?: string;
   readonly startDate?: Date;
-  readonly startTime: string;
-  readonly endTime?: string;
+  readonly endDate?: Date;
   readonly typeOfActivity?: TypeOfActivity;
   readonly meetingPlaceOne?: Meeting;
   readonly meetingPlaceTwo?: Meeting;
@@ -67,5 +65,5 @@ export class EditPhotosDto {
 export class FiltersDTO {
   readonly age: any;
   readonly gender: any;
-  readonly distance: any
+  readonly distance: any;
 }

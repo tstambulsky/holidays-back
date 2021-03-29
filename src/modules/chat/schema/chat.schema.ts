@@ -4,6 +4,7 @@ import { Group } from '../../group/schema/group.schema';
 import { InterGroup } from '../../inter-group/schema/interGroup.schema';
 
 import * as mongoose from 'mongoose';
+import { Invitation } from 'src/modules/group/schema/invitation.schema';
 
 export type ChatDocument = Chat & mongoose.Document;
 
@@ -15,6 +16,8 @@ export class Chat {
   group: Group;
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'InterGroup'})
   interGroup: InterGroup;
+  @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Invitation' })
+  invitation: Invitation;
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'User'})
   adminUser: User;
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'User'})

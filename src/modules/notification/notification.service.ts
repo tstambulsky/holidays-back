@@ -80,4 +80,73 @@ export class NotificationService {
       throw new Error(error.message);
     }
   }
+
+  async sendAcceptGroup(token: string) {
+    try {
+      const message = {
+        notification: {
+          title: 'Grupo aceptado',
+          body: 'Fuiste aceptado al grupo',
+          sound: 'default'
+        },
+        data: {
+          title: 'Grupo aceptado',
+          body: 'Fuiste aceptado al grupo',
+          Emergency_category: 'Emergency'
+        }
+      };
+      await this.sendNotification(token, message.notification);
+      const notification = await this.cleanData(token, message);
+      await this.createNotification(notification);
+      return true;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async sendAcceptInterGroup(token: string) {
+    try {
+      const message = {
+        notification: {
+          title: 'Inter Grupo aceptado',
+          body: 'Fuiste aceptado al inter grupo',
+          sound: 'default'
+        },
+        data: {
+          title: 'Inter Grupo aceptado',
+          body: 'Fuiste aceptado al inter grupo',
+          Emergency_category: 'Emergency'
+        }
+      };
+      await this.sendNotification(token, message.notification);
+      const notification = await this.cleanData(token, message);
+      await this.createNotification(notification);
+      return true;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async sendNewChatMessage(token: string) {
+    try {
+      const message = {
+        notification: {
+          title: 'Nuevo mensaje',
+          body: 'Tienes un nuevo mensaje en un chat',
+          sound: 'default'
+        },
+        data: {
+          title: 'Nuevo mensaje',
+          body: 'Tienes un nuevo mensaje en un chat',
+          Emergency_category: 'Emergency'
+        }
+      };
+      await this.sendNotification(token, message.notification);
+      const notification = await this.cleanData(token, message);
+      await this.createNotification(notification);
+      return true;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
 }

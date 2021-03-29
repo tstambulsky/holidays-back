@@ -13,12 +13,9 @@ export class Group {
 
   @Prop()
   startDate: Date;
-  
-  @Prop()
-  startTime?: string;
 
   @Prop()
-  endTime?: string;
+  endDate: Date;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'TypeOfActivity' })
   typeOfActivity: TypeOfActivity;

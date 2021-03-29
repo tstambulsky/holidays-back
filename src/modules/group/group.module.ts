@@ -6,17 +6,19 @@ import { Group, GroupSchema } from './schema/group.schema';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 import { UsersModule } from '../users/users.module';
 import { Invitation, InvitationSchema } from './schema/invitation.schema';
-import { ChatModule } from '../chat/chat.module'
+import { ChatModule } from '../chat/chat.module';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Group.name, schema: GroupSchema },
-      { name: Invitation.name, schema: InvitationSchema },
+      { name: Invitation.name, schema: InvitationSchema }
     ]),
     forwardRef(() => UsersModule),
     CloudinaryModule,
-    forwardRef(() => ChatModule)
+    forwardRef(() => ChatModule),
+    NotificationModule
   ],
   controllers: [GroupController],
   providers: [GroupService],
