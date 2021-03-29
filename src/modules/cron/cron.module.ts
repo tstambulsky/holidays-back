@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { GroupService } from '../group/group.service';
-import { InterGroupService } from '../inter-group/interGroup.service';
+import { GroupModule } from '../group/group.module';
+import { InterGroupModule } from '../inter-group/interGroup.module';
 import { CronService } from './cron.service';
 
 @Module({
-  providers: [CronService, InterGroupService, GroupService]
+  imports: [InterGroupModule, GroupModule],
+  providers: [CronService]
 })
 export class CronModule {}

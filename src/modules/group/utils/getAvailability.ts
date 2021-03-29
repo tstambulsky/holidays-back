@@ -11,9 +11,9 @@ export const getAvailability = (newGroup: Group, myGroups: Group[]) => {
   }
 };
 
-const isValid = (group: Group, myGroup: Group) => {
-  const newGroupStart = group.startDate.getTime();
-  const newGroupEnd = group.endDate.getTime();
+const isValid = (newGroup: Group, myGroup: Group) => {
+  const newGroupStart = newGroup.startDate.getTime();
+  const newGroupEnd = newGroup.endDate.getTime();
   const myGroupStart = myGroup.startDate.getTime();
   const myGroupEnd = myGroup.endDate.getTime();
   const valid =

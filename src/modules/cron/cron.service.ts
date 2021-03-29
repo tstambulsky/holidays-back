@@ -9,21 +9,16 @@ export class CronService {
 
   constructor(private readonly groupService: GroupService, private readonly intergroupService: InterGroupService) {}
 
-  @Cron('45 * * * * *')
-  handleCron() {
-    this.logger.debug('Called when the current second is 45');
-  }
-
-  @Cron(CronExpression.EVERY_HOUR)
+  @Cron(CronExpression.EVERY_30_MINUTES)
   async changeToInactiveGroups() {
-    this.logger.debug('Every hour check groups');
+    this.logger.debug('Every 30 minutes check groups');
     try {
       const groups = await this.groupService.getGroups();
       for await (let group of groups) {
-        const endDate = group.endDate.getTime();
+        const endDate = group.endDate ? group.endDate.getTime() : null;
         const now = new Date().getTime();
-        if (endDate > now) {
-          console.log('Change to inactive: ', group);
+        if (endDate < now || !endDate) {
+          console.log('Change to inactive group: ', group.name);
           await this.groupService.toInactiveGroup(group);
         }
       }
@@ -32,16 +27,16 @@ export class CronService {
     }
   }
 
-  @Cron(CronExpression.EVERY_HOUR)
+  @Cron(CronExpression.EVERY_30_MINUTES)
   async changeToInactiveIntergroups() {
-    this.logger.debug('Every hour check intergroups');
+    this.logger.debug('Every 30 minutes check intergroups');
     try {
       const intergroups = await this.intergroupService.getInterGroups();
       for await (let inter of intergroups) {
-        const endDate = inter.endDate.getTime();
+        const endDate = inter.endDate ? inter.endDate.getTime() : null;
         const now = new Date().getTime();
-        if (endDate > now) {
-          console.log('Change to inactive intergroup: ', inter);
+        if (endDate < now || !endDate) {
+          console.log('Change to inactive intergroup: ', inter.name);
           await this.intergroupService.toInactiveInterGroup(inter);
         }
       }

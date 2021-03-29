@@ -9,6 +9,7 @@ import { distanceBetweenLocations } from './utils/getDistance';
 import { getYearOfPerson } from './utils/getYearByDate';
 import { checkPromedio } from './utils/checkPromedio';
 import { ChatService } from '../chat/chat.service';
+import { getAvailability } from './utils/getAvailability';
 const moment = require('moment');
 moment.suppressDeprecationWarnings = true;
 
@@ -37,32 +38,32 @@ export class GroupService {
 
   async getGroupChat(groupId: any, currentUser: any) {
     try {
-      const group = await this.groupModel.findOne({active: true, _id: groupId, integrants: currentUser._id})
-      if (!group) throw new HttpException('Group does not exist or you dont belong to this group', 404)
+      const group = await this.groupModel.findOne({ active: true, _id: groupId, integrants: currentUser._id });
+      if (!group) throw new HttpException('Group does not exist or you dont belong to this group', 404);
       return group;
-    } catch (error){
-      throw new Error(error)
+    } catch (error) {
+      throw new Error(error);
     }
   }
 
-   async getGroupAdmin(groupId: any, admin: any) {
+  async getGroupAdmin(groupId: any, admin: any) {
     try {
-      const group = await this.groupModel.findOne({active: true, _id: groupId, admin: admin})
-      if (!group) throw new HttpException('Group does not exist or you dont belong to this group', 404)
+      const group = await this.groupModel.findOne({ active: true, _id: groupId, admin: admin });
+      if (!group) throw new HttpException('Group does not exist or you dont belong to this group', 404);
       return group;
-    } catch (error){
-      throw new Error(error)
+    } catch (error) {
+      throw new Error(error);
     }
   }
 
   async getGroupAdminAndUser(groupId: any, admin: any, currentUser: any) {
     try {
       const userId = currentUser._id;
-      const group = await this.groupModel.findOne({active: true, _id: groupId, admin: admin, integrants: userId})
-      if (!group) throw new HttpException('Group does not exist or you dont belong to this group', 404)
+      const group = await this.groupModel.findOne({ active: true, _id: groupId, admin: admin, integrants: userId });
+      if (!group) throw new HttpException('Group does not exist or you dont belong to this group', 404);
       return group;
-    } catch (error){
-      throw new Error(error)
+    } catch (error) {
+      throw new Error(error);
     }
   }
 
@@ -86,31 +87,26 @@ export class GroupService {
         const ageFilter = getYearOfPerson(people.birthDate);
         totalyAge += ageFilter;
       });
-        personsSex.forEach((sex) => {
-          if (sex === 'Male') {
+      personsSex.forEach((sex) => {
+        if (sex === 'Male') {
           totalyMale = +1;
-        }
-        else if (sex === 'male') {
-          totalyMale = +1 
-        }
-        else if (sex === 'Female') {
-          totalyFemale = +1
-        }
-        else if (sex === 'female') {
-          totalyFemale = +1
-        }
-        else if (sex === 'Other') {
+        } else if (sex === 'male') {
+          totalyMale = +1;
+        } else if (sex === 'Female') {
+          totalyFemale = +1;
+        } else if (sex === 'female') {
+          totalyFemale = +1;
+        } else if (sex === 'Other') {
+          totalyNoGender = +1;
+        } else if (sex === 'other') {
           totalyNoGender = +1;
         }
-        else if (sex === 'other') {
-          totalyNoGender = +1;
-        }
-        })
-        let totalCalifications = 0;
-        group.integrants.forEach((people) => {
+      });
+      let totalCalifications = 0;
+      group.integrants.forEach((people) => {
         const califications = people.points;
         totalCalifications += califications;
-      });  
+      });
       const averageAge = totalyAge / totalyPeople;
       const averageCalifications = totalCalifications / totalyPeople;
       group.averageAge = averageAge;
@@ -130,14 +126,14 @@ export class GroupService {
   async createGroup(groupDTO: GroupDTO, currentUser: any): Promise<Group> {
     try {
       const userId = currentUser._id;
-      const ifExist = await this.groupModel.findOne({active: true, name: groupDTO.name});
+      const ifExist = await this.groupModel.findOne({ active: true, name: groupDTO.name });
       if (ifExist) throw new HttpException('Name already exist', 404);
       const group = new this.groupModel(groupDTO);
       group.admin = userId;
       group.groupCreatedBy = userId;
       //@ts-ignore
       group.integrants.push(userId);
-      if (!group.endDate) group.endDate = moment(group.startDate).add(12, 'hours').format('YYYY-MM-DD HH:mm A')
+      if (!group.endDate) group.endDate = moment(group.startDate).add(12, 'hours').format('YYYY-MM-DD HH:mm A');
       await group.save();
       const chat = await this.chatService.createGroupChat(group._id);
       chat.name = group.name;
@@ -196,7 +192,7 @@ export class GroupService {
             as: 'integrants'
           }
         },
-        { $match: { 'integrants.sex': new RegExp('^'+ `${gender}` + '$', 'i')}}
+        { $match: { 'integrants.sex': new RegExp('^' + `${gender}` + '$', 'i') } }
       ]);
       if (groups.length < 0) throw new Error('No have groups');
       return groups;
@@ -307,8 +303,7 @@ export class GroupService {
       const newInvitation = new this.invitationModel(data);
       await newInvitation.save();
       const admin = await this.chatService.createAdminChat(group);
-      admin.name = `${userExist.name} ${userExist.lastName} + Admin chat of ${groupExist.name}`,
-      admin.user = user;
+      (admin.name = `${userExist.name} ${userExist.lastName} + Admin chat of ${groupExist.name}`), (admin.user = user);
       await admin.save();
       return newInvitation;
     } catch (error) {
@@ -363,6 +358,14 @@ export class GroupService {
       if (!invitation.active) throw new Error('This invitation was canceled');
       const group = await this.groupModel.findOne({ _id: invitation.group }).populate('integrants');
       const user = await this.userService.getUserById(invitation.user);
+      //Validate that user does not have other
+      const valid = await this.validateGroups(user, group);
+      if (!valid) {
+        invitation.success = false;
+        invitation.active = false;
+        await invitation.save();
+        return 'The user have another group at the same time';
+      }
       if (group.admin != userId) throw new Error('This user is not the admin of this group');
       invitation.success = true;
       invitation.active = false;
@@ -421,7 +424,16 @@ export class GroupService {
       const invitation = await this.invitationModel.findOne({ _id: invitationId, fromAdmin: true, active: true });
       if (!invitation) throw new Error('Bad invitation');
       const group = await this.groupModel.findOne({ _id: invitation.group }).populate('integrants');
+
       if (success) {
+        //Validate that user does not have other
+        const valid = await this.validateGroups(user, group);
+        if (!valid) {
+          invitation.success = false;
+          invitation.active = false;
+          await invitation.save();
+          return 'The user have another group at the same time';
+        }
         //@ts-ignore
         group.integrants.push(user);
         await group.save();
@@ -457,7 +469,7 @@ export class GroupService {
     }
   }
 
-   async getOneUserGroup(currentUser: any) {
+  async getOneUserGroup(currentUser: any) {
     try {
       const groups = await this.groupModel
         .findOne({ active: true, integrants: currentUser })
@@ -472,7 +484,7 @@ export class GroupService {
     }
   }
 
-     async getOneUserWithGroup(currentUser: any, group: any) {
+  async getOneUserWithGroup(currentUser: any, group: any) {
     try {
       const groupId = group._id;
       const userId = currentUser._id;
@@ -487,9 +499,6 @@ export class GroupService {
       throw new Error(err.message);
     }
   }
-
-
-
 
   async searchByDistance(currentUser, maxDistance) {
     try {
@@ -513,13 +522,13 @@ export class GroupService {
 
   async nearbyGroups(currentUser) {
     try {
-        const userId = currentUser._id;
-        const user = await this.userService.getUserById(userId);
-        if (!user || !user.latitude) throw new Error('We dont have information about this user');
-        const allGroups = await this.groupModel.find({ active: true }).populate('meetingPlaceOne');
-        let groupsInRange = [];
-        const groupsFiltered = allGroups.filter((element) => element.meetingPlaceOne !== null);
-        for (let data of groupsFiltered) {
+      const userId = currentUser._id;
+      const user = await this.userService.getUserById(userId);
+      if (!user || !user.latitude) throw new Error('We dont have information about this user');
+      const allGroups = await this.groupModel.find({ active: true }).populate('meetingPlaceOne');
+      let groupsInRange = [];
+      const groupsFiltered = allGroups.filter((element) => element.meetingPlaceOne !== null);
+      for (let data of groupsFiltered) {
         const distance = distanceBetweenLocations(user, data.meetingPlaceOne);
         if (distance < 5) {
           groupsInRange.push(data);
@@ -529,7 +538,7 @@ export class GroupService {
     } catch (error) {
       throw new Error(error.message);
     }
-    }
+  }
 
   async setNewAdmin(currentUser: any, data: NewAdminDto) {
     try {
@@ -550,19 +559,19 @@ export class GroupService {
     try {
       const userId = currentUser._id;
       const groups = await this.groupModel.find({ groupCreatedBy: userId });
-      if (!groups) throw new HttpException ('User has not created groups', 404)
+      if (!groups) throw new HttpException('User has not created groups', 404);
       return groups;
     } catch (error) {
-      throw new Error (error.message);
+      throw new Error(error.message);
     }
   }
 
   async groupsOfMyContacts(users: any[]) {
     try {
-     const groupsContacts = await this.userService.searchContact(users);
+      const groupsContacts = await this.userService.searchContact(users);
       let allGroups = [];
       for await (let group of groupsContacts) {
-        const data = await this.groupModel.find({integrants: group._id})
+        const data = await this.groupModel.find({ integrants: group._id });
         if (data) {
           allGroups.push(data);
         }
@@ -573,19 +582,19 @@ export class GroupService {
     }
   }
 
-  async setGroupPhoto(currentUser: any, groupId: any, file: any){
-     try {
-       const userId = currentUser._id;
-       const group = await this.groupModel.findOne({_id: groupId, admin: userId});
-       if(!group) throw new HttpException('The group does not exist or you are not the admin of the group.', 404);
-       await group.updateOne({ photo: file.filename });
-       return group;
-     } catch (error) {
-       throw new Error(error.message)
-     }
+  async setGroupPhoto(currentUser: any, groupId: any, file: any) {
+    try {
+      const userId = currentUser._id;
+      const group = await this.groupModel.findOne({ _id: groupId, admin: userId });
+      if (!group) throw new HttpException('The group does not exist or you are not the admin of the group.', 404);
+      await group.updateOne({ photo: file.filename });
+      return group;
+    } catch (error) {
+      throw new Error(error.message);
     }
+  }
 
-    /*async getGroupsBestCalificated() {
+  /*async getGroupsBestCalificated() {
       try {
         let allGroups = [];
         let allIntegrants = [];
@@ -622,4 +631,14 @@ export class GroupService {
       throw new Error(error.message);
     }
   }*/
+
+  async validateGroups(user: any, group: any) {
+    try {
+      const userGroups = await this.getUserGroups(user);
+      const valid = getAvailability(group, userGroups);
+      return valid;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
 }
