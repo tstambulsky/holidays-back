@@ -30,6 +30,8 @@ export class Chat {
   setTimeAndPlace: boolean;
   @Prop({ default: Date.now})
   date: Date
+  @Prop()
+  image: string;
   @Prop({ default: true })
   active: boolean;
 }

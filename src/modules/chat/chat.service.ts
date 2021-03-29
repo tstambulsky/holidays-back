@@ -81,6 +81,16 @@ async getUserFromSocket(socket: Socket) {
     }
   }
 
+  async getChatbyGroup(groupId: any) {
+    try {
+      const chat = await this.chatModel.findOne({ group: groupId});
+      if (!chat) throw new WsException('Chat does not exist!');
+      return chat;
+    } catch(error) {
+      throw new Error(error)
+    }
+  }
+
   async getChatInterGroupsUser(currentUser: any) {
     try {
       let allChats = [];
@@ -90,7 +100,6 @@ async getUserFromSocket(socket: Socket) {
       interGroups.forEach((element) => {
         interGroupsId.push(element.searchInterGroups._id);
       });
-      console.log('intergruposid', interGroupsId)
       for await (let element of interGroupsId) {
         const chat = await this.chatModel.findOne({ interGroup: element._id, active: true });
         if (chat !== null) allChats.push(chat);
