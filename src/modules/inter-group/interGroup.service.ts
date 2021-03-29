@@ -230,7 +230,6 @@ export class InterGroupService {
     try {
       const { interGroup, groupSender } = data;
       const userId = currentUser._id;
-      const myGroups = await this.groupService.getOneUserGroup(userId);
       const obtainInterGroup = await this.interGroupModel.findOne({ _id: interGroup });
       if (!obtainInterGroup) throw new Error('This Inter group does not exist');
       if (obtainInterGroup.active) throw new Error('This Inter group is already active');

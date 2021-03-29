@@ -20,8 +20,9 @@ import { InterGroupModule } from './modules/inter-group/interGroup.module';
 import { ContactsModule } from './modules/contacts/contacts.module';
 import { CalificationModule } from './modules/calification/calification.module';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
-import { ZoneModule } from './modules/zone/zone.module'
-
+import { ZoneModule } from './modules/zone/zone.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { CronModule } from './modules/cron/cron.module';
 
 @Module({
   imports: [
@@ -47,7 +48,9 @@ import { ZoneModule } from './modules/zone/zone.module'
     InterGroupModule,
     ContactsModule,
     ZoneModule,
-    CalificationModule
+    CalificationModule,
+    ScheduleModule.forRoot(),
+    CronModule
   ],
   controllers: [AppController],
   providers: [AppService]
