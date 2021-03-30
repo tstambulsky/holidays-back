@@ -11,10 +11,17 @@ import { InterGroupModule } from '../inter-group/interGroup.module';
 import { Chat, ChatSchema } from './schema/chat.schema';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: Message.name, schema: MessageSchema }]),
-  MongooseModule.forFeature([{ name: Chat.name, schema: ChatSchema }]),
-   AuthModule, UsersModule,  forwardRef(() => GroupModule), InterGroupModule,
-  HttpModule],
+  imports: [
+    MongooseModule.forFeature([
+      { name: Message.name, schema: MessageSchema },
+      { name: Chat.name, schema: ChatSchema }
+    ]),
+    AuthModule,
+    UsersModule,
+    forwardRef(() => GroupModule),
+    InterGroupModule,
+    HttpModule
+  ],
   providers: [ChatGateway, ChatService],
   controllers: [ChatController],
   exports: [ChatService]
