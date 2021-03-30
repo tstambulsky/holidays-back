@@ -49,15 +49,17 @@ export class ChatService {
     if (!interGroupId) throw new WsException('InterGroup does not exist');
     const chat = await new this.chatModel({
       interGroup: interGroupId
-    });
-    return await chat.save();
+    }).save();
+    return chat;
   }
 
   async createInterGroupChatInvitation(invitationId: any) {
     const chat = await new this.chatModel({
-      invitation: invitationId
-    });
-    return await chat.save();
+      invitation: invitationId,
+      pending: true,
+      setTimeAndPlace: true
+    }).save();
+    return chat;
   }
 
   async createAdminChat(groupId: any, userExist: any) {
@@ -149,11 +151,9 @@ export class ChatService {
     }
   }
 
-  async getOneChatAdminUser(currentUser: any, groupId: any) {
+  async getOneChatAdminUser(userId: any, groupId: any) {
     try {
-      const user = currentUser._id;
-      const group = groupId;
-      const chats = await this.chatModel.findOne({ user, group, active: true });
+      const chats = await this.chatModel.findOne({ user: userId, group: groupId, active: true });
       if (!chats) throw new WsException('The user does not have chats with any admin');
       return chats;
     } catch (error) {
@@ -171,9 +171,9 @@ export class ChatService {
     }
   }
 
-  async getOneChatAdmin(currentUser: any, groupId: any) {
+  async getOneChatAdmin(userId: any, groupId: any) {
     try {
-      const chats = await this.chatModel.findOne({ adminUser: currentUser._id, group: groupId, active: true });
+      const chats = await this.chatModel.findOne({ adminUser: userId, group: groupId, active: true });
       if (!chats) throw new WsException('You are not the admin or the user does not exist.');
       return chats;
     } catch (error) {

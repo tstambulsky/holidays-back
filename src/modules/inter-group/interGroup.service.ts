@@ -145,7 +145,6 @@ export class InterGroupService {
       const newInvitation = new this.invitationModel(data);
       await newInvitation.save();
       const interGroupChat = await this.chatService.createInterGroupChatInvitation(newInvitation._id);
-      interGroupChat.pending = true;
       await interGroupChat.save();
       return newInvitation;
     } catch (error) {
@@ -195,7 +194,8 @@ export class InterGroupService {
       chat.interGroup = createInterGroup._id;
       chat.name = createInterGroup.name;
       chat.pending = false;
-      chat.save();
+      chat.setTimeAndPlace = false;
+      await chat.save();
       return createInterGroup;
     } catch (error) {
       throw new Error(error.message);
@@ -215,6 +215,7 @@ export class InterGroupService {
       await invitation.save();
       const chat = await this.chatService.getInterGroupByInvitation(invitation._id);
       chat.pending = false;
+      chat.setTimeAndPlace = false;
       await chat.save();
       return group;
     } catch (error) {
