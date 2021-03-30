@@ -304,7 +304,8 @@ export class GroupService {
       const newInvitation = new this.invitationModel(data);
       await newInvitation.save();
       const admin = await this.chatService.createAdminChat(group);
-      (admin.name = `${userExist.name} ${userExist.lastName} + Admin chat of ${groupExist.name}`), (admin.user = user);
+      admin.name = `${userExist.name} ${userExist.lastName} + Admin chat of ${groupExist.name}`;
+      admin.user = user;
       await admin.save();
       return newInvitation;
     } catch (error) {
@@ -568,12 +569,16 @@ export class GroupService {
     }
   }
 
-  async groupsOfMyContacts(users: any[]) {
+  async groupsOfMyContacts(users: any[], {...query}) {
     try {
+        const perPage = query.perpage || 50;
+        const page = query.page || 1;
       const groupsContacts = await this.userService.searchContact(users);
       let allGroups = [];
       for await (let group of groupsContacts) {
-        const data = await this.groupModel.find({ integrants: group._id });
+        const data = await this.groupModel.find({ integrants: group._id, 
+          skip: perPage * page - perPage,
+          take: perPage });
         if (data) {
           allGroups.push(data);
         }
@@ -608,20 +613,24 @@ export class GroupService {
     }
   }
 
-  /*async getGroupsBestCalificated() {
+  /*async getGroupsBestCalificated({ ...query }) {
       try {
+        const perPage = query.perpage || 10;
+        const page = query.page || 1;
         let allGroups = [];
         let allIntegrants = [];
-        const groups = await this.groupModel.find({active: true})
+        const groups = await this.groupModel.find({active: true, 
+          skip: perPage * page - perPage,
+          take: perPage})
         for await (let group of groups) {
           allIntegrants.push(group.integrants);
           allIntegrants.forEach((element) => {
-            element.cal
-          })
          
         }
       } 
     }
+  } catch (error) {}
+}*/
 
   /*async threeFilters(gender: any, distance: any, age: any, currentUser: any) {
     try {

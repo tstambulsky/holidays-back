@@ -7,7 +7,7 @@ export const getAvailability = (newGroup: Group, myGroups: Group[]) => {
     console.log('Available: ', available);
     if(available.length > 0 ) {
        return true
-    }else {
+    } else {
       return false
     }
   } catch (error) {

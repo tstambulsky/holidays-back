@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post, UseInterceptors, UseGuards, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Put, Delete, Res, Req, HttpStatus, Body, Query, Param, NotFoundException, Post, UseInterceptors, UseGuards, UploadedFile } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor, FileFieldsInterceptor } from '@nestjs/platform-express';
 import { GroupService } from './group.service';
 import { Group } from './schema/group.schema';
@@ -409,9 +409,9 @@ export class GroupController {
   }
 
   @Post('/groups/contacts')
-  async getGroupsOfMyContacts(@Res() res, @Body() users: contactsDTO) {
+  async getGroupsOfMyContacts(@Res() res, @Req() req, @Body() users: contactsDTO) {
     try {
-      const getGroups = await this.groupService.groupsOfMyContacts(users.users)
+      const getGroups = await this.groupService.groupsOfMyContacts(users.users, req.query)
       return res.status(HttpStatus.OK).json({
         getGroups
       });
