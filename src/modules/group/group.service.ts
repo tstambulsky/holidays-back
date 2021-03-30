@@ -133,11 +133,9 @@ export class GroupService {
       group.groupCreatedBy = userId;
       //@ts-ignore
       group.integrants.push(userId);
-      if (!group.endDate) group.endDate = moment(group.startDate).add(12, 'hours').format('YYYY-MM-DD HH:mm A');
+      if (!group.endDate) group.endDate = moment(group.startDate).add(12, 'hours').format('YYYY-MM-DD HH:mm');
       await group.save();
-      const chat = await this.chatService.createGroupChat(group._id);
-      chat.name = group.name;
-      await chat.save();
+      await this.chatService.createGroupChat(group._id);
       return group;
     } catch (err) {
       throw new Error(err.message);
@@ -303,7 +301,8 @@ export class GroupService {
       const newInvitation = new this.invitationModel(data);
       await newInvitation.save();
       const admin = await this.chatService.createAdminChat(group);
-      (admin.name = `${userExist.name} ${userExist.lastName} + Admin chat of ${groupExist.name}`), (admin.user = user);
+      admin.name = `${userExist.name} ${userExist.lastName} + Admin chat of ${groupExist.name}`;
+      admin.user = user;
       await admin.save();
       return newInvitation;
     } catch (error) {
@@ -421,7 +420,7 @@ export class GroupService {
       const userId = currentUser._id;
       const user = await this.userService.getUserById(userId);
       if (!user) throw new Error('This user does not exist');
-      const invitation = await this.invitationModel.findOne({ _id: invitationId, fromAdmin: true, active: true });
+      const invitation = await this.invitationModel.findOne({ _id: invitationId, fromAdmin: true, active: true }).populate('user');
       if (!invitation) throw new Error('Bad invitation');
       const group = await this.groupModel.findOne({ _id: invitation.group }).populate('integrants');
 
@@ -435,7 +434,7 @@ export class GroupService {
           return 'The user have another group at the same time';
         }
         //@ts-ignore
-        group.integrants.push(user);
+        group.integrants.push(invitation.user);
         await group.save();
         invitation.success = true;
         invitation.active = false;

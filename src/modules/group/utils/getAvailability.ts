@@ -2,10 +2,9 @@ import { Group } from '../schema/group.schema';
 
 export const getAvailability = (newGroup: Group, myGroups: Group[]) => {
   try {
-    console.log('My Groups: ', myGroups);
     const available = myGroups.find((oneGroup) => isValid(newGroup, oneGroup));
-    console.log('Available: ', available);
-    return available;
+    if (available) return true;
+    return false;
   } catch (error) {
     throw new Error(error.message);
   }
