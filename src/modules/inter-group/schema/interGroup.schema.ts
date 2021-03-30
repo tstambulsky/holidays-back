@@ -12,10 +12,10 @@ export class InterGroup {
   name: string;
 
   @Prop({ required: true, type: mongoose.SchemaTypes.ObjectId, ref: 'Group' })
-  groupOne: Group;
+  groupSender: Group;
 
   @Prop({ required: true, type: mongoose.SchemaTypes.ObjectId, ref: 'Group' })
-  groupTwo: Group;
+  groupReceiver: Group;
 
   @Prop()
   startDate: Date;

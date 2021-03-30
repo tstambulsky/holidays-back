@@ -6,14 +6,14 @@ import { TypeOfActivity } from '../../typeOfActivity/schema/typeOfActivity.schem
 
 export class GroupDTO {
   readonly name: string;
-  readonly startDate: Date;
-  readonly endDate: Date;
+  startDate: Date;
+  endDate?: Date;
   readonly typeOfActivity: TypeOfActivity;
   readonly meetingPlaceOne?: Meeting;
   readonly meetingPlaceTwo?: Meeting;
   readonly description: string;
   readonly photos?: string[];
-  readonly integrants: User;
+  readonly integrants?: User;
   readonly active: boolean;
 }
 

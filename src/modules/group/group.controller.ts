@@ -1,3 +1,4 @@
+
 import { Controller, Get, Put, Delete, Res, Req, HttpStatus, Body, Query, Param, NotFoundException, Post, UseInterceptors, UseGuards, UploadedFile } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor, FileFieldsInterceptor } from '@nestjs/platform-express';
 import { GroupService } from './group.service';
@@ -19,12 +20,10 @@ import { contactsDTO } from '../users/dto/data.dto';
 import { multerOptions } from '../../config/multer';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
-
 @UseGuards(JwtAuthGuard)
 @Controller('/api/group')
 export class GroupController {
-  constructor(private readonly groupService: GroupService,
-    private readonly _cloudinaryService: CloudinaryService) {}
+  constructor(private readonly groupService: GroupService, private readonly _cloudinaryService: CloudinaryService) {}
 
   @Get()
   async getGroups(@Res() res): Promise<Group[]> {
@@ -213,10 +212,10 @@ export class GroupController {
   @Post('/invitation/create')
   async sendInvitation(@Res() res, @Body() data: RequestToGroupDTO) {
     try {
-      const group = await this.groupService.sendInvitationToGroup(data);
+      const invitation = await this.groupService.sendInvitationToGroup(data);
       return res.status(HttpStatus.OK).json({
         message: 'Invitation has been send!',
-        group
+        invitation
       });
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -372,26 +371,25 @@ export class GroupController {
   }
 
   @Post('/photo/:groupId')
-  @UseInterceptors(FileInterceptor('file', multerOptions
-  ))
+  @UseInterceptors(FileInterceptor('file', multerOptions))
   async uploadPhotoProfile(@CurrentUser() user, @Param('groupId') groupId, @UploadedFile() file) {
     await this.groupService.setGroupPhoto(user, groupId, file);
     await this._cloudinaryService.upload(file.path);
-}
+  }
 
   @Get('/groupsuser/createdbyuser')
   async getGroupsCreatedByUser(@Res() res, @CurrentUser() user) {
-  try {
-    const response = await this.groupService.groupsCreatedByUser(user)
-    return res.status(HttpStatus.OK).json({
-      message: 'List of groups',
-      response
-    });
-  } catch (error) {
-    res.status(HttpStatus.BAD_REQUEST).json({
-      error: error.message
-    })
-  }
+    try {
+      const response = await this.groupService.groupsCreatedByUser(user);
+      return res.status(HttpStatus.OK).json({
+        message: 'List of groups',
+        response
+      });
+    } catch (error) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        error: error.message
+      });
+    }
   }
 
   @Get('/groups/nearby')
@@ -404,14 +402,14 @@ export class GroupController {
     } catch (error) {
       res.status(HttpStatus.BAD_REQUEST).json({
         error: error.message
-      })
+      });
     }
   }
 
   @Post('/groups/contacts')
-  async getGroupsOfMyContacts(@Res() res, @Req() req, @Body() users: contactsDTO) {
+  async getGroupsOfMyContacts(@Res() res, @Body() users: contactsDTO) {
     try {
-      const getGroups = await this.groupService.groupsOfMyContacts(users.users, req.query)
+      const getGroups = await this.groupService.groupsOfMyContacts(users.users)
       return res.status(HttpStatus.OK).json({
         getGroups
       });
@@ -424,10 +422,9 @@ export class GroupController {
 
   @Get('/groups/photo/:fileId')
   async servePhoto(@Param('fileId') fileId, @Res() res): Promise<any> {
-    res.sendFile(fileId, { root: 'assets'});
+    res.sendFile(fileId, { root: 'assets' });
   }
 
-  
   /* @Get('/groups/filters')
   async getGroupsByFilters(@Res() res, @Query() data: FiltersDTO, @CurrentUser() user) {
   try {

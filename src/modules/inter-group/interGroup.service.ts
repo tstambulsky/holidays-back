@@ -24,14 +24,14 @@ export class InterGroupService {
     @InjectModel(InvitationInterGroup.name) private readonly invitationModel: Model<InvitationInterGroupDocument>,
     @InjectModel(Proposal.name) private readonly proposalModel: Model<ProposalDocument>,
     private readonly groupService: GroupService,
-     @Inject(forwardRef(() => ChatService)) private chatService: ChatService
+    @Inject(forwardRef(() => ChatService)) private chatService: ChatService
   ) {}
 
   async getInterGroups(): Promise<InterGroup[]> {
     const interGroups = await this.interGroupModel
       .find({ active: true })
-      .populate('groupOne')
-      .populate('groupTwo')
+      .populate('groupSender')
+      .populate('groupReceiver')
       .populate('meetingPlaceOne')
       .populate('meetingPlaceTwo')
       .exec();
@@ -50,9 +50,9 @@ export class InterGroupService {
     }
   }
 
-   async getInterGroupInactive(interGroupID: any): Promise<InterGroup> {
+  async getInterGroupInactive(interGroupID: any): Promise<InterGroup> {
     try {
-      const interGroup = await this.interGroupModel.findOne({ _id: interGroupID});
+      const interGroup = await this.interGroupModel.findOne({ _id: interGroupID });
       return interGroup;
     } catch (err) {
       throw new Error(err.message);
@@ -61,7 +61,11 @@ export class InterGroupService {
 
   async getInterGroupUsers(interGroupID: any, group: any): Promise<InterGroup> {
     try {
-      const interGroup = await this.interGroupModel.findOne({ _id: interGroupID, active: true, $or: [{groupOne: group}, {groupTwo: group}] });
+      const interGroup = await this.interGroupModel.findOne({
+        _id: interGroupID,
+        active: true,
+        $or: [{ groupSender: group }, { groupReceiver: group }]
+      });
       if (!interGroup) throw new HttpException('The user does not belong to the group/intergroup', 404);
       return interGroup;
     } catch (err) {
@@ -69,17 +73,15 @@ export class InterGroupService {
     }
   }
 
-
   async getInterGroupChat(group: any): Promise<InterGroup> {
     try {
       const id = group._id;
-      const interGroup = await this.interGroupModel.findOne({$or: [{groupOne: id}, {groupTwo: id }], confirmed: true, });
+      const interGroup = await this.interGroupModel.findOne({ $or: [{ groupSender: id }, { groupReceiver: id }], confirmed: true });
       return interGroup;
     } catch (err) {
       throw new Error(err.message);
     }
   }
-  
 
   async createInterGroup(interGroupDTO: InterGroupDTO): Promise<InterGroup> {
     try {
@@ -95,7 +97,7 @@ export class InterGroupService {
     try {
       const userId = currentUser._id;
       const interGroup = await this.interGroupModel.findOne({ _id: interGroupID });
-      if (interGroup.groupOne.admin !== userId || interGroup.groupTwo.admin !== userId)
+      if (interGroup.groupSender.admin !== userId || interGroup.groupReceiver.admin !== userId)
         throw new HttpException('You dont have privileges to do this action', 404);
       const updatedInterGroup = await this.interGroupModel.updateOne({ ...data });
       const interGroupUpdated = await this.interGroupModel.findOne({ _id: interGroupID });
@@ -130,12 +132,16 @@ export class InterGroupService {
 
   async sendInvitationToOtherGroup(data: RequestGroupToGroupDTO, currentUser: any) {
     try {
-      const { groupSender, groupReceiver } = data;
+      const { groupSender } = data;
       const userID = currentUser._id;
       const groupExistAndAdmin = await this.groupService.getGroup({ active: true, _id: groupSender, admin: userID });
       if (!groupExistAndAdmin) throw new Error('This group does not exist or the user is not the admin');
-      const alreadyInIntergroup = await this.interGroupModel.find({ active: true, groupOne: groupSender || groupReceiver, confirmed: true });
-      if (alreadyInIntergroup.length > 0) throw new Error('The group(s) are already in an intergroup');
+      // const alreadyInIntergroup = await this.interGroupModel.find({
+      //   active: true,
+      //   groupSender: groupSender || groupReceiver,
+      //   confirmed: true
+      // });
+      // if (alreadyInIntergroup.length > 0) throw new Error('The group(s) are already in an intergroup');
       const newInvitation = new this.invitationModel(data);
       await newInvitation.save();
       const interGroupChat = await this.chatService.createInterGroupChatInvitation(newInvitation._id);
@@ -173,13 +179,13 @@ export class InterGroupService {
       invitation.success = true;
       invitation.active = false;
       await invitation.save();
-      const groupOne = invitation.groupSender;
-      const groupTwo = invitation.groupReceiver;
-      const firstGroup = await this.groupService.getGroup(groupOne);
-      const secondGroup = await this.groupService.getGroup(groupTwo);
+      const groupSender = invitation.groupSender;
+      const groupReceiver = invitation.groupReceiver;
+      const firstGroup = await this.groupService.getGroup(groupSender);
+      const secondGroup = await this.groupService.getGroup(groupReceiver);
       const createInterGroup = await new this.interGroupModel({
-        groupOne,
-        groupTwo,
+        groupSender,
+        groupReceiver,
         name: `${firstGroup.name} + ${secondGroup.name}`,
         confirmed: true,
         active: false
@@ -218,7 +224,11 @@ export class InterGroupService {
 
   async getInterGroupWithoutProposal(groupId: any) {
     try {
-      const interGroup = await this.interGroupModel.findOne({active: false, confirmed: true, $or: [{groupOne: groupId}, {groupTwo: groupId}]});
+      const interGroup = await this.interGroupModel.findOne({
+        active: false,
+        confirmed: true,
+        $or: [{ groupSender: groupId }, { groupReceiver: groupId }]
+      });
       if (!interGroup) throw new HttpException('The intergroup does not exist or does not need proposals.', 404);
       return interGroup;
     } catch (error) {
@@ -228,17 +238,19 @@ export class InterGroupService {
 
   async proposalDateAndPlace(data: newProposalDto, currentUser: any) {
     try {
-      const { interGroup, groupSender } = data;
+      const { interGroup } = data;
       const userId = currentUser._id;
-      const obtainInterGroup = await this.interGroupModel.findOne({ _id: interGroup });
+      const obtainInterGroup = await this.interGroupModel.findOne({ _id: interGroup }).populate('groupSender').populate('groupReceiver');
       if (!obtainInterGroup) throw new Error('This Inter group does not exist');
       if (obtainInterGroup.active) throw new Error('This Inter group is already active');
-      const groupSend = await this.groupService.getGroup(groupSender);
-      if (groupSend.admin != userId) throw new Error('You are not the admin of the group.');
+      if (obtainInterGroup.groupSender.admin != userId || obtainInterGroup.groupReceiver.admin != userId)
+        throw new Error('You are not the admin of the group.');
+      data.groupSender = obtainInterGroup.groupSender;
+      data.groupReceiver = obtainInterGroup.groupReceiver;
       const proposal = new this.proposalModel(data);
-        if (!proposal.proposalEndDate) {
-          proposal.proposalEndDate = moment(proposal.proposalStartDate).add(12, 'hours').format('YYYY-MM-DD hh:mm:ss')
-        }
+      if (!proposal.proposalEndDate) {
+        proposal.proposalEndDate = moment(proposal.proposalStartDate).add(12, 'hours').format('YYYY-MM-DD hh:mm:ss');
+      }
       await proposal.save();
       const chat = await this.chatService.getInterGroup(obtainInterGroup._id);
       chat.place = true;
@@ -307,13 +319,17 @@ export class InterGroupService {
       const userInGroup = await this.groupService.getUserGroups(currentUser);
 
       userInGroup.forEach((element) => {
-      groupId.push(element._id);
+        groupId.push(element._id);
       });
 
-      for await(let element of groupId) {
-      const searchInterGroups =  await this.interGroupModel.findOne({active: true, confirmed: true, $or: [ {groupOne: element}, {groupTwo: element}] });
-      if (searchInterGroups !== null) await interGroups.push({searchInterGroups});
-      };
+      for await (let element of groupId) {
+        const searchInterGroups = await this.interGroupModel.findOne({
+          active: true,
+          confirmed: true,
+          $or: [{ groupSender: element }, { groupReceiver: element }]
+        });
+        if (searchInterGroups !== null) await interGroups.push({ searchInterGroups });
+      }
       return await interGroups;
     } catch (error) {
       throw new Error(error.message);
@@ -329,13 +345,16 @@ export class InterGroupService {
       const userInGroup = await this.groupService.getUserGroups(currentUser);
 
       userInGroup.forEach((elements) => {
-      groupId.push(elements._id);
+        groupId.push(elements._id);
       });
 
-      for await(let element of groupId) {
-       searchInterGroups =  await this.interGroupModel.findOne({confirmed: true, $or: [ {groupOne: element}, {groupTwo: element}] });
-      if (searchInterGroups) interGroups.push({searchInterGroups});
-      };
+      for await (let element of groupId) {
+        searchInterGroups = await this.interGroupModel.findOne({
+          confirmed: true,
+          $or: [{ groupSender: element }, { groupReceiver: element }]
+        });
+        if (searchInterGroups) interGroups.push({ searchInterGroups });
+      }
       return interGroups;
     } catch (error) {
       throw new Error(error.message);
@@ -344,7 +363,7 @@ export class InterGroupService {
 
   async getInvitationId(invitationId: any) {
     try {
-      const invitation = await this.invitationModel.findOne({_id: invitationId})
+      const invitation = await this.invitationModel.findOne({ _id: invitationId });
       if (!invitation) throw new HttpException('Invitation does not exist', 404);
       return invitation;
     } catch (error) {
