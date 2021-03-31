@@ -56,7 +56,7 @@ export class ChatService {
     const chat = await new this.chatModel({
       invitation: invitationId,
       pending: true,
-      setTimeAndPlace: true
+      setTimeAndPlace: false
     }).save();
     return chat;
   }

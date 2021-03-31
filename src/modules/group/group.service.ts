@@ -71,7 +71,7 @@ export class GroupService {
   async getGroup(groupId: any): Promise<Group> {
     try {
       const group: any = await this.groupModel
-        .findOne({ _id: groupId, active: true })
+        .findOne({ _id: groupId })
         .populate('integrants')
         .populate('meetingPlaceOne')
         .populate('meetingPlaceTwo')
@@ -609,19 +609,15 @@ export class GroupService {
     }
   }
 
-  /*async getGroupsBestCalificated({ ...query }) {
+  /*async getGroupsBestCalificated() {
       try {
-        const perPage = query.perpage || 10;
-        const page = query.page || 1;
         let allGroups = [];
         let allIntegrants = [];
-        const groups = await this.groupModel.find({active: true, 
-          skip: perPage * page - perPage,
-          take: perPage})
+        const groups = await this.groupModel.find({active: true})
         for await (let group of groups) {
           allIntegrants.push(group.integrants);
           allIntegrants.forEach((element) => {
-         
+          element.calif
         }
       } 
     }

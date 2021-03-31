@@ -142,11 +142,13 @@ export class InterGroupService {
       //   confirmed: true
       // });
       // if (alreadyInIntergroup.length > 0) throw new Error('The group(s) are already in an intergroup');
+      const groupOne = await this.groupService.getGroup(groupSender);
+      const groupTwo = await this.groupService.getGroup(data.groupReceiver);
       const newInvitation = new this.invitationModel(data);
       await newInvitation.save();
       const interGroupChat = await this.chatService.createInterGroupChatInvitation(newInvitation._id);
+      interGroupChat.name = `${groupOne.name} + ${groupTwo.name}`;
       await interGroupChat.save();
-      console.log('chat', interGroupChat)
       return newInvitation;
     } catch (error) {
       throw new Error(error.message);
@@ -193,7 +195,7 @@ export class InterGroupService {
       await createInterGroup.save();
       const chat = await this.chatService.getInterGroupByInvitation(invitation._id);
       chat.interGroup = createInterGroup._id;
-      chat.name = createInterGroup.name;
+      chat.setTimeAndPlace = true;
       chat.pending = false;
       await chat.save();
       return createInterGroup;
