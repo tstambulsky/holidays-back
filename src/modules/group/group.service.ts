@@ -570,7 +570,7 @@ export class GroupService {
       const groupsContacts = await this.userService.searchContact(users);
       let allGroups = [];
       for await (let group of groupsContacts) {
-        const data = await this.groupModel.find({ integrants: group._id });
+        const data = await this.groupModel.find({ active: true, integrants: group._id });
         //skip: perPage * page - perPage,
         //take: perPage });
         if (data) {
