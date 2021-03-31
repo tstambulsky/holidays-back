@@ -369,7 +369,7 @@ export class GroupController {
     }
   }
 
-  @Post('/update/photo/:groupId')
+  /*@Post('/update/photo/:groupId')
   async groupPhoto(@Res() res, @Param('groupId') groupId, @Body() file: any, @CurrentUser() user) {
     try {
       const image = await this._cloudinaryService.upload(file.path);
@@ -384,7 +384,7 @@ export class GroupController {
         error: error.message
       });
     }
-  }
+  }*/
 
   @Post('/photo/:groupId')
   @UseInterceptors(FileInterceptor('file', multerOptions))

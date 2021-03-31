@@ -217,10 +217,11 @@ export class UsersService {
     try {
       const userId = currentUser._id;
       for await (let file of files) {
+        const data = await this._cloudinaryService.upload(file.path);
         const user = await this.userModel.findOne({ _id: userId });
-        user.photos.push({ photoUrl: file.path, public_id: file.filename });
-        await this._cloudinaryService.upload(file.path);
+        user.photos.push({ photoUrl: data.url, public_id: file.filename });
         await user.save();
+        await removeImage(file.path);
       }
     } catch (error) {
       throw new Error(error.message);

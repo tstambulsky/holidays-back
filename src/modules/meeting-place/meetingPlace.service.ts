@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Meeting, MeetingDocument } from './schema/meetingPlace.schema';
 import { MeetingDTO, UpdateMeetingDTO } from './dto/meeting.dto';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { removeImage } from '../users/utils/deleteImage';
 
 @Injectable()
 export class MeetingPlaceService {
@@ -72,10 +73,11 @@ export class MeetingPlaceService {
     }
   }
 
-  async setMeetingPhoto(meetingId: any, file: any){
+  async setMeetingPhoto(meetingId: any, file: any, url: any){
      try {
        const meeting = await this.meetingModel.findOne({_id: meetingId});
-       await meeting.updateOne({ photo: file.filename });
+       await meeting.updateOne({ photo: url });
+       await removeImage(file.path);
        return meeting;
      } catch (error) {
        throw new Error(error.message)
@@ -85,11 +87,13 @@ export class MeetingPlaceService {
      async updatePhotos(meetingId: any, files: any) {
       try {
         for await(let file of files){
+        const data = await this._cloudinaryService.upload(file.path)
         const meeting = await this.meetingModel.findOne({_id: meetingId});
-        meeting.photos.push({photoUrl: file.path, public_id: file.filename});
-        await this._cloudinaryService.upload(file.path)
+        meeting.photos.push({photoUrl: data.url, public_id: file.filename});
         await meeting.save();
-      }}catch (error) {
+        await removeImage(file.path);
+      }
+    } catch (error) {
         throw new Error(error.message)
       }
     }

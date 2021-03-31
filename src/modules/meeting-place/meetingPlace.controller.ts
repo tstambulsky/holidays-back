@@ -107,9 +107,14 @@ export class MeetingPlaceController {
   @Post('/meetingplace/photo/:meetingId')
   @UseInterceptors(FileInterceptor('file', multerOptions
   ))
-  async uploadPhotoProfile(@Param('meetingId') meetingId, @UploadedFile() file,) {
-    await this.meetingPlaceService.setMeetingPhoto(meetingId, file);
-    await this._cloudinaryService.upload(file.path);
+  async uploadPhotoProfile(@Res() res, @Param('meetingId') meetingId, @UploadedFile() file) {
+    const data = await this._cloudinaryService.upload(file.path);
+    const response = await this.meetingPlaceService.setMeetingPhoto(meetingId, file, data.url);
+    return res.status(HttpStatus.OK).json({
+      response
+    })
+
+    
 }
 
   @Post('/meetingplace/uploadphotos/:meetingId')
@@ -117,10 +122,11 @@ export class MeetingPlaceController {
     storage: multerOptions.storage
     }),
   )
-  async uploadFiles(@Param('meetingId') meetingId, @UploadedFiles() files: Express.Multer.File) {
-    await this.meetingPlaceService.updatePhotos(meetingId, files)
-    //console.log(files);
-
+  async uploadFiles(@Res() res, @Param('meetingId') meetingId, @UploadedFiles() files: Express.Multer.File) {
+    const response = await this.meetingPlaceService.updatePhotos(meetingId, files);
+    return res.status(HttpStatus.OK).json({
+      response
+    })
   }
 
   @Get('/meetingplace/photos/:fileId')

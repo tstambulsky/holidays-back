@@ -202,8 +202,10 @@ export class UsersController {
       storage: multerOptions.storage
     })
   )
-  async uploadFiles(@CurrentUser() user, @UploadedFiles() files: Express.Multer.File) {
-    await this.userService.updatePhotos(user, files);
-    //console.log(files);
+  async uploadFiles(@Res() res, @CurrentUser() user, @UploadedFiles() files: Express.Multer.File) {
+    const response = await this.userService.updatePhotos(user, files);
+    return res.status(HttpStatus.OK).json({
+      response
+    });
   }
 }
