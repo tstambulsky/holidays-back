@@ -133,8 +133,8 @@ export class InterGroupService {
   async sendInvitationToOtherGroup(data: RequestGroupToGroupDTO, currentUser: any) {
     try {
       const { groupSender } = data;
-      const userID = currentUser._id;
-      const groupExistAndAdmin = await this.groupService.getGroup({ active: true, _id: groupSender, admin: userID });
+      const userId = currentUser._id;
+      const groupExistAndAdmin = await this.groupService.getGroup({ active: true, _id: groupSender, admin: userId });
       if (!groupExistAndAdmin) throw new Error('This group does not exist or the user is not the admin');
       // const alreadyInIntergroup = await this.interGroupModel.find({
       //   active: true,
@@ -146,6 +146,7 @@ export class InterGroupService {
       await newInvitation.save();
       const interGroupChat = await this.chatService.createInterGroupChatInvitation(newInvitation._id);
       await interGroupChat.save();
+      console.log('chat', interGroupChat)
       return newInvitation;
     } catch (error) {
       throw new Error(error.message);
@@ -194,7 +195,6 @@ export class InterGroupService {
       chat.interGroup = createInterGroup._id;
       chat.name = createInterGroup.name;
       chat.pending = false;
-      chat.setTimeAndPlace = false;
       await chat.save();
       return createInterGroup;
     } catch (error) {
@@ -216,6 +216,7 @@ export class InterGroupService {
       const chat = await this.chatService.getInterGroupByInvitation(invitation._id);
       chat.pending = false;
       chat.setTimeAndPlace = false;
+      chat.active = false;
       await chat.save();
       return group;
     } catch (error) {
@@ -244,13 +245,12 @@ export class InterGroupService {
       const obtainInterGroup = await this.interGroupModel.findOne({ _id: interGroup }).populate('groupSender').populate('groupReceiver');
       if (!obtainInterGroup) throw new Error('This Inter group does not exist');
       if (obtainInterGroup.active) throw new Error('This Inter group is already active');
-      if (obtainInterGroup.groupSender.admin != userId || obtainInterGroup.groupReceiver.admin != userId)
-        throw new Error('You are not the admin of the group.');
+      if (obtainInterGroup.groupSender.admin === userId || obtainInterGroup.groupReceiver.admin === userId) throw new Error('You are not the admin of the group.')
       data.groupSender = obtainInterGroup.groupSender;
       data.groupReceiver = obtainInterGroup.groupReceiver;
       const proposal = new this.proposalModel(data);
       if (!proposal.proposalEndDate) {
-        proposal.proposalEndDate = moment(proposal.proposalStartDate).add(12, 'hours').format('YYYY-MM-DD hh:mm:ss');
+        proposal.proposalEndDate = moment(proposal.proposalStartDate).add(12, 'hours').format('YYYY-MM-DD HH:mm');
       }
       await proposal.save();
       const chat = await this.chatService.getInterGroup(obtainInterGroup._id);
@@ -281,11 +281,10 @@ export class InterGroupService {
   async acceptOrRefuseProposal(data: acceptOrRefuseProposalDto, currentUser: any) {
     try {
       const { proposalId, accept } = data;
-      const userID = currentUser._id;
+      const userId = currentUser._id;
       const proposal = await this.proposalModel.findOne({ _id: proposalId });
       if (!proposal) throw new Error('This proposal does not exist');
-      const groupReceiver = await this.groupService.getGroup(proposal.groupReceiver);
-      if (groupReceiver.admin != userID) throw new Error('You are not the admin of the group.');
+      if (proposal.groupSender.admin === userId || proposal.groupReceiver.admin === userId) throw new Error('You are not the admin of the group.')
       proposal.active = false;
       proposal.success = accept;
       await proposal.save();
@@ -302,7 +301,6 @@ export class InterGroupService {
       } else {
         const chat = await this.chatService.getInterGroup(proposal.interGroup);
         chat.place = false;
-        chat.pending = false;
         chat.setTimeAndPlace = true;
         await chat.save();
       }

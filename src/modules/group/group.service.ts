@@ -20,7 +20,7 @@ export class GroupService {
     @InjectModel(Invitation.name) private readonly invitationModel: Model<InvitationDocument>,
     @Inject(forwardRef(() => UsersService)) private userService: UsersService,
     @Inject(forwardRef(() => ChatService)) private chatService: ChatService
-  ) { }
+  ) {}
 
   async getGroups(): Promise<Group[]> {
     const groups = await this.groupModel
@@ -69,14 +69,12 @@ export class GroupService {
 
   async getGroup(groupId: any): Promise<Group> {
     try {
-      console.log('groupid', groupId)
       const group: any = await this.groupModel
         .findOne({ _id: groupId, active: true })
         .populate('integrants')
         .populate('meetingPlaceOne')
         .populate('meetingPlaceTwo')
         .populate('typeOfActivity');
-        console.log('group', group)
       const totalyPeople = group.integrants.length;
       let totalyAge = 0;
       let personsSex = [];
@@ -302,7 +300,7 @@ export class GroupService {
       if (alreadyInvite.length > 0) throw new Error('User already invite');
       const newInvitation = new this.invitationModel(data);
       await newInvitation.save();
-      const admin = await this.chatService.createAdminChat(group, userExist);
+      await this.chatService.createAdminChat(group, userExist);
       return newInvitation;
     } catch (error) {
       throw new Error(error.message);
@@ -433,7 +431,7 @@ export class GroupService {
           return 'The user have another group at the same time';
         }
         //@ts-ignore
-        group.integrants.push(invitation.user);
+        group.integrants.push(user);
         await group.save();
         invitation.success = true;
         invitation.active = false;
@@ -466,7 +464,6 @@ export class GroupService {
       throw new Error(err.message);
     }
   }
-
 
   async getOneUserGroup(currentUser: any, groupId: any) {
     try {
@@ -567,14 +564,14 @@ export class GroupService {
 
   async groupsOfMyContacts(users: any[]) {
     try {
-        //const perPage = query.perpage || 50;
-        //const page = query.page || 1;
+      //const perPage = query.perpage || 50;
+      //const page = query.page || 1;
       const groupsContacts = await this.userService.searchContact(users);
       let allGroups = [];
       for await (let group of groupsContacts) {
-        const data = await this.groupModel.find({ integrants: group._id}) 
-          //skip: perPage * page - perPage,
-          //take: perPage });
+        const data = await this.groupModel.find({ integrants: group._id });
+        //skip: perPage * page - perPage,
+        //take: perPage });
         if (data) {
           allGroups.push(data);
         }
@@ -592,10 +589,10 @@ export class GroupService {
       if (!group) throw new HttpException('The group does not exist or you are not the admin of the group.', 404);
       await group.updateOne({ photo: file.filename });
       const chat = await this.chatService.getChatbyGroup(groupId);
-      await chat.updateOne({ image: file.filename })
+      await chat.updateOne({ image: file.filename });
       return group;
     } catch (error) {
-      throw new Error(error.message)
+      throw new Error(error.message);
     }
   }
 
@@ -603,6 +600,7 @@ export class GroupService {
     try {
       const userGroups = await this.getUserGroups(user);
       const valid = getAvailability(group, userGroups);
+      console.log('Valid from service: ', valid);
       return valid;
     } catch (error) {
       throw new Error(error.message);
@@ -650,5 +648,4 @@ export class GroupService {
       throw new Error(error.message);
     }
   }*/
-
 }

@@ -36,7 +36,6 @@ export class ChatService {
 
   async createGroupChat(groupId: any) {
     const group = await this.groupService.getGroup(groupId);
-    if (!group) throw new WsException('Group does not exist');
     const chat = await new this.chatModel({
       group: groupId,
       name: group.name
@@ -69,7 +68,6 @@ export class ChatService {
       adminUser: group.admin,
       name: `${userExist.name} ${userExist.lastName} + Admin chat of ${group.name}`,
       user: userExist._id
-
     }).save();
     return chat;
   }
@@ -93,11 +91,11 @@ export class ChatService {
 
   async getChatbyGroup(groupId: any) {
     try {
-      const chat = await this.chatModel.findOne({ group: groupId});
+      const chat = await this.chatModel.findOne({ group: groupId });
       if (!chat) throw new WsException('Chat does not exist!');
       return chat;
-    } catch(error) {
-      throw new Error(error)
+    } catch (error) {
+      throw new Error(error);
     }
   }
 
