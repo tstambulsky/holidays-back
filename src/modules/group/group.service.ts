@@ -517,7 +517,7 @@ export class GroupService {
     }
   }
 
-  async nearbyGroups(currentUser) {
+  async nearbyGroups(currentUser: any) {
     try {
       const userId = currentUser._id;
       const user = await this.userService.getUserById(userId);
@@ -612,17 +612,22 @@ export class GroupService {
   /*async getGroupsBestCalificated() {
       try {
         let allGroups = [];
+        let allPoints = [];
         let allIntegrants = [];
         const groups = await this.groupModel.find({active: true})
         for await (let group of groups) {
           allIntegrants.push(group.integrants);
           allIntegrants.forEach((element) => {
-          element.calif
-        }
+          allPoints.push(element.points);
+        })
+        
+
       } 
-    }
-  } catch (error) {}
+    } catch (error) {
+    throw new Error(error.message)
+  }
 }*/
+}
 
   /*async threeFilters(gender: any, distance: any, age: any, currentUser: any) {
     try {
@@ -646,4 +651,3 @@ export class GroupService {
       throw new Error(error.message);
     }
   }*/
-}
