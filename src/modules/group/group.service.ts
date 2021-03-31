@@ -10,6 +10,7 @@ import { getYearOfPerson } from './utils/getYearByDate';
 import { checkPromedio } from './utils/checkPromedio';
 import { ChatService } from '../chat/chat.service';
 import { getAvailability } from './utils/getAvailability';
+import { removeImage } from '../users/utils/deleteImage';
 const moment = require('moment');
 moment.suppressDeprecationWarnings = true;
 
@@ -582,14 +583,15 @@ export class GroupService {
     }
   }
 
-  async setGroupPhoto(currentUser: any, groupId: any, file: any) {
+  async setGroupPhoto(currentUser: any, groupId: any, file: any, url) {
     try {
       const userId = currentUser._id;
       const group = await this.groupModel.findOne({ _id: groupId, admin: userId });
       if (!group) throw new HttpException('The group does not exist or you are not the admin of the group.', 404);
-      await group.updateOne({ photo: file.filename });
+      await group.updateOne({ photo: url });
       const chat = await this.chatService.getChatbyGroup(groupId);
-      await chat.updateOne({ image: file.filename });
+      await chat.updateOne({ image: url });
+      await removeImage(file.path);
       return group;
     } catch (error) {
       throw new Error(error.message);

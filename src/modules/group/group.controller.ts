@@ -1,5 +1,20 @@
-
-import { Controller, Get, Put, Delete, Res, Req, HttpStatus, Body, Query, Param, NotFoundException, Post, UseInterceptors, UseGuards, UploadedFile } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Put,
+  Delete,
+  Res,
+  Req,
+  HttpStatus,
+  Body,
+  Query,
+  Param,
+  NotFoundException,
+  Post,
+  UseInterceptors,
+  UseGuards,
+  UploadedFile
+} from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor, FileFieldsInterceptor } from '@nestjs/platform-express';
 import { GroupService } from './group.service';
 import { Group } from './schema/group.schema';
@@ -357,7 +372,8 @@ export class GroupController {
   @Post('/update/photo/:groupId')
   async groupPhoto(@Res() res, @Param('groupId') groupId, @Body() file: any, @CurrentUser() user) {
     try {
-      const response = await this.groupService.setGroupPhoto(user, groupId, file);
+      const image = await this._cloudinaryService.upload(file.path);
+      const response = await this.groupService.setGroupPhoto(user, groupId, file, image.url);
       return res.status(HttpStatus.OK).json({
         message: 'Photo updated',
         response
@@ -372,9 +388,12 @@ export class GroupController {
 
   @Post('/photo/:groupId')
   @UseInterceptors(FileInterceptor('file', multerOptions))
-  async uploadPhotoProfile(@CurrentUser() user, @Param('groupId') groupId, @UploadedFile() file) {
-    await this.groupService.setGroupPhoto(user, groupId, file);
-    await this._cloudinaryService.upload(file.path);
+  async uploadPhotoProfile(@Res() res, @CurrentUser() user, @Param('groupId') groupId, @UploadedFile() file) {
+    const image = await this._cloudinaryService.upload(file.path);
+    const response = await this.groupService.setGroupPhoto(user, groupId, file, image.url);
+    return res.status(HttpStatus.OK).json({
+      response
+    });
   }
 
   @Get('/groupsuser/createdbyuser')
@@ -409,7 +428,7 @@ export class GroupController {
   @Post('/groups/contacts')
   async getGroupsOfMyContacts(@Res() res, @Body() users: contactsDTO) {
     try {
-      const getGroups = await this.groupService.groupsOfMyContacts(users.users)
+      const getGroups = await this.groupService.groupsOfMyContacts(users.users);
       return res.status(HttpStatus.OK).json({
         getGroups
       });
