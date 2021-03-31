@@ -10,6 +10,7 @@ import { getYearOfPerson } from './utils/getYearByDate';
 import { checkPromedio } from './utils/checkPromedio';
 import { ChatService } from '../chat/chat.service';
 import { getAvailability } from './utils/getAvailability';
+import { removeImage } from '../users/utils/deleteImage';
 const moment = require('moment');
 moment.suppressDeprecationWarnings = true;
 
@@ -20,7 +21,7 @@ export class GroupService {
     @InjectModel(Invitation.name) private readonly invitationModel: Model<InvitationDocument>,
     @Inject(forwardRef(() => UsersService)) private userService: UsersService,
     @Inject(forwardRef(() => ChatService)) private chatService: ChatService
-  ) { }
+  ) {}
 
   async getGroups(): Promise<Group[]> {
     const groups = await this.groupModel
@@ -135,10 +136,7 @@ export class GroupService {
       group.integrants.push(userId);
       if (!group.endDate) group.endDate = moment(group.startDate).add(12, 'hours').format('YYYY-MM-DD HH:mm');
       await group.save();
-      const chat = await this.chatService.createGroupChat(group._id);
-      chat.name = group.name;
-      chat.image = group.photo;
-      await chat.save();
+      await this.chatService.createGroupChat(group._id);
       return group;
     } catch (err) {
       throw new Error(err.message);
@@ -303,9 +301,7 @@ export class GroupService {
       if (alreadyInvite.length > 0) throw new Error('User already invite');
       const newInvitation = new this.invitationModel(data);
       await newInvitation.save();
-      const admin = await this.chatService.createAdminChat(group);
-      (admin.name = `${userExist.name} ${userExist.lastName} + Admin chat of ${groupExist.name}`), (admin.user = user);
-      await admin.save();
+      await this.chatService.createAdminChat(group, userExist);
       return newInvitation;
     } catch (error) {
       throw new Error(error.message);
@@ -374,7 +370,7 @@ export class GroupService {
       //@ts-ignore
       group.integrants.push(user);
       await group.save();
-      const chats = await this.chatService.getOneChatAdmin(currentUser, invitation.group);
+      const chats = await this.chatService.getOneChatAdmin(userId, invitation.group);
       chats.active = false;
       await chats.save();
       return group;
@@ -394,9 +390,9 @@ export class GroupService {
       if (group.admin != userId) throw new Error('This user is not the admin of this group');
       invitation.active = false;
       await invitation.save();
-      const chats = await this.chatService.getOneChatAdmin(currentUser, invitation.group);
-      chats.active = false;
-      await chats.save();
+      const chat = await this.chatService.getOneChatAdmin(userId, invitation.group);
+      chat.active = false;
+      await chat.save();
       return group;
     } catch (error) {
       throw new Error(error.message);
@@ -422,10 +418,10 @@ export class GroupService {
       const userId = currentUser._id;
       const user = await this.userService.getUserById(userId);
       if (!user) throw new Error('This user does not exist');
-      const invitation = await this.invitationModel.findOne({ _id: invitationId, fromAdmin: true, active: true });
+      const invitation = await this.invitationModel.findOne({ _id: invitationId, fromAdmin: true, active: true }).populate('user');
       if (!invitation) throw new Error('Bad invitation');
       const group = await this.groupModel.findOne({ _id: invitation.group }).populate('integrants');
-
+      const chat = await this.chatService.getOneChatAdminUser(userId, group._id);
       if (success) {
         //Validate that user does not have other
         const valid = await this.validateGroups(user, group);
@@ -440,14 +436,14 @@ export class GroupService {
         await group.save();
         invitation.success = true;
         invitation.active = false;
+        chat.active = false;
       } else {
         invitation.success = false;
         invitation.active = false;
+        chat.active = false;
       }
       await invitation.save();
-      const admin = await this.chatService.getOneChatAdminUser(currentUser, group._id);
-      admin.active = false;
-      await admin.save();
+      await chat.save();
       return 'The changes to your invitation have been saved.';
     } catch (error) {
       throw new Error(error.message);
@@ -469,7 +465,6 @@ export class GroupService {
       throw new Error(err.message);
     }
   }
-
 
   async getOneUserGroup(currentUser: any, groupId: any) {
     try {
@@ -532,7 +527,7 @@ export class GroupService {
       const groupsFiltered = allGroups.filter((element) => element.meetingPlaceOne !== null);
       for (let data of groupsFiltered) {
         const distance = distanceBetweenLocations(user, data.meetingPlaceOne);
-        if (distance < 5) {
+        if (distance < 100) {
           groupsInRange.push(data);
         }
       }
@@ -570,10 +565,14 @@ export class GroupService {
 
   async groupsOfMyContacts(users: any[]) {
     try {
+      //const perPage = query.perpage || 50;
+      //const page = query.page || 1;
       const groupsContacts = await this.userService.searchContact(users);
       let allGroups = [];
       for await (let group of groupsContacts) {
         const data = await this.groupModel.find({ integrants: group._id });
+        //skip: perPage * page - perPage,
+        //take: perPage });
         if (data) {
           allGroups.push(data);
         }
@@ -584,17 +583,18 @@ export class GroupService {
     }
   }
 
-  async setGroupPhoto(currentUser: any, groupId: any, file: any) {
+  async setGroupPhoto(currentUser: any, groupId: any, file: any, url) {
     try {
       const userId = currentUser._id;
       const group = await this.groupModel.findOne({ _id: groupId, admin: userId });
       if (!group) throw new HttpException('The group does not exist or you are not the admin of the group.', 404);
-      await group.updateOne({ photo: file.filename });
+      await group.updateOne({ photo: url });
       const chat = await this.chatService.getChatbyGroup(groupId);
-      await chat.updateOne({ image: file.filename })
+      await chat.updateOne({ image: url });
+      await removeImage(file.path);
       return group;
     } catch (error) {
-      throw new Error(error.message)
+      throw new Error(error.message);
     }
   }
 
@@ -602,26 +602,31 @@ export class GroupService {
     try {
       const userGroups = await this.getUserGroups(user);
       const valid = getAvailability(group, userGroups);
+      console.log('Valid from service: ', valid);
       return valid;
     } catch (error) {
       throw new Error(error.message);
     }
   }
 
-  /*async getGroupsBestCalificated() {
+  /*async getGroupsBestCalificated({ ...query }) {
       try {
+        const perPage = query.perpage || 10;
+        const page = query.page || 1;
         let allGroups = [];
         let allIntegrants = [];
-        const groups = await this.groupModel.find({active: true})
+        const groups = await this.groupModel.find({active: true, 
+          skip: perPage * page - perPage,
+          take: perPage})
         for await (let group of groups) {
           allIntegrants.push(group.integrants);
           allIntegrants.forEach((element) => {
-            element.cal
-          })
          
         }
       } 
     }
+  } catch (error) {}
+}*/
 
   /*async threeFilters(gender: any, distance: any, age: any, currentUser: any) {
     try {
@@ -645,5 +650,4 @@ export class GroupService {
       throw new Error(error.message);
     }
   }*/
-
 }

@@ -1,4 +1,21 @@
-import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Param, NotFoundException, UploadedFiles, UseGuards, Query, Post, UploadedFile, UseInterceptors, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Put,
+  Delete,
+  Res,
+  HttpStatus,
+  Body,
+  Param,
+  NotFoundException,
+  UploadedFiles,
+  UseGuards,
+  Query,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+  Req
+} from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor, FileFieldsInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
 import { UpdateUserDTO, queryDTO, contactsDTO, PhotoDTO } from './dto/data.dto';
@@ -10,15 +27,11 @@ import { multerOptions } from '../../config/multer';
 import { Express } from 'express';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
-
-
-
 @UseGuards(JwtAuthGuard)
 @Controller('/api/users')
 export class UsersController {
   SERVER_URL: string = process.env.URL;
-  constructor(private userService: UsersService, 
-    private _cloudinaryService: CloudinaryService) {}
+  constructor(private userService: UsersService, private _cloudinaryService: CloudinaryService) {}
 
   @Get('/')
   async getUsers(@Res() res) {
@@ -64,7 +77,6 @@ export class UsersController {
     }
   } */
 
-  
   @Put('/update/:userId')
   async updateUser(@Res() res, @Body() updateUserDTO: UpdateUserDTO, @Param('userId') user): Promise<User> {
     try {
@@ -80,7 +92,6 @@ export class UsersController {
       });
     }
   }
-
 
   @Put('/updatelogged/')
   async updateUserLog(@Res() res, @Body() updateUserDTO: UpdateUserDTO, @CurrentUser() user): Promise<User> {
@@ -98,7 +109,7 @@ export class UsersController {
     }
   }
 
-   @Put('/remove/:userID')
+  @Put('/remove/:userID')
   async inactiveUser(@Res() res, @Param('userID') userID): Promise<string> {
     try {
       await this.userService.toInactiveUser(userID);
@@ -129,7 +140,7 @@ export class UsersController {
   }
 
   @Post('/search/contacts')
-  async getContacts(@Res() res, @Body() users: contactsDTO){
+  async getContacts(@Res() res, @Body() users: contactsDTO) {
     try {
       const response = await this.userService.searchContact(users.users);
       return res.status(HttpStatus.OK).json({
@@ -143,7 +154,7 @@ export class UsersController {
   }
 
   @Get('/search/user')
-  async getByName(@Res() res, @Query() name: queryDTO){
+  async getByName(@Res() res, @Query() name: queryDTO) {
     try {
       const users = await this.userService.searchByName(name);
       return res.status(HttpStatus.OK).json({
@@ -171,26 +182,30 @@ export class UsersController {
 }*/
 
   @Post('/photos/profilephoto')
-  @UseInterceptors(FileInterceptor('file', multerOptions
-  ))
-  async uploadPhotoProfile(@CurrentUser() user, @UploadedFile() file) {
-    await this.userService.setProfilePhoto(user, file);
-    await this._cloudinaryService.upload(file.path);
-}
+  @UseInterceptors(FileInterceptor('file', multerOptions))
+  async uploadPhotoProfile(@Res() res, @CurrentUser() user, @UploadedFile() file) {
+    const data = await this._cloudinaryService.upload(file.path);
+    const response = await this.userService.setProfilePhoto(user, file, data.url);
+    return res.status(HttpStatus.OK).json({
+      response
+    });
+  }
 
   @Get('/photos/:fileId')
   async servePhoto(@Param('fileId') fileId, @Res() res): Promise<any> {
-    res.sendFile(fileId, { root: 'assets'});
+    res.sendFile(fileId, { root: 'assets' });
   }
 
   @Post('/uploadphotos')
-  @UseInterceptors(FilesInterceptor('files', 6, {
-    storage: multerOptions.storage
-    }),
+  @UseInterceptors(
+    FilesInterceptor('files', 6, {
+      storage: multerOptions.storage
+    })
   )
-  async uploadFiles(@CurrentUser() user, @UploadedFiles() files: Express.Multer.File) {
-    await this.userService.updatePhotos(user, files);
-    //console.log(files);
-}
-
+  async uploadFiles(@Res() res, @CurrentUser() user, @UploadedFiles() files: Express.Multer.File) {
+    const response = await this.userService.updatePhotos(user, files);
+    return res.status(HttpStatus.OK).json({
+      response
+    });
+  }
 }

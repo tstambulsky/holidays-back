@@ -2,14 +2,13 @@ import { Group } from '../schema/group.schema';
 
 export const getAvailability = (newGroup: Group, myGroups: Group[]) => {
   try {
-    console.log('My Groups: ', myGroups);
-    const available: any = myGroups.find((oneGroup) => isValid(newGroup, oneGroup));
-    console.log('Available: ', available);
-    if(available.length > 0 ) {
-       return true
-    }else {
-      return false
-    }
+    let check = [];
+    myGroups.forEach((oneGroup) => {
+      const response = isValid(newGroup, oneGroup);
+      check.push(response);
+    });
+    if (check.some((data) => !data)) return false;
+    return true;
   } catch (error) {
     throw new Error(error.message);
   }
@@ -20,13 +19,10 @@ const isValid = (newGroup: Group, myGroup: Group) => {
   const newGroupEnd = newGroup.endDate.getTime();
   const myGroupStart = myGroup.startDate.getTime();
   const myGroupEnd = myGroup.endDate.getTime();
-  const valid =
-    newGroupStart >= myGroupStart &&
-    newGroupStart <= myGroupEnd &&
-    newGroupEnd >= myGroupStart &&
-    newGroupEnd <= myGroupEnd &&
-    myGroupStart >= newGroupStart &&
-    myGroupStart <= newGroupEnd;
-  console.log('Valid: ', valid);
-  return !valid;
+  const notValid =
+    (newGroupStart >= myGroupStart && newGroupStart <= myGroupEnd) ||
+    (newGroupEnd >= myGroupStart && newGroupEnd <= myGroupEnd) ||
+    (myGroupStart >= newGroupStart && myGroupStart <= newGroupEnd);
+  console.log('Valid from isValid: ', !notValid);
+  return !notValid;
 };

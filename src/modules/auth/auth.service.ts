@@ -10,8 +10,6 @@ import { TokenPayload } from './interfaces/facebook-config.interface';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { tokenConfig } from '../../config/token';
 
-
-
 @Injectable()
 export class AuthService {
   constructor(
@@ -44,7 +42,7 @@ export class AuthService {
     }
   }
 
-    async getUserFromAuthenticationToken(token: string) {
+  async getUserFromAuthenticationToken(token: string) {
     const payload: TokenPayload = await this.jwtService.verify(token, {
       secret: tokenConfig.secretKey
     });

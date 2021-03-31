@@ -5,6 +5,7 @@ import { RegisterDTO } from '../auth/dto/register.dto';
 import { UpdateUserDTO, queryDTO, PhotoDTO } from './dto/data.dto';
 import { User, UserDocument } from './schema/users.schema';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { removeImage } from './utils/deleteImage';
 
 @Injectable()
 export class UsersService {
@@ -200,11 +201,13 @@ export class UsersService {
     }
   }
 
-  async setProfilePhoto(currentUser: any, file: any) {
+  async setProfilePhoto(currentUser: any, file: any, url: any) {
     try {
       const userId = currentUser._id;
       const user = await this.userModel.findOne({ _id: userId });
-      await user.updateOne({ profilePhoto: file.filename });
+      const userUpdated = await user.updateOne({ profilePhoto: url });
+      await removeImage(file.path);
+      return userUpdated;
     } catch (error) {
       throw new Error(error.message);
     }
@@ -214,10 +217,11 @@ export class UsersService {
     try {
       const userId = currentUser._id;
       for await (let file of files) {
+        const data = await this._cloudinaryService.upload(file.path);
         const user = await this.userModel.findOne({ _id: userId });
-        user.photos.push({ photoUrl: file.path, public_id: file.filename });
-        await this._cloudinaryService.upload(file.path);
+        user.photos.push({ photoUrl: data.url, public_id: file.filename });
         await user.save();
+        await removeImage(file.path);
       }
     } catch (error) {
       throw new Error(error.message);
