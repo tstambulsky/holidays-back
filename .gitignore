@@ -10,8 +10,6 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
-/assets
-
 #ENV
 .ENV
 .development.env

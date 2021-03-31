@@ -245,9 +245,18 @@ export class InterGroupService {
       const obtainInterGroup = await this.interGroupModel.findOne({ _id: interGroup }).populate('groupSender').populate('groupReceiver');
       if (!obtainInterGroup) throw new Error('This Inter group does not exist');
       if (obtainInterGroup.active) throw new Error('This Inter group is already active');
-      if (obtainInterGroup.groupSender.admin === userId || obtainInterGroup.groupReceiver.admin === userId) throw new Error('You are not the admin of the group.')
+      if (obtainInterGroup.groupSender.admin != userId) {
+        if (obtainInterGroup.groupReceiver.admin != userId) {
+        throw new Error('You are not the admin of the group.'); 
+        }
+      }
+      if (obtainInterGroup.groupSender.admin == userId) {
       data.groupSender = obtainInterGroup.groupSender;
       data.groupReceiver = obtainInterGroup.groupReceiver;
+      } if (obtainInterGroup.groupReceiver.admin == userId) {
+      data.groupSender = obtainInterGroup.groupReceiver;
+      data.groupReceiver = obtainInterGroup.groupSender;
+      }
       const proposal = new this.proposalModel(data);
       if (!proposal.proposalEndDate) {
         proposal.proposalEndDate = moment(proposal.proposalStartDate).add(12, 'hours').format('YYYY-MM-DD HH:mm');
@@ -282,9 +291,9 @@ export class InterGroupService {
     try {
       const { proposalId, accept } = data;
       const userId = currentUser._id;
-      const proposal = await this.proposalModel.findOne({ _id: proposalId });
+      const proposal = await this.proposalModel.findOne({ _id: proposalId }).populate('groupSender').populate('groupReceiver');
       if (!proposal) throw new Error('This proposal does not exist');
-      if (proposal.groupSender.admin === userId || proposal.groupReceiver.admin === userId) throw new Error('You are not the admin of the group.')
+      if (proposal.groupReceiver.admin != userId) throw new Error('You are not the admin of the group.')
       proposal.active = false;
       proposal.success = accept;
       await proposal.save();
@@ -348,8 +357,7 @@ export class InterGroupService {
       });
 
       for await (let element of groupId) {
-        searchInterGroups = await this.interGroupModel.findOne({
-          confirmed: true,
+        searchInterGroups = await this.invitationModel.findOne({
           $or: [{ groupSender: element }, { groupReceiver: element }]
         });
         if (searchInterGroups) interGroups.push({ searchInterGroups });
