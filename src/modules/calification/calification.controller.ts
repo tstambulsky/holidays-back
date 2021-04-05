@@ -1,4 +1,4 @@
-import { Controller, Res, HttpStatus, Body, Post, Get, UseGuards } from '@nestjs/common';
+import { Controller, Res, HttpStatus, Body, Post, Get, UseGuards, Param } from '@nestjs/common';
 import { CalificationService } from './calification.service';
 import { CalificationDTO } from './dto/inputs.dto';
 import { CurrentUser } from '../users/decorators/currentUser';
@@ -36,6 +36,21 @@ export class CalificationController {
       return res.status(HttpStatus.BAD_REQUEST).json({
         err: err.message
       });
+    }
+  }
+
+  @Get('/needcalification/:interGroupId')
+  async getWithoutCalification(@Res() res, @Param('interGroupId') interGroupId, @CurrentUser() user) {
+    try {
+      const response = await this.calificationService.getUsersWithoutCalifications(interGroupId, user);
+      return res.status(HttpStatus.OK).json({
+        response
+      })
+
+    } catch ( error ) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        error: error.message
+      })
     }
   }
 }
