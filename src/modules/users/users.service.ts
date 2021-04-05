@@ -155,6 +155,11 @@ export class UsersService {
       const user = await this.userModel.findOne({ _id: userId });
       if (!user) throw new Error('This user does not exist');
       user.points = sum ? user.points + 1 : user.points - 1;
+      if (sum === true) {
+        user.pointsPositive = user.pointsPositive + 1;
+      } else {
+        user.pointsNegative = user.pointsNegative + 1;
+      }
       await user.save();
       return user;
     } catch (err) {
