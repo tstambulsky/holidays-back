@@ -88,21 +88,16 @@ export class GroupService {
         const ageFilter = getYearOfPerson(people.birthDate);
         totalyAge += ageFilter;
       });
-      personsSex.forEach((sex) => {
-        if (sex === 'Male') {
-          totalyMale = +1;
-        } else if (sex === 'male') {
-          totalyMale = +1;
-        } else if (sex === 'Female') {
-          totalyFemale = +1;
-        } else if (sex === 'female') {
-          totalyFemale = +1;
-        } else if (sex === 'Other') {
-          totalyNoGender = +1;
-        } else if (sex === 'other') {
-          totalyNoGender = +1;
+      for await (let sex of personsSex) {
+          if (sex === 'male') {
+          totalyMale = totalyMale + 1;
         }
-      });
+          if (sex === 'female') {
+          totalyFemale = totalyFemale + 1;
+        } if (sex === 'other') {
+          totalyNoGender = totalyNoGender + 1;
+        }
+      };
       let totalCalifications = 0;
       group.integrants.forEach((people) => {
         const califications = people.points;
@@ -118,6 +113,7 @@ export class GroupService {
       group.percentageOfMale = percentlyMale;
       group.percentageOfFemale = percentlyFemale;
       group.percentageOfNoGender = percentlyNoGender;
+      await group.save();
       return group;
     } catch (err) {
       throw new Error(err.message);
@@ -404,7 +400,7 @@ export class GroupService {
       const userId = currentUser._id;
       const user = await this.userService.getUserById(userId);
       if (!user) throw new Error('This user does not exist');
-      const invitations = await this.invitationModel.find({ user: userId, fromAdmin: true, active: true });
+      const invitations = await this.invitationModel.find({ user: userId, fromAdmin: true, active: true }).populate('group');
       if (invitations.length < 0) throw new Error('This user does not has invitations');
       return invitations;
     } catch (error) {
@@ -609,24 +605,18 @@ export class GroupService {
     }
   }
 
-  /*async getGroupsBestCalificated() {
+  async getGroupsBestCalificated() {
       try {
-        let allGroups = [];
-        let allPoints = [];
-        let allIntegrants = [];
-        const groups = await this.groupModel.find({active: true})
-        for await (let group of groups) {
-          allIntegrants.push(group.integrants);
-          allIntegrants.forEach((element) => {
-          allPoints.push(element.points);
-        })
-        
-
-      } 
+        const groups = await this.groupModel.find({active: true});
+          for await (let group of groups) {
+            await this.getGroup(group._id);
+       };
+       const allGroups = await this.groupModel.find().sort({calificationsAverage: 1}).exec();
+       return allGroups;
     } catch (error) {
     throw new Error(error.message)
   }
-}*/
+}
 }
 
   /*async threeFilters(gender: any, distance: any, age: any, currentUser: any) {
