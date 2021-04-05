@@ -444,6 +444,20 @@ export class GroupController {
     res.sendFile(fileId, { root: 'assets' });
   }
 
+  @Get('/groups/bestcalificated')
+  async getBestCalificated(@Res() res) {
+    try {
+      const response = await this.groupService.getGroupsBestCalificated();
+      return res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (error) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        error: error.message
+      })
+    }
+  }
+
   /* @Get('/groups/filters')
   async getGroupsByFilters(@Res() res, @Query() data: FiltersDTO, @CurrentUser() user) {
   try {
