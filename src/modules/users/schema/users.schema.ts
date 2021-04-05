@@ -81,6 +81,12 @@ export class User {
   @Prop({ type: Number, default: 0 })
   points: number;
 
+  @Prop({ type: Number, default: 0 })
+  pointsNegative: number;
+
+  @Prop({ type: Number, default: 0 })
+  pointsPositive: number;
+
   @Prop({ default: true })
   active: boolean;
 
