@@ -89,7 +89,7 @@ export class AuthService {
 
   async sendRecoverPassword(email: string) {
     try {
-      const code = await this.recoverToken(email);
+      const code = Math.random().toString(36).slice(-5);
       const user = await this.userService.getUserByEmail(email);
       if (!user) throw new Error('User not exist');
       user.passwordRecover = code;
@@ -103,8 +103,8 @@ export class AuthService {
 
   async recoverPassword(code: string) {
     try {
-      const tokenCode = await this.jwtService.verify(code);
-      if (!tokenCode) throw new Error('Expired Code');
+      //const tokenCode = await this.jwtService.verify(code);
+      //if (!tokenCode) throw new Error('Expired Code');
       const user = await this.userService.findOneUser({ passwordRecover: code });
       if (!user) throw new Error('The code is wrong');
       user.confirmPasswordRecover = true;
@@ -119,9 +119,6 @@ export class AuthService {
     try {
       const user = await this.userService.findOneUser({ email: email });
       if (!user) throw new Error('User does not exist');
-      const code = user.passwordRecover;
-      const tokenCode = await this.jwtService.verify(code!);
-      if (!tokenCode) throw new Error('Password change not allowed');
       const hashPassword = await hash(password, 10);
       user.password = hashPassword;
       user.confirmPasswordRecover = false;
