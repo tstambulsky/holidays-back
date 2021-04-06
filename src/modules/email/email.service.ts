@@ -27,15 +27,14 @@ export class EmailService {
     }
   }
 
-  async sendRecoveryPassword(email: string, code: string) {
+  async sendRecoveryPassword(email: string, code: any) {
     try {
-      const url = emailConfig.url + code;
       const message = {
         from: 'Traiiner',
         to: email,
-        suject: 'Recover Password',
-        text: 'Click on the link to complete the password change',
-        html: `<b>YOUR CODE</b> <br> <a href='#'>${url}</a>`
+        subject: 'Recover Password',
+        html: `<h3>Please copy these numbers and do not share them with anyone.</h3>
+        <b>This is your code to change your password.</b> <br> <strong>${code}</strong>`
       }
       await this.sendEmail(message);
       return true;
