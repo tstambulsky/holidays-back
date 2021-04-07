@@ -33,7 +33,7 @@ export class EmailService {
         from: 'Traiiner',
         to: email,
         subject: 'Recover Password',
-        html: `<h3>Please copy these numbers and do not share them with anyone.</h3>
+        html: `<h3>Please copy these characters and do not share them with anyone.</h3>
         <b>This is your code to change your password.</b> <br> <strong>${code}</strong>`
       }
       await this.sendEmail(message);
