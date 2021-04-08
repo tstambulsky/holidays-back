@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
-import { City } from '../../zone/schema/city.schema';
-import { State } from '../../zone/schema/state.schema';
+
 
 export type UserDocument = User & mongoose.Document;
 
@@ -45,11 +44,11 @@ export class User {
   @Prop()
   birthDate: Date;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'City' })
-  city?: City;
+  @Prop({})
+  city?: string;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'State' })
-  state?: State;
+  @Prop({})
+  state?: string;
 
   @Prop({ enum: ['male', 'female', 'other'] })
   sex: string;
