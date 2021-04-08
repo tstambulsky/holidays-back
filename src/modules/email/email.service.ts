@@ -32,9 +32,9 @@ export class EmailService {
       const message = {
         from: 'Traiiner',
         to: email,
-        subject: 'Recover Password',
-        html: `<h3>Please copy these characters and do not share them with anyone.</h3>
-        <b>This is your code to change your password.</b> <br> <strong>${code}</strong>`
+        subject: 'Recuperar contraseña',
+        html: `<h2>Por favor copie los caractéres y no los comparta con nadie.</h2>
+        <h3>Este es el codigo que usted necesita para poder cambiar la contraseña.</h3><h2><strong>${code}</strong></h2>`
       }
       await this.sendEmail(message);
       return true;

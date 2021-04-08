@@ -1,13 +1,11 @@
 import { Injectable, HttpException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { hash, compare } from 'bcrypt';
-import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../users/users.service';
 import { LoginDTO } from './dto/login.dto';
 import { RegisterDTO } from './dto/register.dto';
 import { EmailService } from '../email/email.service';
 import { TokenPayload } from './interfaces/facebook-config.interface';
-import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { tokenConfig } from '../../config/token';
 
 @Injectable()
@@ -15,10 +13,7 @@ export class AuthService {
   constructor(
     private readonly userService: UsersService,
     private readonly emailService: EmailService,
-    readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
-    private readonly cloudinaryService: CloudinaryService
-  ) {}
+    readonly jwtService: JwtService  ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.userService.getUserByEmail(email);

@@ -4,7 +4,6 @@ import {
   Put,
   Delete,
   Res,
-  Req,
   HttpStatus,
   Body,
   Query,
@@ -15,7 +14,7 @@ import {
   UseGuards,
   UploadedFile
 } from '@nestjs/common';
-import { FileInterceptor, FilesInterceptor, FileFieldsInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor} from '@nestjs/platform-express';
 import { GroupService } from './group.service';
 import { Group } from './schema/group.schema';
 import {
@@ -26,8 +25,6 @@ import {
   AceptOrRefuseDTO,
   SearchByDistanceDto,
   NewAdminDto,
-  EditPhotosDto,
-  FiltersDTO
 } from './dto/group.dto';
 import { CurrentUser } from '../users/decorators/currentUser';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';

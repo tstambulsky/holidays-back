@@ -7,23 +7,14 @@ import {
   Req,
   HttpStatus,
   Body,
-  Query,
-  Param,
-  NotFoundException,
-  ValidationPipe,
   UseGuards
 } from '@nestjs/common';
-import { AxiosResponse } from 'axios';
-import { AccessTokenDto } from './dto/accessToken.dto';
-import { RefreshAccessTokenDto } from './dto/refreshAccessToken.dto';
-import { Request, Response } from 'express';
+import { Request } from 'express';
 import { LoginResDTO } from './dto/login.dto';
-import { LoginDTO, AppleLoginDTO } from './dto/login.dto';
+import { LoginDTO } from './dto/login.dto';
 import { RegisterDTO } from './dto/register.dto';
 import { AuthService } from './auth.service';
 import { ForgotPasswordDTO, ChangePasswordDTO, TokenCodeDTO } from './dto/Password.dto';
-import * as jwt from 'jsonwebtoken';
-import { AppleService } from '../login/apple/apple.service';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('/api')

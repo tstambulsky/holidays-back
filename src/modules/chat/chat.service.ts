@@ -1,7 +1,6 @@
 import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { AuthService } from '../auth/auth.service';
 import { Socket } from 'socket.io';
-import { parse } from 'cookie';
 import { UsersService } from '../users/users.service';
 import { WsException } from '@nestjs/websockets';
 import { InjectModel } from '@nestjs/mongoose';
@@ -10,7 +9,6 @@ import { Message, MessageDocument } from './schema/message.schema';
 import { Chat, ChatDocument } from './schema/chat.schema';
 import { GroupService } from '../group/group.service';
 import { InterGroupService } from '../inter-group/interGroup.service';
-import { Invitation } from '../group/schema/invitation.schema';
 
 @Injectable()
 export class ChatService {

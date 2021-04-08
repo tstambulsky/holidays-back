@@ -16,9 +16,9 @@ import {
   UseInterceptors,
   Req
 } from '@nestjs/common';
-import { FileInterceptor, FilesInterceptor, FileFieldsInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
-import { UpdateUserDTO, queryDTO, contactsDTO, PhotoDTO } from './dto/data.dto';
+import { UpdateUserDTO, queryDTO, contactsDTO } from './dto/data.dto';
 import { User } from './schema/users.schema';
 import { LoginDTO } from '../auth/dto/login.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';

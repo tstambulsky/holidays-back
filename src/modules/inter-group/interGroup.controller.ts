@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post, UseGuards } from '@nestjs/common';
+import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Param, NotFoundException, Post, UseGuards } from '@nestjs/common';
 import { InterGroupService } from './interGroup.service';
 import { InterGroup } from './schema/interGroup.schema';
 import {

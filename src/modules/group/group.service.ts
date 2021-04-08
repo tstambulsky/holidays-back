@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Group, GroupDocument } from './schema/group.schema';
 import { UsersService } from '../users/users.service';
-import { GroupDTO, UpdateGroupDTO, RequestToGroupDTO, AceptOrRefuseDTO, NewAdminDto, EditPhotosDto } from './dto/group.dto';
+import { GroupDTO, UpdateGroupDTO, RequestToGroupDTO, AceptOrRefuseDTO, NewAdminDto } from './dto/group.dto';
 import { Invitation, InvitationDocument } from './schema/invitation.schema';
 import { distanceBetweenLocations } from './utils/getDistance';
 import { getYearOfPerson } from './utils/getYearByDate';
