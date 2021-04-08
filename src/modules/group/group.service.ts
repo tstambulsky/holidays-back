@@ -617,7 +617,21 @@ export class GroupService {
     throw new Error(error.message)
   }
 }
+
+  async getPreviusGroupsOfUser(userId: any) {
+    try {
+      const groups = await this.groupModel.find({active: false, integrants: userId});
+      if (groups.length < 0) throw new Error('This user does not have plains');
+      return groups;
+    } catch (error) {
+      throw new Error(error.message)
+    }
+  }
+
+
+
 }
+
 
   /*async threeFilters(gender: any, distance: any, age: any, currentUser: any) {
     try {
