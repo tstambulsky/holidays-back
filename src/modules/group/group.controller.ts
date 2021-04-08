@@ -455,6 +455,20 @@ export class GroupController {
     }
   }
 
+  @Get('/groups/previousgroups/:userId')
+  async getPreviousGroupsUser(@Res() res,@Param('userId') userId) {
+    try {
+      const response = await this.groupService.getPreviusGroupsOfUser(userId);
+      return res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (error) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        error: error.message
+      })
+    }
+  }
+
   /* @Get('/groups/filters')
   async getGroupsByFilters(@Res() res, @Query() data: FiltersDTO, @CurrentUser() user) {
   try {
