@@ -1,4 +1,4 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { TypeOfActivity, TypeOfActivitySchema } from './schema/typeOfActivity.schema';
 import { TypeOfActivityController } from './typeOfActivity.controller';

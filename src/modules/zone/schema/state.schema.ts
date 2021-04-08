@@ -9,8 +9,10 @@ export type StateDocument = State & mongoose.Document;
 export class State {
   @Prop({ required: true })
   name: string;
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Country', required: true })
-  country: Country;
+  @Prop({ type: String })
+  id: string;
+  //@Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Country', required: true })
+ // country: Country;
   @Prop({ default: true })
   active: boolean;
 }

@@ -6,10 +6,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './modules/users/users.module';
 import { MeetingPlaceModule } from './modules/meeting-place/meetingPlace.module';
 import { ChatModule } from './modules/chat/chat.module';
-import { RolModule } from './modules/rol/rol.module';
 import { GroupModule } from './modules/group/group.module';
 import { NotificationModule } from './modules/notification/notification.module';
-import { CommentModule } from './modules/comment/comment.module';
 import { TypeOfActivityModule } from './modules/typeOfActivity/typeOfActivity.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { EmailModule } from './modules/email/email.module';
@@ -33,12 +31,10 @@ import { CronModule } from './modules/cron/cron.module';
     ConfigModule.forRoot(),
     UsersModule,
     MeetingPlaceModule,
-    RolModule,
     GroupModule,
     ChatModule,
     NotificationModule,
     CloudinaryModule,
-    CommentModule,
     TypeOfActivityModule,
     AuthModule,
     EmailModule,

@@ -3,12 +3,14 @@ import { State } from '../schema/state.schema';
 import { Country } from '../schema/country.schema';
 
 export class CreateCityDTO {
-  @Prop({ required: true })
+  @Prop({ required: false })
   readonly postalCode: number;
+  @Prop({ type: String})
+  readonly id: string;
   @Prop({ required: true })
   readonly name: string;
-  @Prop({ required: true })
-  readonly state: State;
+  @Prop({ required: false })
+  readonly state: string;
   @Prop({ default: true, required: true })
   readonly active?: boolean;
 }
@@ -16,10 +18,12 @@ export class CreateCityDTO {
 export class UpdateCityDTO {
   @Prop({ required: false })
   readonly postalCode?: number;
+   @Prop({ type: String})
+  readonly id: string;
   @Prop({ required: false })
   readonly name?: string;
   @Prop({ required: false })
-  readonly state?: State;
+  readonly state?: string;
   @Prop({ default: true, required: false })
   readonly active?: boolean;
 }
@@ -27,8 +31,10 @@ export class UpdateCityDTO {
 export class CreateStateDTO {
   @Prop({ required: true })
   readonly name: string;
-  @Prop({ required: true })
-  readonly country: Country;
+  @Prop({ type: String})
+  readonly id: string;
+  //@Prop({ required: true })
+  //readonly country: Country;
   @Prop({ default: true, required: true })
   readonly active: boolean;
 }
@@ -36,8 +42,10 @@ export class CreateStateDTO {
 export class UpdateStateDTO {
   @Prop({ required: false })
   readonly name?: string;
-  @Prop({ required: false })
-  readonly country?: Country;
+   @Prop({ type: String})
+  readonly id: string;
+  //@Prop({ required: false })
+  //readonly country?: Country;
   @Prop({ default: true, required: false })
   readonly active?: boolean;
 }

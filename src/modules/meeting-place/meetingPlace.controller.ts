@@ -1,5 +1,5 @@
-import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Query, Param, NotFoundException, Post, UseGuards, UseInterceptors, UploadedFile, UploadedFiles } from '@nestjs/common';
-import { FileInterceptor, FilesInterceptor, FileFieldsInterceptor } from '@nestjs/platform-express';
+import { Controller, Get, Put, Delete, Res, HttpStatus, Body, Param, NotFoundException, Post, UseGuards, UseInterceptors, UploadedFile, UploadedFiles } from '@nestjs/common';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { MeetingPlaceService } from './meetingPlace.service';
 import { Meeting } from './schema/meetingPlace.schema';
 import { MeetingDTO, UpdateMeetingDTO } from './dto/meeting.dto';

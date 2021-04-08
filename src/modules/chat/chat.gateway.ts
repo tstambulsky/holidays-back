@@ -1,10 +1,7 @@
 import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer, OnGatewayConnection, ConnectedSocket } from '@nestjs/websockets';
-import { UseGuards } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
 import { MessageDTO } from './dto/message.dto'
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-
 @WebSocketGateway({cors : {
   origin: process.env.URL,
   credentials: true
