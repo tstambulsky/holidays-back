@@ -257,8 +257,8 @@ export class InterGroupService {
       const { interGroup } = data;
       const userId = currentUser._id;
       const obtainInterGroup = await this.interGroupModel.findOne({ _id: interGroup }).populate('groupSender').populate('groupReceiver');
-      if (!obtainInterGroup) throw new Error('This Inter group does not exist');
-      if (obtainInterGroup.active) throw new Error('This Inter group is already active');
+      if (!obtainInterGroup) throw new Error('This Intergroup does not exist');
+      if (obtainInterGroup.active) throw new Error('This Intergroup is already active');
       if (obtainInterGroup.groupSender.admin != userId) {
         if (obtainInterGroup.groupReceiver.admin != userId) {
         throw new Error('You are not the admin of the group.'); 

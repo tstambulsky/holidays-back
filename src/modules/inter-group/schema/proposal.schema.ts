@@ -6,16 +6,16 @@ import { InterGroup } from './interGroup.schema';
 
 @Schema({ timestamps: true })
 export class Proposal {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'InterGroup' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'InterGroup', required: true })
   interGroup: InterGroup;
 
-  @Prop()
+  @Prop({required: true})
   proposalStartDate: Date;
   
   @Prop()
   proposalEndDate: Date;
 
-  @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Meeting' })
+  @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Meeting', required: true })
   proposalPlace: Meeting;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Group' })
