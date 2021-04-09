@@ -106,7 +106,7 @@ export class ChatService {
         interGroupsId.push(element.searchInterGroups._id);
       });
       for await (let element of interGroupsId) {
-        const chat = await this.chatModel.findOne({ invitation: element._id, active: true });
+        const chat = await (await this.chatModel.findOne({ invitation: element._id, active: true }));
         if (chat !== null) allChats.push(chat);
       }
       return allChats;

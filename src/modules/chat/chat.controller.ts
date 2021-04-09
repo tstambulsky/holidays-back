@@ -96,7 +96,7 @@ export class ChatController {
   @Post('/sendintergroup')
   async sendmessageintergroup(@Res() res, @Body() data: MessageDTO, @CurrentUser() user) {
     try {
-      const response = await this.chatService.saveMessageInterGroup(data.content, user, data.interGroup);
+      const response = await this.chatService.saveMessageInterGroup(data.content, user, data.invitation);
       res.status(HttpStatus.OK).json({
         response
       });
@@ -110,7 +110,7 @@ export class ChatController {
    @Get('/saveintergroup')
   async savemessageintergroup(@Res() res, @Body() data: MessageDTO, @CurrentUser() user) {
     try {
-      const response = await this.chatService.getAllMessagesInterGroup(user, data.interGroup);
+      const response = await this.chatService.getAllMessagesInterGroup(user, data.invitation);
       res.status(HttpStatus.OK).json({
         response
       });
