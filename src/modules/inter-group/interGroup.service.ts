@@ -49,10 +49,22 @@ export class InterGroupService {
       throw new Error(err.message);
     }
   }
+  
 
   async getInterGroupInactive(interGroupID: any): Promise<InterGroup> {
     try {
-      const interGroup = await this.interGroupModel.findOne({ _id: interGroupID });
+      const interGroup = await this.interGroupModel.findOne({ _id: interGroupID, active: false });
+      if (!interGroup) throw new HttpException('Intergroup is active or does not exist', 404);
+      return interGroup;
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+  
+  async getInterGroupsInactive() {
+    try {
+      const interGroup = await this.interGroupModel.find({active: false });
+      if (interGroup.length < 1) throw new HttpException('Does not have intergroups inactives.', 404);
       return interGroup;
     } catch (err) {
       throw new Error(err.message);

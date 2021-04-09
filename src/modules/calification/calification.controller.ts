@@ -42,7 +42,22 @@ export class CalificationController {
   @Get('/needcalification/:interGroupId')
   async getWithoutCalification(@Res() res, @Param('interGroupId') interGroupId, @CurrentUser() user) {
     try {
-      const response = await this.calificationService.getUsersWithoutCalifications(interGroupId, user);
+      const response = await this.calificationService.getUsersWithoutCalification(interGroupId, user);
+      return res.status(HttpStatus.OK).json({
+        response
+      })
+
+    } catch ( error ) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        error: error.message
+      })
+    }
+  }
+
+  @Get('/needcalification')
+  async getWithoutCalifications(@Res() res,@CurrentUser() user) {
+    try {
+      const response = await this.calificationService.getUsersWithoutCalifications(user);
       return res.status(HttpStatus.OK).json({
         response
       })

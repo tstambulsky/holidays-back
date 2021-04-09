@@ -76,6 +76,7 @@ export class GroupService {
         .populate('meetingPlaceOne')
         .populate('meetingPlaceTwo')
         .populate('typeOfActivity');
+        if(!group) throw new HttpException('Group does not exist', 404);
       const totalyPeople = group.integrants.length;
       let totalyAge = 0;
       let personsSex = [];

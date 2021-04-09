@@ -15,7 +15,7 @@ export class UsersService {
   ) {}
 
   async getUsers(): Promise<User[]> {
-    const users = await this.userModel.find().populate('city').exec();
+    const users = await this.userModel.find().exec();
     if (!users) {
       throw new HttpException('Not Found', 404);
     }
