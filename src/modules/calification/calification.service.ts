@@ -70,8 +70,17 @@ export class CalificationService {
     try {
       const userId = currentUser._id;
       let califications = [];
-      const allInterGruoups = await this.interGroupService.getInterGroupsInactive();
-      for await (let interGroup of allInterGruoups) {
+      let interGroupsUser = [];
+      const allInterGroups = await this.interGroupService.getInterGroupsInactive();
+      for await (let interGroup of allInterGroups) {
+        const groupSender = interGroup.groupSender;
+        const groupReceiver = interGroup.groupReceiver;
+        const isInGroup = await this.groupService.getOneUserGroup(userId, groupSender, groupReceiver);
+        if (isInGroup) { 
+          interGroupsUser.push(interGroup._id);
+        }
+      }
+      for await (let interGroup of interGroupsUser) {
         let interGroups = {
           id: '',
           integrants: []

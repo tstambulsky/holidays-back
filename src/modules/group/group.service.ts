@@ -463,15 +463,14 @@ export class GroupService {
     }
   }
 
-  async getOneUserGroup(currentUser: any, groupId: any) {
+  async getOneUserGroup(userId: any, groupOne: any, secondGroup: any){
     try {
       const groups = await this.groupModel
-        .findOne({ active: true, integrants: currentUser, _id: groupId })
+        .findOne({integrants: userId, $or:[ {_id: groupOne}, {_id: secondGroup}]})
         .populate('integrants')
         .populate('meetingPlaceOne')
         .populate('meetingPlaceTwo')
         .populate('typeOfActivity');
-      if (!groups) throw new Error('The user does not belong to any group');
       return groups;
     } catch (err) {
       throw new Error(err.message);
