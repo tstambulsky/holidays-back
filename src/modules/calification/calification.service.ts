@@ -40,11 +40,11 @@ export class CalificationService {
     }
   }
 
-  async getUsersWithoutCalifications(interGroupId: any, currentUser: any) {
+  async getUsersWithoutCalification(interGroupId: any, currentUser: any) {
     try {
       const userId = currentUser._id;
       let usersWithoutCalification = [];
-      const interGroup = await this.interGroupService.getInterGroup(interGroupId);
+      const interGroup = await this.interGroupService.getInterGroupInactive(interGroupId);
       const groupOne: any = await this.groupService.getGroup(interGroup.groupSender);
       const groupTwo: any = await this.groupService.getGroup(interGroup.groupReceiver);
       for await (let integrant of groupOne.integrants) {
@@ -59,7 +59,32 @@ export class CalificationService {
           usersWithoutCalification.push(integrant._id);
         }
       }
+      if (usersWithoutCalification.length < 1) throw new HttpException('You have no users to calificate.', 404);
       return usersWithoutCalification;
+    } catch (error) {
+      throw new Error(error.message)
+    }
+  }
+
+  async getUsersWithoutCalifications(currentUser: any) {
+    try {
+      const userId = currentUser._id;
+      let califications = [];
+      const allInterGruoups = await this.interGroupService.getInterGroupsInactive();
+      for await (let interGroup of allInterGruoups) {
+        let interGroups = {
+          id: '',
+          integrants: []
+        };
+        interGroups.id = interGroup._id;
+        const response = await this.getUsersWithoutCalification(interGroup._id, userId);
+        for await (let user of response) {
+        const users = await this.userService.getUserById(user);
+         interGroups.integrants.push(users);
+        }
+        califications.push(interGroups);
+      }
+      return califications;
     } catch (error) {
       throw new Error(error.message)
     }
