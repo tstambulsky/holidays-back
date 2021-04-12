@@ -41,6 +41,27 @@ export class ChatService {
     return chat;
   }
 
+  async getChatPopulateGroup(invitationId: any, currentUser: any) {
+    try {
+    let groupWithoutUserLogged;
+    const userId = currentUser._id;
+    const group = await this.chatModel.findOne({invitation: invitationId, active: true});
+    if (!group) throw new WsException('The chat does not exist');
+    const invitation = await this.interGroupService.getInvitationId(invitationId);
+    const isInGroup = await this.groupService.getOneUserGroup(userId, invitation.groupSender, invitation.groupReceiver);
+    const groupUserOne: any = await this.groupService.getGroup(invitation.groupSender);
+    const groupUserTwo: any = await this.groupService.getGroup(invitation.groupReceiver);
+    if (groupUserOne.name == isInGroup.name) {
+      groupWithoutUserLogged = groupUserTwo; 
+    } else {
+      groupWithoutUserLogged = groupUserOne;
+    }
+    return groupWithoutUserLogged;
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
+
   async createInterGroupChat(interGroupId: any) {
     const interGroup = await this.interGroupService.getInterGroup(interGroupId);
     if (!interGroupId) throw new WsException('InterGroup does not exist');
@@ -106,8 +127,13 @@ export class ChatService {
         interGroupsId.push(element.searchInterGroups._id);
       });
       for await (let element of interGroupsId) {
-        const chat = await (await this.chatModel.findOne({ invitation: element._id, active: true })).populate('proposal');
-        if (chat !== null) allChats.push(chat);
+        const chat = await this.chatModel.findOne({ invitation: element._id, active: true });
+        const group = await this.getChatPopulateGroup(element._id, currentUser);
+        chat.otherGroup = group;
+        chat.save();
+        if (chat !== null) { 
+          allChats.push(chat);
+        }
       }
       return allChats;
     } catch (error) {
@@ -118,6 +144,16 @@ export class ChatService {
   async getInterGroup(interGroupId: any) {
     try {
       const interGroupChat = await this.chatModel.findOne({ active: true, interGroup: interGroupId });
+      if (!interGroupChat) throw new WsException('Chat does not exist');
+      return interGroupChat;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async getInterGroupInactive(interGroupId: any) {
+    try {
+      const interGroupChat = await this.chatModel.findOne({ active: false, interGroup: interGroupId });
       if (!interGroupChat) throw new WsException('Chat does not exist');
       return interGroupChat;
     } catch (error) {
@@ -168,6 +204,16 @@ export class ChatService {
   async getOneChatAdmin(userId: any, groupId: any) {
     try {
       const chats = await this.chatModel.findOne({ adminUser: userId, group: groupId, active: true });
+      if (!chats) throw new WsException('You are not the admin or the user does not exist.');
+      return chats;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async getOneChatAdminWithUser(userId: any, user: any) {
+    try {
+      const chats = await this.chatModel.findOne({ adminUser: userId, user: user, active: true });
       if (!chats) throw new WsException('You are not the admin or the user does not exist.');
       return chats;
     } catch (error) {
