@@ -51,3 +51,8 @@ export class acceptOrRefuseProposalDto {
   readonly proposalId: Proposal;
   readonly accept: boolean;
 }
+
+export class acceptOrRefuseRepeat {
+  readonly interGroupId: InterGroup;
+  readonly accept: boolean;
+}

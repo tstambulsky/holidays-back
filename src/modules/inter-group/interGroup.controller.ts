@@ -6,7 +6,8 @@ import {
   RequestGroupToGroupDTO,
   AceptOrRefuseDTO,
   newProposalDto,
-  acceptOrRefuseProposalDto
+  acceptOrRefuseProposalDto,
+  acceptOrRefuseRepeat
 } from './dto/interGroup.dto';
 import { CurrentUser } from '../users/decorators/currentUser';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -238,10 +239,38 @@ export class InterGroupController {
     }
   }
 
-  @Get('/repeat/:intergroupid')
-  async repeatInter(@Res() res, @Param('intergroupid') intergroupid, @CurrentUser() user) {
+  @Get('/sendrepeat/:intergroupid')
+  async sendRepeatInter(@Res() res, @Param('intergroupid') intergroupid, @CurrentUser() user) {
     try {
-      const response = await this.interGroupService.repeatInterGroup(intergroupid, user);
+      const response = await this.interGroupService.sendRepeatInterGroup(intergroupid, user);
+     return res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        err: err.message
+      });
+    }
+  }
+
+  @Get('/invitation/repeat')
+  async getInterGroupToRepeat(@Res() res, @CurrentUser() user) {
+    try {
+      const response = await this.interGroupService.getInvitationToAcceptRepeat(user);
+       return res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        err: err.message
+      });
+    }
+  }
+
+  @Post('/repeat')
+  async repeatInter(@Res() res, @Body() data: acceptOrRefuseRepeat, @CurrentUser() user) {
+    try {
+      const response = await this.interGroupService.acceptInterGroupRepeat(data, user);
      return res.status(HttpStatus.OK).json({
         response
       });
