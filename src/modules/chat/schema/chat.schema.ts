@@ -5,6 +5,8 @@ import { User } from '../../users/schema/users.schema';
 import { Group } from '../../group/schema/group.schema';
 import { InterGroup } from '../../inter-group/schema/interGroup.schema';
 import { Invitation } from '../../group/schema/invitation.schema';
+import { Proposal } from 'src/modules/inter-group/schema/proposal.schema';
+import { Meeting } from 'src/modules/meeting-place/schema/meetingPlace.schema';
 
 @Schema({ timestamps: true })
 export class Chat {
@@ -25,6 +27,12 @@ export class Chat {
 
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'User' })
   user: User;
+
+  @Prop({type: mongoose.SchemaTypes.ObjectId, ref: 'Meeting'})
+  meeting: Meeting;
+
+  @Prop({})
+  dateProposal: Date;
 
   @Prop({ default: false })
   pending: boolean;
