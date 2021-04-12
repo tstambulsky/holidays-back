@@ -279,7 +279,9 @@ export class InterGroupService {
       const chat = await this.chatService.getInterGroup(obtainInterGroup._id);
       chat.place = true;
       chat.setTimeAndPlace = false;
-      chat.pending = true;
+      chat.pending = false;
+      chat.meeting = proposal.proposalPlace;
+      chat.dateProposal = proposal.proposalStartDate;
       await chat.save();
       return 'Proposal Sended';
     } catch (error) {
