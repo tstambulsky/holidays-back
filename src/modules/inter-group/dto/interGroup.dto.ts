@@ -39,7 +39,7 @@ export class AceptOrRefuseDTO {
 }
 
 export class newProposalDto {
-  interGroup: InterGroup;
+  readonly interGroup: InterGroup;
   readonly proposalStartDate: Date;
   readonly proposalEndDate: Date;
   readonly proposalPlace: Meeting;
