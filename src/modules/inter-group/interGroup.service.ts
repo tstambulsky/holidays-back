@@ -8,7 +8,8 @@ import {
   RequestGroupToGroupDTO,
   AceptOrRefuseDTO,
   newProposalDto,
-  acceptOrRefuseProposalDto
+  acceptOrRefuseProposalDto,
+  acceptOrRefuseRepeat
 } from './dto/interGroup.dto';
 import { InvitationInterGroup, InvitationInterGroupDocument } from './schema/invitationInterGroup.schema';
 import { GroupService } from '../group/group.service';
@@ -127,6 +128,7 @@ export class InterGroupService {
       }
       const chat = await this.chatService.getInterGroup(interGroupID);
       interGroup.active = false;
+      interGroup.confirmed = false;
       await interGroup.save();
       chat.active = false;
       chat.save();
@@ -136,7 +138,7 @@ export class InterGroupService {
     }
   }
 
-  async repeatInterGroup(interGroupId: any, currentUser: any): Promise<string> {
+  async sendRepeatInterGroup(interGroupId: any, currentUser: any): Promise<string> {
     try {
       const userId = currentUser._id;
       const interGroup = await this.interGroupModel.findOne({_id: interGroupId});
@@ -150,16 +152,63 @@ export class InterGroupService {
         throw new Error('You are not the admin of some group.'); 
         }
       }
+      const invitation = await this.invitationModel.findOne({groupSender: interGroup.groupSender || interGroup.groupReceiver, groupReceiver: interGroup.groupReceiver || interGroup.groupSender});
+      if (!invitation) throw new HttpException('Invitation does not exist', 404);
+      if (groupOne.admin === userId) {
+        invitation.groupSender = groupOne;
+      } if (groupTwo.admin === userId) {
+        invitation.groupSender = groupTwo;
+        invitation.groupReceiver = groupOne;
+      }
+      invitation.sendAdminToRepeat = true;
+      invitation.save();
       const chat = await this.chatService.getInterGroupInactive(interGroupId);
-      interGroup.active = true;
-      interGroup.save();
       chat.active = true;
       chat.setTimeAndPlace = true;
-      chat.pending = false;
+      chat.pending = true;
       chat.save();
-      return 'InterGroup change to active';
+      return 'Send invitation to the other group.';
     } catch (err) {
       throw new Error(err.message);
+    }
+  }
+
+  async acceptInterGroupRepeat(data: acceptOrRefuseRepeat, currentUser: any) {
+    try {
+      const { interGroupId, accept } = data;
+      const userId = currentUser._id;
+       const interGroup = await this.interGroupModel.findOne({_id: interGroupId});
+      if (!interGroup) {
+        throw new HttpException('Intergroup does not exist', 404);
+      }
+      const chat = await this.chatService.getInterGroup(interGroupId);
+      const invitation = await this.invitationModel.findOne({groupSender: interGroup.groupSender || interGroup.groupReceiver, groupReceiver: interGroup.groupReceiver || interGroup.groupSender});
+      const proposal = await this.proposalModel.findOne({interGroup: interGroupId});
+      const group = await this.groupService.getGroup(invitation.groupReceiver);
+      if (!invitation) throw new HttpException('Invitation does not exist', 404);
+      if (group.admin == userId) {
+      if (accept) {
+        invitation.acceptOtherAdmin = true;
+        interGroup.confirmed = true;
+        chat.pending = false;
+        proposal.active = true;
+        proposal.success = false;
+      } else {
+        interGroup.confirmed = false;
+        chat.active = false;
+        chat.pending = false;
+        chat.setTimeAndPlace = false;
+      }
+      invitation.save();
+      interGroup.save();
+      chat.save();
+      proposal.save();
+      return interGroup;
+    } else {
+      throw new HttpException('You are not admin of the group', 404);
+    }
+    } catch (error) {
+      throw new Error(error.message)
     }
   }
 
@@ -445,6 +494,22 @@ export class InterGroupService {
       const invitation = await this.invitationModel.findOne({ _id: invitationId });
       if (!invitation) throw new HttpException('Invitation does not exist', 404);
       return invitation;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+   async getInvitationToAcceptRepeat(currentUser: any) {
+    try {
+      let interGroupsInactives = [];
+      const interGroups = await this.getMyPreviousIntergroups(currentUser);
+      console.log(interGroups);
+      for await (let interGroup of interGroups) {
+        const interG = await this.invitationModel.findOne({ sendAdminToRepeat: true, $or:[{groupReceiver: interGroup.groupReceiver._id}, {groupReceiver: interGroup.groupSender._id}]});
+        interGroupsInactives.push(interG);
+      }
+      console.log('intergs', interGroupsInactives)
+      return interGroupsInactives;
     } catch (error) {
       throw new Error(error.message);
     }

@@ -25,6 +25,13 @@ export class InvitationInterGroup {
 
   @Prop({ default: true })
   active: boolean;
+
+  @Prop({ default: false})
+  sendAdminToRepeat: boolean;
+
+  @Prop({ default: false})
+  acceptOtherAdmin: boolean
+
 }
 
 export type InvitationInterGroupDocument = InvitationInterGroup & mongoose.Document;
