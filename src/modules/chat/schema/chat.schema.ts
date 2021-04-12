@@ -31,6 +31,9 @@ export class Chat {
   @Prop({type: mongoose.SchemaTypes.ObjectId, ref: 'Meeting'})
   meeting: Meeting;
 
+  @Prop({type: mongoose.SchemaTypes.ObjectId, ref: 'Group'})
+  otherGroup: Group;
+
   @Prop({})
   dateProposal: Date;
 

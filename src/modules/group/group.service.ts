@@ -161,6 +161,9 @@ export class GroupService {
       }
       group.active = false;
       await group.save();
+      const chat = await this.chatService.getChatbyGroup(groupId);
+      chat.active = false;
+      chat.save();
       return 'Group change to inactive';
     } catch (err) {
       throw new Error(err.message);
@@ -264,6 +267,9 @@ export class GroupService {
       }
       searchGroup.active = true;
       searchGroup.save();
+      const chat = await this.chatService.getChatbyGroup(groupId);
+      chat.active = true;
+      chat.save();
       return searchGroup;
     } catch (err) {
       throw new Error(err.message);
@@ -279,7 +285,7 @@ export class GroupService {
         .populate('meetingPlaceOne')
         .populate('meetingPlaceTwo')
         .populate('typeOfActivity');
-      if (groups.length < 0) throw new Error('The user has no previous groups.');
+      if (groups.length < 1) throw new Error('The user has no previous groups.');
       return groups;
     } catch (err) {
       throw new Error(err.message);
@@ -298,7 +304,13 @@ export class GroupService {
       if (alreadyInvite.length > 0) throw new Error('User already invite');
       const newInvitation = new this.invitationModel(data);
       await newInvitation.save();
-      await this.chatService.createAdminChat(group, userExist);
+      const chat = await this.chatService.getOneChatAdminUser(user, group);
+      if (chat) {
+        chat.active = true;
+        chat.save();
+      } else {
+         await this.chatService.createAdminChat(group, userExist);
+      }
       return newInvitation;
     } catch (error) {
       throw new Error(error.message);
@@ -367,7 +379,7 @@ export class GroupService {
       //@ts-ignore
       group.integrants.push(user);
       await group.save();
-      const chats = await this.chatService.getOneChatAdmin(userId, invitation.group);
+      const chats = await this.chatService.getOneChatAdminWithUser(userId, invitation.user);
       chats.active = false;
       await chats.save();
       return group;
@@ -387,7 +399,7 @@ export class GroupService {
       if (group.admin != userId) throw new Error('This user is not the admin of this group');
       invitation.active = false;
       await invitation.save();
-      const chat = await this.chatService.getOneChatAdmin(userId, invitation.group);
+      const chat = await this.chatService.getOneChatAdminWithUser(userId, invitation.user);
       chat.active = false;
       await chat.save();
       return group;
@@ -463,6 +475,22 @@ export class GroupService {
     }
   }
 
+   async getPreviousUserGroups(currentUser: any) {
+    try {
+      const userID = currentUser._id;
+      const groups = await this.groupModel
+        .find({ active: false, integrants: userID })
+        .populate('integrants')
+        .populate('meetingPlaceOne')
+        .populate('meetingPlaceTwo')
+        .populate('typeOfActivity');
+      if (groups.length < 0) throw new Error('The user does not belong to any group');
+      return groups;
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
   async getOneUserGroup(userId: any, groupOne: any, secondGroup: any){
     try {
       const groups = await this.groupModel
@@ -471,6 +499,7 @@ export class GroupService {
         .populate('meetingPlaceOne')
         .populate('meetingPlaceTwo')
         .populate('typeOfActivity');
+        if (!groups) throw new HttpException('Your does not belong to any group', 404);
       return groups;
     } catch (err) {
       throw new Error(err.message);

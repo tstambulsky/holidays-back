@@ -223,4 +223,33 @@ export class InterGroupController {
       });
     }
   }
-}
+
+  @Get('/previous/intergroups')
+  async getPreviousInterGroups (@Res() res, @CurrentUser() user) {
+    try {
+      const response = await this.interGroupService.getMyPreviousIntergroups(user);
+      return res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        err: err.message
+      });
+    }
+  }
+
+  @Get('/repeat/:intergroupid')
+  async repeatInter(@Res() res, @Param('intergroupid') intergroupid, @CurrentUser() user) {
+    try {
+      const response = await this.interGroupService.repeatInterGroup(intergroupid, user);
+     return res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        err: err.message
+      });
+    }
+  }
+  
+  }
