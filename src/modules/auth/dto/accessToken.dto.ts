@@ -10,3 +10,8 @@ export class AccessTokenDto {
   @IsNotEmpty()
   access_token: string;
 }
+
+export class VerifyFacebookDTO{
+  readonly providerId: any;
+  readonly provider: any;
+}

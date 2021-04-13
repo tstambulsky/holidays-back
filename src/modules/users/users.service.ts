@@ -96,6 +96,7 @@ export class UsersService {
   async findOneUser(data: any) {
     try {
       const search = await this.userModel.findOne(data);
+      console.log('usuer', search);
       return search;
     } catch (err) {
       throw new Error(err.message);
