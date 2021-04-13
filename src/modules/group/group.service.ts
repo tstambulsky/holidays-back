@@ -343,7 +343,7 @@ export class GroupService {
   async getInvitationToGroup(groupId: any) {
     try {
       const invitations = await this.invitationModel
-        .find({ group: groupId, success: false, active: true, fromAdmin: false })
+        .find({ group: groupId, success: false, active: true })
         .populate('user')
         .populate('group')
         .populate('typeOfActivity');
