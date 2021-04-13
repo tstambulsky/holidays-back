@@ -18,6 +18,9 @@ export class User {
   @Prop({ required: false })
   provider_id: string;
 
+  @Prop({ required: false})
+  accessToken: string;
+
   @Prop({ required: false })
   deviceToken?: string;
 

@@ -55,7 +55,8 @@ export class UsersService {
         name: profile.name.givenName,
         lastName: profile.name.familyName,
         email: profile.emails[0].value,
-        photo: profile.photos[0].value
+        profilePhoto: profile.photos[0].value,
+        accessToken: accessToken
       });
       await createUser.save();
       return createUser;
@@ -77,7 +78,8 @@ export class UsersService {
         name: profile.name.givenName,
         lastName: profile.name.familyName,
         email: profile.emails[0].value,
-        photo: profile.photos[0].value
+        profilePhoto: profile.photos[0].value,
+        accessToken: accessToken,
       });
       await createUser.save();
       return createUser;
