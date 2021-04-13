@@ -23,10 +23,31 @@ export class AuthService {
     return user;
   }
 
+  async validateUserSocial(email: string): Promise<any> {
+    const user = await this.userService.getUserByEmail(email);
+    if (!user) throw new Error('Sorry, User not found');
+    if (!user.provider_id) throw new Error ('Sorry, you do not have privilegges to access this app')
+    return user;
+  }
+
   async login(data: LoginDTO) {
     const { email, password } = data;
     try {
       const userLoged = await this.validateUser(email, password);
+      const payload = { email: userLoged.email, _id: userLoged._id };
+      return {
+        token: this.jwtService.sign(payload),
+        user: userLoged
+      };
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+  async loginSocial(data: LoginDTO) {
+    const { email } = data;
+    try {
+      const userLoged = await this.validateUserSocial(email);
       const payload = { email: userLoged.email, _id: userLoged._id };
       return {
         token: this.jwtService.sign(payload),

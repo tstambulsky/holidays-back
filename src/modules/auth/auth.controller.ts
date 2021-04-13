@@ -39,6 +39,23 @@ export class AuthController {
     }
   }
 
+  @Post('/loginsocial')
+  async loginSocialNetworks(@Res() res, @Body() data: LoginDTO): Promise<LoginResDTO> {
+    try {
+      const userLogedd = await this.authService.loginSocial(data);
+      return res.status(HttpStatus.OK).json({
+        message: 'User has been logged',
+        userLogedd
+      });
+    } catch (err) {
+      console.log('Error in login');
+      return res.status(HttpStatus.NOT_FOUND).json({
+        message: err.message,
+        status: 404
+      });
+    }
+  }
+
   @UseGuards(AuthGuard('facebook'))
   @Get('/facebook/login')
   async getTokenAfterFacebookSignIn(@Res() res, @Req() req): Promise<any> {
