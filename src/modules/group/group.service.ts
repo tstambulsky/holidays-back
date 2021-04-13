@@ -499,7 +499,6 @@ export class GroupService {
         .populate('meetingPlaceOne')
         .populate('meetingPlaceTwo')
         .populate('typeOfActivity');
-        if (!groups) throw new HttpException('Your does not belong to any group', 404);
       return groups;
     } catch (err) {
       throw new Error(err.message);

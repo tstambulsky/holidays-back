@@ -49,6 +49,7 @@ export class ChatService {
     if (!group) throw new WsException('The chat does not exist');
     const invitation = await this.interGroupService.getInvitationId(invitationId);
     const isInGroup = await this.groupService.getOneUserGroup(userId, invitation.groupSender, invitation.groupReceiver);
+    if (!isInGroup) throw new WsException('Your does not belong to any group');
     const groupUserOne: any = await this.groupService.getGroup(invitation.groupSender);
     const groupUserTwo: any = await this.groupService.getGroup(invitation.groupReceiver);
     if (groupUserOne.name == isInGroup.name) {

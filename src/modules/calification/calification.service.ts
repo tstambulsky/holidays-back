@@ -48,18 +48,18 @@ export class CalificationService {
       const groupOne: any = await this.groupService.getGroup(interGroup.groupSender);
       const groupTwo: any = await this.groupService.getGroup(interGroup.groupReceiver);
       for await (let integrant of groupOne.integrants) {
-        const calification = await this.calificationModel.findOne({fromUser: userId, toUser: integrant._id});
-        if (!calification && integrant._id != userId) {
+        const calification = await this.calificationModel.findOne({fromUser: userId, toUser: integrant._id, interGroup: interGroupId});
+        if (!calification && integrant._id !== userId) {
           usersWithoutCalification.push(integrant._id);
         }
       }
       for await (let integrant of groupTwo.integrants) {
-        const calification = await this.calificationModel.findOne({fromUser: userId, toUser: integrant._id});
-        if (!calification && integrant._id != userId) {
+        const calification = await this.calificationModel.findOne({fromUser: userId, toUser: integrant._id, interGroup: interGroupId});
+        if (!calification && integrant._id !== userId) {
           usersWithoutCalification.push(integrant._id);
         }
       }
-      if (usersWithoutCalification.length < 1) throw new HttpException('You have no users to calificate.', 404);
+      //if (usersWithoutCalification.length < 1) throw new HttpException('You have no users to calificate.', 404);
       return usersWithoutCalification;
     } catch (error) {
       throw new Error(error.message)
@@ -73,8 +73,8 @@ export class CalificationService {
       let interGroupsUser = [];
       const allInterGroups = await this.interGroupService.getInterGroupsInactive();
       for await (let interGroup of allInterGroups) {
-        const groupSender = interGroup.groupSender;
-        const groupReceiver = interGroup.groupReceiver;
+        const groupSender: any = interGroup.groupSender;
+        const groupReceiver: any = interGroup.groupReceiver;
         const isInGroup = await this.groupService.getOneUserGroup(userId, groupSender, groupReceiver);
         if (isInGroup) { 
           interGroupsUser.push(interGroup._id);
@@ -86,7 +86,7 @@ export class CalificationService {
           integrants: []
         };
         interGroups.id = interGroup._id;
-        const response = await this.getUsersWithoutCalification(interGroup._id, userId);
+        const response = await this.getUsersWithoutCalification(interGroup._id, currentUser);
         for await (let user of response) {
         const users = await this.userService.getUserById(user);
          interGroups.integrants.push(users);
