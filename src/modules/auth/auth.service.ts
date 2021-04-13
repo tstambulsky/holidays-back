@@ -124,4 +124,18 @@ export class AuthService {
       throw new Error(err.message);
     }
   }
+
+  async socialLogin(providerId: any, provider: any) {
+     try {
+      const user = await this.userService.findOneUser({ provider_id: providerId, provider, active: true });
+      if (!user) {
+        throw new HttpException('You do not registered in this app', 404);
+      }
+      if (user) {
+        return 'Welcome to the Holidays App!'
+      }
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
 }

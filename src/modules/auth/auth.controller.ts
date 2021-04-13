@@ -16,6 +16,7 @@ import { RegisterDTO } from './dto/register.dto';
 import { AuthService } from './auth.service';
 import { ForgotPasswordDTO, ChangePasswordDTO, TokenCodeDTO } from './dto/Password.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { VerifyFacebookDTO } from './dto/accessToken.dto';
 
 @Controller('/api')
 export class AuthController {
@@ -52,6 +53,20 @@ export class AuthController {
       data: req.user
     };
   }
+
+  @Post('social/verify')
+  async verifyFacebookUser(@Res() res, @Body() data: VerifyFacebookDTO) {
+    try {
+    const response = await this.authService.socialLogin(data.providerId, data.provider);
+    return res.status(HttpStatus.OK).json({
+      response
+    })
+  } catch (error) {
+    return res.status(HttpStatus.BAD_REQUEST).json({
+      error: error.message
+    })
+  }
+  } 
 
   @Get('/instagram/login')
   @UseGuards(AuthGuard('instagram'))
