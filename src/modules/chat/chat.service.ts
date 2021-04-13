@@ -191,6 +191,16 @@ export class ChatService {
     }
   }
 
+   async getOneChatAdminUserWithout(userId: any, groupId: any) {
+    try {
+      const chat = await this.chatModel.findOne({ user: userId, group: groupId, active: false });
+      return chat;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+
   async getChatAdmin(currentUser: any) {
     try {
       const chats = await this.chatModel.find({ adminUser: currentUser._id, active: true });

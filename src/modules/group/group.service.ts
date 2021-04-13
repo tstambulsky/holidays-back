@@ -304,12 +304,12 @@ export class GroupService {
       if (alreadyInvite.length > 0) throw new Error('User already invite');
       const newInvitation = new this.invitationModel(data);
       await newInvitation.save();
-      const chat = await this.chatService.getOneChatAdminUser(user, group);
-      if (chat) {
+      const chat = await this.chatService.getOneChatAdminUserWithout(user, group);
+      if (!chat) {
+         await this.chatService.createAdminChat(group, userExist);
+      } if (chat) {
         chat.active = true;
         chat.save();
-      } else {
-         await this.chatService.createAdminChat(group, userExist);
       }
       return newInvitation;
     } catch (error) {
