@@ -45,6 +45,7 @@ export class ChatService {
     try {
     let groupWithoutUserLogged;
     const userId = currentUser._id;
+    console.log('invitation q puede falla', invitationId)
     const group = await this.chatModel.findOne({invitation: invitationId, active: true});
     if (!group) throw new WsException('The chat does not exist');
     const invitation = await this.interGroupService.getInvitationId(invitationId);
