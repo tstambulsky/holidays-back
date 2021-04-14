@@ -47,18 +47,23 @@ export class CalificationService {
       const interGroup = await this.interGroupService.getInterGroupInactive(interGroupId);
       const groupOne: any = await this.groupService.getGroup(interGroup.groupSender);
       const groupTwo: any = await this.groupService.getGroup(interGroup.groupReceiver);
+      const userInGruoup = await this.groupService.getOneUserWithGroupInactive(currentUser, groupOne);
+      const userInGruoupTwo = await this.groupService.getOneUserWithGroupInactive(currentUser, groupTwo);
+      if (userInGruoupTwo) {
       for await (let integrant of groupOne.integrants) {
         const calification = await this.calificationModel.findOne({fromUser: userId, toUser: integrant._id, interGroup: interGroupId});
         if (!calification && integrant._id !== userId) {
           usersWithoutCalification.push(integrant._id);
         }
       }
+    } if (userInGruoup) {
       for await (let integrant of groupTwo.integrants) {
         const calification = await this.calificationModel.findOne({fromUser: userId, toUser: integrant._id, interGroup: interGroupId});
         if (!calification && integrant._id !== userId) {
           usersWithoutCalification.push(integrant._id);
         }
       }
+    }
       //if (usersWithoutCalification.length < 1) throw new HttpException('You have no users to calificate.', 404);
       return usersWithoutCalification;
     } catch (error) {
