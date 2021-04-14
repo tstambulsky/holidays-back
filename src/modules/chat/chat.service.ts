@@ -46,7 +46,7 @@ export class ChatService {
     let groupWithoutUserLogged;
     const userId = currentUser._id;
     const group = await this.chatModel.findOne({invitation: invitationId, active: true});
-    //if (!group) throw new WsException('The chat does not exist');
+    if (!group) throw new WsException('The chat does not exist');
     const invitation = await this.interGroupService.getInvitationId(invitationId);
     const isInGroup = await this.groupService.getOneUserGroup(userId, invitation.groupSender, invitation.groupReceiver);
     if (!isInGroup) throw new WsException('Your does not belong to any group');
@@ -129,7 +129,9 @@ export class ChatService {
       });
       for await (let element of interGroupsId) {
         const chat = await this.chatModel.findOne({ invitation: element._id, active: true });
+        console.log('chatmen', chat);
         const group = await this.getChatPopulateGroup(element._id, currentUser);
+        console.log('grupo que no estoy', group);
         chat.otherGroup = group;
         chat.save();
         if (chat !== null) { 
