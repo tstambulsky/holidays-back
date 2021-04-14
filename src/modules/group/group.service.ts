@@ -521,6 +521,22 @@ export class GroupService {
     }
   }
 
+   async getOneUserWithGroupInactive(currentUser: any, group: any) {
+    try {
+      const groupId = group._id;
+      const userId = currentUser._id;
+      const groups = await this.groupModel
+        .findOne({integrants: userId, _id: groupId })
+        .populate('integrants')
+        .populate('meetingPlaceOne')
+        .populate('meetingPlaceTwo')
+        .populate('typeOfActivity');
+      return groups;
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
   async searchByDistance(currentUser, maxDistance) {
     try {
       const userId = currentUser._id;
