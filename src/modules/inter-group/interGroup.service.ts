@@ -360,6 +360,7 @@ export class InterGroupService {
       chat.place = true;
       chat.setTimeAndPlace = false;
       chat.pending = false;
+      chat.proposal = proposal._id;
       chat.meeting = proposal.proposalPlace;
       chat.dateProposal = proposal.proposalStartDate;
       await chat.save();

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, forwardRef, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Notification, NotificationDocument } from './schema/notification.schema';
 import { Model } from 'mongoose';
@@ -10,7 +10,7 @@ import { UsersService } from '../users/users.service';
 export class NotificationService {
   constructor(
     @InjectModel(Notification.name) private readonly notificationModel: Model<NotificationDocument>,
-    private readonly userService: UsersService
+    @Inject(forwardRef(() => UsersService)) private readonly userService: UsersService
   ) {}
 
   private async sendNotification(token: string, message: any) {
