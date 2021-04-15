@@ -13,7 +13,7 @@ export class NotificationService {
     @Inject(forwardRef(() => UsersService)) private readonly userService: UsersService
   ) {}
 
-  private async sendNotification(token: string, message: any) {
+  async sendNotification(token: string, message: any) {
     try {
       const response = await admin.messaging().sendToDevice(token, message);
       console.log(response);
@@ -72,7 +72,7 @@ export class NotificationService {
           Emergency_category: 'Emergency'
         }
       };
-      await this.sendNotification(token, message.notification);
+      await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
       await this.createNotification(notification);
       return true;
