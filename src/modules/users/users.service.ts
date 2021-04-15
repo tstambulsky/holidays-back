@@ -37,8 +37,8 @@ export class UsersService {
   async getUserById(userId: any): Promise<User> {
     try {
       const user = await this.userModel.findById({ _id: userId });
-      if (user.deviceToken) await this.notificationService.testNotification(user.deviceToken); 
-      console.log('devicetoken', user.deviceToken);
+      //if (user.deviceToken) await this.notificationService.testNotification(user.deviceToken); 
+      //console.log('devicetoken', user.deviceToken);
       return user;
     } catch (err) {
       console.log(err);
