@@ -132,6 +132,8 @@ export class GroupService {
       //@ts-ignore
       group.integrants.push(userId);
       if (!group.endDate) group.endDate = moment(group.startDate).add(12, 'hours').format('YYYY-MM-DD HH:mm');
+      const valid = await this.validateGroups(currentUser, group);
+      if(!valid) throw new HttpException('You have another group at the same time', 404);
       await group.save();
       await this.chatService.createGroupChat(group._id);
       return group;
@@ -343,7 +345,7 @@ export class GroupService {
   async getInvitationToGroup(groupId: any) {
     try {
       const invitations = await this.invitationModel
-        .find({ group: groupId, success: false, active: true })
+        .find({ group: groupId, success: false, active: true, fromAdmin: false })
         .populate('user')
         .populate('group')
         .populate('typeOfActivity');

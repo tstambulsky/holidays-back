@@ -1,4 +1,4 @@
-import { Injectable, HttpException, Inject } from '@nestjs/common';
+import { Injectable, HttpException, Inject, forwardRef } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { RegisterDTO } from '../auth/dto/register.dto';
@@ -6,12 +6,14 @@ import { UpdateUserDTO, queryDTO, PhotoDTO } from './dto/data.dto';
 import { User, UserDocument } from './schema/users.schema';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { removeImage } from './utils/deleteImage';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
-    @Inject(CloudinaryService) private readonly _cloudinaryService: CloudinaryService
+    @Inject(CloudinaryService) private readonly _cloudinaryService: CloudinaryService,
+    @Inject(forwardRef(() => NotificationService)) private readonly notificationService: NotificationService
   ) {}
 
   async getUsers(): Promise<User[]> {
@@ -35,6 +37,8 @@ export class UsersService {
   async getUserById(userId: any): Promise<User> {
     try {
       const user = await this.userModel.findById({ _id: userId });
+      if (user.deviceToken) await this.notificationService.testNotification(user.deviceToken); 
+      console.log('devicetoken', user.deviceToken);
       return user;
     } catch (err) {
       console.log(err);
@@ -98,7 +102,7 @@ export class UsersService {
   async findOneUser(data: any) {
     try {
       const search = await this.userModel.findOne(data);
-      console.log('usuer', search);
+      console.log('user', search);
       return search;
     } catch (err) {
       throw new Error(err.message);

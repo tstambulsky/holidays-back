@@ -22,6 +22,9 @@ export class Chat {
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Invitation' })
   invitation: Invitation;
 
+  @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Proposal' })
+  proposal: Proposal;
+
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'User' })
   adminUser: User;
 
