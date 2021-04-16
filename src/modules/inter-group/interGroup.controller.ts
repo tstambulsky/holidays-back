@@ -37,7 +37,7 @@ export class InterGroupController {
   @Get('/:intergroupID')
   async getInterGroup(@Res() res, @Param('intergroupID') intergroupID) {
     try {
-      const interGroup = await this.interGroupService.getInterGroup(intergroupID);
+      const interGroup = await this.interGroupService.getInterGroupById(intergroupID);
       if (!interGroup) throw new NotFoundException('Inter Group does not exists');
       return res.status(HttpStatus.OK).json(interGroup);
     } catch (err) {
@@ -285,7 +285,7 @@ export class InterGroupController {
   @Post('/domeeting/:interGroupId') 
   async meeting(@Res() res, @Param('interGroupId') interGroupId, @Body() data: doMeetingDto) {
     try {
-       const response = await this.interGroupService.dotheMeeting(interGroupId, data.response);
+       const response = await this.interGroupService.doTheMeeting(interGroupId, data.response);
      return res.status(HttpStatus.OK).json({
         response
       });
