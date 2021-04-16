@@ -50,7 +50,15 @@ export class InterGroupService {
       throw new Error(err.message);
     }
   }
-  
+
+  async getInterGroupById(interGroupId: any) {
+    try {
+      const interGroup = await this.interGroupModel.findOne({ _id: interGroupId });
+      return interGroup;
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
 
   async getInterGroupInactive(interGroupID: any): Promise<InterGroup> {
     try {
@@ -516,7 +524,7 @@ export class InterGroupService {
     }
   }
 
-  async dotheMeeting(interGroupId: any, response: boolean ) {
+  async doTheMeeting(interGroupId: any, response: boolean ) {
     try {
       const interGroup = await this.interGroupModel.findOne({_id: interGroupId});
       if (response == true) {
