@@ -25,6 +25,7 @@ export class AuthService {
 
   async validateUserSocial(email: string): Promise<any> {
     const user = await this.userService.getUserByEmail(email);
+    console.log('usuariotestlogin', user);
     if (!user) throw new Error('Sorry, User not found');
     if (!user.provider_id) throw new Error ('Sorry, you do not have privilegges to access this app')
     return user;
@@ -48,6 +49,7 @@ export class AuthService {
     try {
       const userLoged = await this.validateUserSocial(email);
       const payload = { email: userLoged.email, _id: userLoged._id };
+      console.log('payloadpayload', payload);
       return {
         token: this.jwtService.sign(payload),
         user: userLoged
