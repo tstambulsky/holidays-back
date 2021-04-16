@@ -7,12 +7,14 @@ import { User, UserDocument } from './schema/users.schema';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { removeImage } from './utils/deleteImage';
 import { NotificationService } from '../notification/notification.service';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     @Inject(CloudinaryService) private readonly _cloudinaryService: CloudinaryService,
+    private readonly authService: AuthService,
     @Inject(forwardRef(() => NotificationService)) private readonly notificationService: NotificationService
   ) {}
 
@@ -49,9 +51,9 @@ export class UsersService {
   async findOrCreateFB(accessToken: any, refreshToken: any, profile: any, done: any): Promise<User> {
     try {
       const user = await this.userModel.findOne({ provider_id: profile.id });
-      console.log(profile);
       if (user) {
-        return user;
+        const userToLogin: any = await this.authService.loginSocial(user.email);
+        return userToLogin;
       }
       const createUser = new this.userModel({
         provider: profile.provider,
@@ -63,7 +65,8 @@ export class UsersService {
         accessToken: accessToken
       });
       await createUser.save();
-      return createUser;
+     const login: any = await this.authService.loginSocial(createUser.email);
+     return login;
     } catch (err) {
       console.log(err);
       throw new Error(err.message);
@@ -74,7 +77,8 @@ export class UsersService {
     try {
       const user = await this.userModel.findOne({ provider_id: profile.id });
       if (user) {
-        return user;
+       const userToLogin: any = await this.authService.loginSocial(user.email);
+        return userToLogin;
       }
       const createUser = await new this.userModel({
         provider: profile.provider,
@@ -86,7 +90,8 @@ export class UsersService {
         accessToken: accessToken,
       });
       await createUser.save();
-      return createUser;
+      const login: any = await this.authService.loginSocial(createUser.email);
+      return login;
     } catch (err) {
       console.log(err);
       throw new Error(err.message);

@@ -37,5 +37,8 @@ export class InterGroup {
 
   @Prop({ default: false })
   confirmed: boolean;
+
+  @Prop({})
+  doMeeting: boolean;
 }
 export const InterGroupSchema = SchemaFactory.createForClass(InterGroup);

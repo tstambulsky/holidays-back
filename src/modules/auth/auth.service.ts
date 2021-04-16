@@ -1,4 +1,4 @@
-import { Injectable, HttpException } from '@nestjs/common';
+import { Injectable, HttpException, forwardRef, Inject } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { hash, compare } from 'bcrypt';
 import { UsersService } from '../users/users.service';
@@ -11,7 +11,7 @@ import { tokenConfig } from '../../config/token';
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userService: UsersService,
+    @Inject(forwardRef(() => UsersService)) private readonly userService: UsersService,
     private readonly emailService: EmailService,
     readonly jwtService: JwtService  ) {}
 
@@ -44,8 +44,7 @@ export class AuthService {
     }
   }
 
-  async loginSocial(data: LoginDTO) {
-    const { email } = data;
+  async loginSocial(email: string) {
     try {
       const userLoged = await this.validateUserSocial(email);
       const payload = { email: userLoged.email, _id: userLoged._id };
