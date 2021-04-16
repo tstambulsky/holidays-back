@@ -7,7 +7,8 @@ import {
   AceptOrRefuseDTO,
   newProposalDto,
   acceptOrRefuseProposalDto,
-  acceptOrRefuseRepeat
+  acceptOrRefuseRepeat,
+  doMeetingDto
 } from './dto/interGroup.dto';
 import { CurrentUser } from '../users/decorators/currentUser';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -274,6 +275,21 @@ export class InterGroupController {
      return res.status(HttpStatus.OK).json({
         response
       });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        err: err.message
+      });
+    }
+  }
+
+  @Post('/domeeting/:interGroupId') 
+  async meeting(@Res() res, @Param('interGroupId') interGroupId, @Body() data: doMeetingDto) {
+    try {
+       const response = await this.interGroupService.dotheMeeting(interGroupId, data.response);
+     return res.status(HttpStatus.OK).json({
+        response
+      });
+
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         err: err.message

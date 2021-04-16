@@ -7,9 +7,11 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './schema/users.schema';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 import { NotificationModule } from '../notification/notification.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),EmailModule, CloudinaryModule, 
+  forwardRef(() => AuthModule),
   forwardRef(() => NotificationModule),],
   controllers: [UsersController],
   providers: [UsersService, EmailService],

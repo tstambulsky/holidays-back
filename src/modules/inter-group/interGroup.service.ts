@@ -515,4 +515,19 @@ export class InterGroupService {
       throw new Error(error.message);
     }
   }
+
+  async dotheMeeting(interGroupId: any, response: boolean ) {
+    try {
+      const interGroup = await this.interGroupModel.findOne({_id: interGroupId});
+      if (response == true) {
+        interGroup.doMeeting = true;
+      } if (response == false) {
+        interGroup.doMeeting = false;
+      }
+      interGroup.save();
+      return 'Thanks for your reply.';
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
 }

@@ -56,3 +56,7 @@ export class acceptOrRefuseRepeat {
   readonly interGroupId: InterGroup;
   readonly accept: boolean;
 }
+
+export class doMeetingDto {
+  readonly response: boolean;
+}
