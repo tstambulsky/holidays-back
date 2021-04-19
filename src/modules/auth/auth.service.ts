@@ -30,6 +30,14 @@ export class AuthService {
     return user;
   }
 
+   async validateUserApple(appleId: any): Promise<any> {
+    const user = await this.userService.findOneUser({apple_id: appleId});
+    if (!user) throw new Error('Sorry, User not found');
+    if (user.apple_id !== appleId) throw new Error ('Sorry, the apple id is not registered in our app');
+    return user;
+  }
+
+
   async login(data: LoginDTO) {
     const { email, password } = data;
     try {
@@ -48,7 +56,19 @@ export class AuthService {
     try {
       const userLoged = await this.validateUserSocial(email, provider);
       const payload = { email: userLoged.email, _id: userLoged._id };
-      console.log('payloadpayload', payload);
+      return {
+        token: this.jwtService.sign(payload),
+        user: userLoged
+      };
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+  async loginApple(appleId: any) {
+    try {
+      const userLoged = await this.validateUserApple(appleId);
+      const payload = { email: userLoged.email, _id: userLoged._id };
       return {
         token: this.jwtService.sign(payload),
         user: userLoged
@@ -68,7 +88,7 @@ export class AuthService {
   }
 
   async registerUser(data: RegisterDTO) {
-    const { name, lastName, DNI, email, phoneNumber, password, address, birthDate, city, state, sex, isAdmin, latitude, longitude } = data;
+    const { name, lastName, DNI, email, phoneNumber, password, address, birthDate, city, state, sex, isAdmin, latitude, longitude, provider, provider_id, apple_id } = data;
     try {
       const ifExist = await this.userService.getUserByEmail(email);
       if (ifExist) throw new HttpException('Email already exist', 404);
@@ -87,7 +107,10 @@ export class AuthService {
         sex,
         isAdmin,
         latitude,
-        longitude
+        longitude,
+        provider,
+        provider_id,
+        apple_id
       });
       return user;
     } catch (err) {
