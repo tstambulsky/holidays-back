@@ -32,6 +32,19 @@ export class ChatService {
     return user;
   }
 
+  async createInterGroupMessage(chatId: any, name: any) {
+    try {
+      const message = await new this.messageModel({
+        content: `${name} han aceptado la hora y el lugar`,
+        chat: chatId
+      })
+      await message.save();
+      return message;
+    } catch (error) {
+      throw new Error(error.message)
+    }
+  }
+
   async createGroupChat(groupId: any) {
     const group = await this.groupService.getGroup(groupId);
     const chat = await new this.chatModel({

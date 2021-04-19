@@ -411,6 +411,7 @@ export class InterGroupService {
         await intergroup.save();
         const chat = await this.chatService.getInterGroup(proposal.interGroup);
         chat.place = false;
+        await this.chatService.createInterGroupMessage(chat._id, proposal.groupReceiver.name);
         await chat.save();
       } else {
         const chat = await this.chatService.getInterGroup(proposal.interGroup);

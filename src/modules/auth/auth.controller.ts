@@ -42,7 +42,7 @@ export class AuthController {
   @Post('/loginsocial')
   async loginSocialNetworks(@Res() res, @Body() data: LoginDTO): Promise<LoginResDTO> {
     try {
-      const userLogedd = await this.authService.loginSocial(data.email);
+      const userLogedd = await this.authService.loginSocial(data.email, data.provider);
       return res.status(HttpStatus.OK).json({
         message: 'User has been logged',
         userLogedd

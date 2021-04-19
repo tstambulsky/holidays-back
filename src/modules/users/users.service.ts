@@ -52,7 +52,7 @@ export class UsersService {
     try {
       const user = await this.userModel.findOne({ provider_id: profile.id || accessToken});
       if (user) {
-        const userToLogin: any = await this.authService.loginSocial(user.email);
+        const userToLogin: any = await this.authService.loginSocial(user.email, user.provider_id);
         return userToLogin;
       }
       const createUser = new this.userModel({
@@ -65,7 +65,7 @@ export class UsersService {
         accessToken: accessToken
       });
       await createUser.save();
-     const login: any = await this.authService.loginSocial(createUser.email);
+     const login: any = await this.authService.loginSocial(createUser.email, createUser.provider_id);
      return login;
     } catch (err) {
       console.log(err);
@@ -77,7 +77,7 @@ export class UsersService {
     try {
       const user = await this.userModel.findOne({ provider_id: profile.id });
       if (user) {
-       const userToLogin: any = await this.authService.loginSocial(user.email);
+       const userToLogin: any = await this.authService.loginSocial(user.email, user.provider_id);
         return userToLogin;
       }
       const createUser = await new this.userModel({
@@ -90,7 +90,7 @@ export class UsersService {
         accessToken: accessToken,
       });
       await createUser.save();
-      const login: any = await this.authService.loginSocial(createUser.email);
+      const login: any = await this.authService.loginSocial(createUser.email, createUser.provider_id);
       return login;
     } catch (err) {
       console.log(err);

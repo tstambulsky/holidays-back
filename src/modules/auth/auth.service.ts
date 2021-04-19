@@ -23,11 +23,10 @@ export class AuthService {
     return user;
   }
 
-  async validateUserSocial(email: string): Promise<any> {
+  async validateUserSocial(email: string, provider: any): Promise<any> {
     const user = await this.userService.getUserByEmail(email);
-    console.log('usuariotestlogin', user);
     if (!user) throw new Error('Sorry, User not found');
-    if (!user.provider_id) throw new Error ('Sorry, you do not have privilegges to access this app')
+    if (user.provider_id !== provider) throw new Error ('Sorry, the user does not have the privileges to access at this app');
     return user;
   }
 
@@ -45,9 +44,9 @@ export class AuthService {
     }
   }
 
-  async loginSocial(email: string) {
+  async loginSocial(email: string, provider: any) {
     try {
-      const userLoged = await this.validateUserSocial(email);
+      const userLoged = await this.validateUserSocial(email, provider);
       const payload = { email: userLoged.email, _id: userLoged._id };
       console.log('payloadpayload', payload);
       return {
