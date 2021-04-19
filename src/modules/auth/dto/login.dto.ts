@@ -6,6 +6,7 @@ export class LoginDTO {
   readonly email: string;
   readonly password: string;
   readonly provider: any;
+  readonly appleId: any;
 }
 
 export class LoginResDTO {

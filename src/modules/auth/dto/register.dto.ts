@@ -35,4 +35,10 @@ export class RegisterDTO {
   readonly latitude: number;
 
   readonly longitude: number;
+
+  readonly provider_id?: string;
+
+  readonly provider?: string;
+
+  readonly apple_id?: string;
 }
