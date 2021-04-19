@@ -5,6 +5,7 @@ import { User } from '../../users/schema/users.schema';
 export class LoginDTO {
   readonly email: string;
   readonly password: string;
+  readonly provider: any;
 }
 
 export class LoginResDTO {
