@@ -9,7 +9,7 @@ export class Message {
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Chat' })
   chat: Chat;
 
-  @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'User', required: true, length: 255, autopopulate: true })
+  @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'User', length: 255, autopopulate: true })
   author: User;
 
   @Prop()
