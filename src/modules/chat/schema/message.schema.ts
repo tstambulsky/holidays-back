@@ -23,6 +23,9 @@ export class Message {
 
   @Prop({ default: Date.now })
   date: Date;
+
+  @Prop({default: false})
+  read: boolean;
 }
 
 export type MessageDocument = Message & mongoose.Document;

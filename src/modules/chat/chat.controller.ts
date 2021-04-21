@@ -149,4 +149,46 @@ export class ChatController {
     }
   }
 
+  @Get('/unreadgroup')
+  async unreadGroup(@Res() res, @Body() data: MessageDTO, @CurrentUser() user) {
+    try {
+      const response = await this.chatService.getUnreadGroup(data.group, user);
+      res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (err) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        error: err.message
+      });
+    }
+  }
+  
+  @Get('/unreadintergroup')
+  async unreadInterGroup(@Res() res, @Body() data: MessageDTO, @CurrentUser() user) {
+     try {
+      const response = await this.chatService.getUnreadInterGroup(user, data.invitation);
+      res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (err) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        error: err.message
+      });
+    }
+  }
+
+  @Get('/unreadadmin')
+  async unreadAdmin(@Res() res, @Body() data: MessageDTO) {
+    try {
+      const response = await this.chatService.getUnreadAdmin(data.chatId);
+      res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (err) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        error: err.message
+      });
+    }
+  }
+
 }

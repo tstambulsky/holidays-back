@@ -285,6 +285,11 @@ export class ChatService {
         chat: chat._id
       })
       .sort({ date: -1 });
+      for await (let message of messages) {
+        const mesg = await this.messageModel.findOne({ _id: message._id })
+        mesg.read = true;
+        mesg.save();
+      }
     return messages;
   }
 
@@ -324,11 +329,17 @@ export class ChatService {
     if (userInGroup === null) userInGroupTwo = await this.groupService.getOneUserWithGroup(currentUser, groupTwo);
     if (userInGroupTwo === null) throw new WsException('The user does not belong to some group');
     const chat = await this.chatModel.findOne({ invitation: invitationId, active: true });
-    return await this.messageModel
+    const messages = await this.messageModel
       .find({
         chat: chat._id
       })
       .sort({ date: -1 });
+        for await (let message of messages) {
+        const mesg = await this.messageModel.findOne({ _id: message._id })
+        mesg.read = true;
+        mesg.save();
+      }
+      return messages;
   }
 
   async saveMessageAdmin(content: string, chatId: any, groupId: any, currentUser: any) {
@@ -353,10 +364,74 @@ export class ChatService {
   async getAllMessagesAdmin(chatId: any) {
     const chat = await this.chatModel.findOne({ _id: chatId, active: true });
     const id = chat._id;
-    return await this.messageModel
+    const messages = await this.messageModel
       .find({
         chat: id
       })
       .sort({ date: -1 });
+        for await (let message of messages) {
+        const mesg = await this.messageModel.findOne({ _id: message._id })
+        mesg.read = true;
+        mesg.save();
+      }
+      return messages;
   }
+
+  async getUnreadGroup(groupId: any, currentUser: any) {
+    try {
+      const group = await this.groupService.getGroup({ active: true, _id: groupId, integrants: currentUser._id });
+      if (!group) throw new WsException('The user does not belong to the group or the group does not exist.');
+      const chat = await this.chatModel.findOne({ group: groupId, active: true });
+      const messages = await this.messageModel
+        .find({
+          chat: chat._id,
+          read: false
+        })
+        .sort({ date: -1 });
+        return messages;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async getUnreadInterGroup(currentUser: any, invitationId: any) {
+    try {
+      let userInGroupTwo;
+      //const group = await this.groupService.getGroupChat(groupId, currentUser);
+      //const interGroup = await this.interGroupService.getInterGroupInactive(interGroupId);
+      //if (!interGroup) throw new WsException('The intergroup does not exist.');
+      const invitation = await this.interGroupService.getInvitationId(invitationId);
+      const groupOne = invitation.groupSender;
+      const groupTwo = invitation.groupReceiver;
+      const userInGroup = await this.groupService.getOneUserWithGroup(currentUser, groupOne);
+      if (userInGroup === null) userInGroupTwo = await this.groupService.getOneUserWithGroup(currentUser, groupTwo);
+      if (userInGroupTwo === null) throw new WsException('The user does not belong to some group');
+      const chat = await this.chatModel.findOne({ invitation: invitationId, active: true });
+      const messages = await this.messageModel
+        .find({
+          chat: chat._id,
+          read: false
+        })
+        .sort({ date: -1 });
+        return messages;
+      } catch (error) {
+        throw new Error(error);
+      }
+    }
+
+    async getUnreadAdmin(chatId: any) {
+      try {
+        const chat = await this.chatModel.findOne({ _id: chatId, active: true });
+        const id = chat._id;
+        const messages = await this.messageModel
+          .find({
+            chat: id,
+            read: false
+          })
+          .sort({ date: -1 });
+          return messages;
+      } catch (error) {
+        throw new Error(error);
+      }
+    }
 }
