@@ -23,6 +23,9 @@ export class Message {
 
   @Prop({ default: Date.now })
   date: Date;
+
+  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }])
+  readBy: User;
 }
 
 export type MessageDocument = Message & mongoose.Document;
