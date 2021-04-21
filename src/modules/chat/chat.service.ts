@@ -286,9 +286,12 @@ export class ChatService {
       })
       .sort({ date: -1 });
       for await (let message of messages) {
-        const mesg = await this.messageModel.findOne({ _id: message._id })
-        mesg.read = true;
-        mesg.save();
+        const mesg = await this.messageModel.findOne({ _id: message._id, readBy: { $ne: currentUser._id } });
+         if (mesg) {
+          //@ts-ignore
+          mesg.readBy.push(currentUser._id);
+          mesg.save();
+         }
       }
     return messages;
   }
@@ -318,6 +321,7 @@ export class ChatService {
   }
 
   async getAllMessagesInterGroup(currentUser: any, invitationId: any) {
+    const userId = currentUser._id;
     let userInGroupTwo;
     //const group = await this.groupService.getGroupChat(groupId, currentUser);
     //const interGroup = await this.interGroupService.getInterGroupInactive(interGroupId);
@@ -335,9 +339,12 @@ export class ChatService {
       })
       .sort({ date: -1 });
         for await (let message of messages) {
-        const mesg = await this.messageModel.findOne({ _id: message._id })
-        mesg.read = true;
-        mesg.save();
+        const mesg: any = await this.messageModel.findOne({ _id: message._id, readBy: { $ne: currentUser._id }});
+            //@ts-ignore
+            if (mesg) {
+            mesg.readBy.push(userId);
+            mesg.save();
+            }
       }
       return messages;
   }
@@ -361,7 +368,7 @@ export class ChatService {
     return await newMessage.save();
   }
 
-  async getAllMessagesAdmin(chatId: any) {
+  async getAllMessagesAdmin(chatId: any, currentUser: any ) {
     const chat = await this.chatModel.findOne({ _id: chatId, active: true });
     const id = chat._id;
     const messages = await this.messageModel
@@ -370,9 +377,12 @@ export class ChatService {
       })
       .sort({ date: -1 });
         for await (let message of messages) {
-        const mesg = await this.messageModel.findOne({ _id: message._id })
-        mesg.read = true;
-        mesg.save();
+        const mesg = await this.messageModel.findOne({ _id: message._id, readBy: { $ne: currentUser._id } })
+         if (mesg) {
+          //@ts-ignore
+          mesg.readBy.push(currentUser._id);
+          mesg.save();
+         }
       }
       return messages;
   }
@@ -385,7 +395,7 @@ export class ChatService {
       const messages = await this.messageModel
         .find({
           chat: chat._id,
-          read: false
+          readBy: { $ne: currentUser._id }
         })
         .sort({ date: -1 });
         return messages;
@@ -410,7 +420,7 @@ export class ChatService {
       const messages = await this.messageModel
         .find({
           chat: chat._id,
-          read: false
+          readBy: { $ne: currentUser._id }
         })
         .sort({ date: -1 });
         return messages;
@@ -419,14 +429,14 @@ export class ChatService {
       }
     }
 
-    async getUnreadAdmin(chatId: any) {
+    async getUnreadAdmin(chatId: any, currentUser: any ) {
       try {
         const chat = await this.chatModel.findOne({ _id: chatId, active: true });
         const id = chat._id;
         const messages = await this.messageModel
           .find({
             chat: id,
-            read: false
+            readBy: { $ne: currentUser._id }
           })
           .sort({ date: -1 });
           return messages;

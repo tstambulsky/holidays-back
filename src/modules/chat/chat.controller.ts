@@ -136,9 +136,9 @@ export class ChatController {
   }
 
    @Get('/saveadmin')
-  async savemessageadmin(@Res() res, @Body() data: MessageDTO) {
+  async savemessageadmin(@Res() res, @Body() data: MessageDTO, @CurrentUser() user) {
     try {
-      const response = await this.chatService.getAllMessagesAdmin(data.chatId);
+      const response = await this.chatService.getAllMessagesAdmin(data.chatId, user);
       res.status(HttpStatus.OK).json({
         response
       });
@@ -178,9 +178,9 @@ export class ChatController {
   }
 
   @Get('/unreadadmin')
-  async unreadAdmin(@Res() res, @Body() data: MessageDTO) {
+  async unreadAdmin(@Res() res, @Body() data: MessageDTO, @CurrentUser() user) {
     try {
-      const response = await this.chatService.getUnreadAdmin(data.chatId);
+      const response = await this.chatService.getUnreadAdmin(data.chatId, user);
       res.status(HttpStatus.OK).json({
         response
       });
