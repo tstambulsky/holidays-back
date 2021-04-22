@@ -253,4 +253,16 @@ export class UsersService {
       throw new Error(err.message);
     }
   }
+
+  async getUserTestToken(userId: any): Promise<User> {
+    try {
+      const user = await this.userModel.findById({ _id: userId });
+      if (user.deviceToken) await this.notificationService.testNotification(user.deviceToken); 
+      console.log('devicetoken', user.deviceToken);
+      return user;
+    } catch (err) {
+      console.log(err);
+      throw new Error(err.message);
+    }
+  }
 }

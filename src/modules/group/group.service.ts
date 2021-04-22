@@ -330,29 +330,6 @@ export class GroupService {
     }
   }
 
-  /*async requestToJoinGroup(currentUser: any, data: RequestToGroupDTO) {
-    try {
-      const userId = currentUser._id;
-      const { group } = data;
-      const groupExist = await this.groupModel.findOne({ _id: group }).populate('integrants');
-      if (!groupExist) throw new Error('This group does not exist');
-      const isIngroup = await this.groupModel.findOne({ _id: group, integrants: userId });
-      if (isIngroup) throw new Error('This user is already in the group');
-      const alreadyInvite = await this.invitationModel.find({ user: userId, group, active: true });
-      if (alreadyInvite.length > 0) throw new Error('User already invite');
-      const newInvitation = new this.invitationModel(data);
-      newInvitation.user = userId;
-      await newInvitation.save();
-      const admin = await this.chatService.createAdminChat(group);
-      admin.name = `Admin chat of ${groupExist.name}`,
-      admin.user = userId;
-      await admin.save();
-      return 'Request sent to the group admin.'
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  }*/
-
   async getInvitationToGroup(groupId: any) {
     try {
       const invitations = await this.invitationModel
@@ -685,30 +662,5 @@ export class GroupService {
     }
   }
 
-
-
 }
 
-
-  /*async threeFilters(gender: any, distance: any, age: any, currentUser: any) {
-    try {
-      let allFilters = [];
-      let ageFilter = [];
-      let distanceFilter = [];
-      let filterGender = [];
-      if (age) {
-      ageFilter = await this.ageFilter(age);
-      }
-       if (distance) {
-      distanceFilter = await this.searchByDistance(currentUser,distance);
-      }
-       if (gender) {
-      filterGender = await this.genderFilter(gender);
-      }
-    
-      return allFilters;
-     
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  }*/
