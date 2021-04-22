@@ -81,17 +81,17 @@ export class NotificationService {
     }
   }
 
-  async sendAcceptGroup(token: string) {
+  async sendAcceptGroup(token: string, name: any) {
     try {
       const message = {
         notification: {
           title: 'Grupo aceptado',
-          body: 'Fuiste aceptado al grupo',
+          body: `Fuiste aceptado al grupo ${name}`,
           sound: 'default'
         },
         data: {
           title: 'Grupo aceptado',
-          body: 'Fuiste aceptado al grupo',
+          body: `Fuiste aceptado al grupo ${name}`,
           Emergency_category: 'Emergency'
         }
       };
@@ -104,17 +104,17 @@ export class NotificationService {
     }
   }
 
-  async sendAcceptInterGroup(token: string) {
+  async sendNoAcceptGroup(token: string, name: any) {
     try {
       const message = {
         notification: {
-          title: 'Inter Grupo aceptado',
-          body: 'Fuiste aceptado al inter grupo',
+          title: 'Grupo no aceptado',
+          body: `No fuiste aceptado al grupo ${name}`,
           sound: 'default'
         },
         data: {
-          title: 'Inter Grupo aceptado',
-          body: 'Fuiste aceptado al inter grupo',
+          title: 'Grupo no aceptado',
+          body: `No fuiste aceptado al grupo ${name}`,
           Emergency_category: 'Emergency'
         }
       };
@@ -127,17 +127,201 @@ export class NotificationService {
     }
   }
 
-  async sendNewChatMessage(token: string) {
+  async sendInvitationGroupToUser(token: string, name: any) {
     try {
       const message = {
         notification: {
-          title: 'Nuevo mensaje',
-          body: 'Tienes un nuevo mensaje en un chat',
+          title: 'Invitacion de grupo',
+          body: `Fuiste invitado al grupo ${name}`,
           sound: 'default'
         },
         data: {
-          title: 'Nuevo mensaje',
-          body: 'Tienes un nuevo mensaje en un chat',
+          title: 'Invitacion de grupo',
+          body:  `Fuiste invitado al grupo ${name}`,
+          Emergency_category: 'Emergency'
+        }
+      };
+      await this.sendNotification(token, message.notification);
+      const notification = await this.cleanData(token, message);
+      await this.createNotification(notification);
+      return true;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async sendInvitationToAdmin(token: string, name: any, group: any) {
+    try {
+      const message = {
+        notification: {
+          title: 'Solicitud de unión a grupo',
+          body: `${name} quiere unirse a ${group}`,
+          sound: 'default'
+        },
+        data: {
+          title: 'Solicitud de unión a grupo',
+          body: `${name} quiere unirse a ${group}`,
+          Emergency_category: 'Emergency'
+        }
+      };
+      await this.sendNotification(token, message.notification);
+      const notification = await this.cleanData(token, message);
+      await this.createNotification(notification);
+      return true;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+   async sendInvitationToInterGroup(token: string, group: any) {
+    try {
+      const message = {
+        notification: {
+          title: 'Invitación a Inter Grupo',
+          body: `El Grupo ${group} quiere formar un Inter Grupo!`,
+          sound: 'default'
+        },
+        data: {
+          title: 'Invitación a Inter Grupo',
+          body: `El Grupo ${group} quiere formar un Inter Grupo!`,
+          Emergency_category: 'Emergency'
+        }
+      };
+      await this.sendNotification(token, message.notification);
+      const notification = await this.cleanData(token, message);
+      await this.createNotification(notification);
+      return true;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+   async sendAcceptInterGroup(token: string, group: any) {
+    try {
+      const message = {
+        notification: {
+          title: 'Inter Grupo aceptado',
+          body: `El Grupo ${group} aceptó la invitación al inter grupo,`,
+          sound: 'default'
+        },
+        data: {
+          title: 'Inter Grupo aceptado',
+          body: `El Grupo ${group} aceptó la invitación al inter grupo,`,
+          Emergency_category: 'Emergency'
+        }
+      };
+      await this.sendNotification(token, message.notification);
+      const notification = await this.cleanData(token, message);
+      await this.createNotification(notification);
+      return true;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+   async sendNoAcceptInterGroup(token: string, group: any) {
+    try {
+      const message = {
+        notification: {
+          title: 'Inter Grupo no aceptado',
+          body: `El Grupo ${group} no aceptó la invitación al inter grupo,`,
+          sound: 'default'
+        },
+        data: {
+          title: 'Inter Grupo no aceptado',
+          body: `El Grupo ${group} no aceptó la invitación al inter grupo,`,
+          Emergency_category: 'Emergency'
+        }
+      };
+      await this.sendNotification(token, message.notification);
+      const notification = await this.cleanData(token, message);
+      await this.createNotification(notification);
+      return true;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async sendProposal(token: string, group: any) {
+    try {
+      const message = {
+        notification: {
+          title: 'Propuesta de juntada',
+          body: `El Grupo ${group} ha enviado una propuesta de juntada!`,
+          sound: 'default'
+        },
+        data: {
+          title: 'Propuesta de juntada',
+          body: `El Grupo ${group} ha enviado una propuesta de juntada!`,
+          Emergency_category: 'Emergency'
+        }
+      };
+      await this.sendNotification(token, message.notification);
+      const notification = await this.cleanData(token, message);
+      await this.createNotification(notification);
+      return true;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async sendAcceptProposal(token: string, group: any) {
+    try {
+      const message = {
+        notification: {
+          title: 'Propuesta de juntada',
+          body: `El Grupo ${group} ha aceptado la propuesta de juntada!`,
+          sound: 'default'
+        },
+        data: {
+          title: 'Propuesta de juntada',
+          body: `El Grupo ${group} ha aceptado la propuesta de juntada!`,
+          Emergency_category: 'Emergency'
+        }
+      };
+      await this.sendNotification(token, message.notification);
+      const notification = await this.cleanData(token, message);
+      await this.createNotification(notification);
+      return true;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+   async sendNoAcceptPropoasl(token: string, group: any) {
+    try {
+      const message = {
+        notification: {
+          title: 'Propuesta de juntada',
+          body: `El Grupo ${group} no ha aceptado la propuesta de juntada`,
+          sound: 'default'
+        },
+        data: {
+          title: 'Propuesta de juntada',
+          body: `El Grupo ${group} no ha aceptado la propuesta de juntada`,
+          Emergency_category: 'Emergency'
+        }
+      };
+      await this.sendNotification(token, message.notification);
+      const notification = await this.cleanData(token, message);
+      await this.createNotification(notification);
+      return true;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async sendNewChatMessage(token: string, group: any) {
+    try {
+      const message = {
+        notification: {
+          title: 'Tienes mensajes nuevos sin leer',
+          body: `Nuevos mensajes en ${group}`,
+          sound: 'default'
+        },
+        data: {
+          title: 'Tienes mensajes nuevos sin leer',
+          body: `Nuevos mensajes en ${group}`,
           Emergency_category: 'Emergency'
         }
       };

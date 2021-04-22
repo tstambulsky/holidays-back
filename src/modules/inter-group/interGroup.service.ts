@@ -15,6 +15,8 @@ import { InvitationInterGroup, InvitationInterGroupDocument } from './schema/inv
 import { GroupService } from '../group/group.service';
 import { Proposal, ProposalDocument } from './schema/proposal.schema';
 import { ChatService } from '../chat/chat.service';
+import { NotificationService } from '../notification/notification.service';
+import { UsersService } from '../users/users.service';
 const moment = require('moment');
 moment.suppressDeprecationWarnings = true;
 
@@ -25,7 +27,9 @@ export class InterGroupService {
     @InjectModel(InvitationInterGroup.name) private readonly invitationModel: Model<InvitationInterGroupDocument>,
     @InjectModel(Proposal.name) private readonly proposalModel: Model<ProposalDocument>,
     private readonly groupService: GroupService,
-    @Inject(forwardRef(() => ChatService)) private chatService: ChatService
+    @Inject(forwardRef(() => ChatService)) private chatService: ChatService,
+    private readonly notificationService: NotificationService,
+    @Inject(forwardRef(() => UsersService)) private usersService: UsersService,
   ) {}
 
   async getInterGroups(): Promise<InterGroup[]> {
@@ -232,6 +236,7 @@ export class InterGroupService {
 
   async sendInvitationToOtherGroup(data: RequestGroupToGroupDTO, currentUser: any) {
     try {
+      let integrantsTwo = [];
       const { groupSender } = data;
       const userId = currentUser._id;
       const groupExistAndAdmin = await this.groupService.getGroup({ active: true, _id: groupSender, admin: userId });
@@ -244,11 +249,18 @@ export class InterGroupService {
       // if (alreadyInIntergroup.length > 0) throw new Error('The group(s) are already in an intergroup');
       const groupOne = await this.groupService.getGroup(groupSender);
       const groupTwo = await this.groupService.getGroup(data.groupReceiver);
+      integrantsTwo.push(groupTwo.integrants);
       const newInvitation = new this.invitationModel(data);
       await newInvitation.save();
       const interGroupChat = await this.chatService.createInterGroupChatInvitation(newInvitation._id);
       interGroupChat.name = `${groupOne.name} + ${groupTwo.name}`;
       await interGroupChat.save();
+      for await (let users of integrantsTwo) {
+        const user = await this.usersService.findOneUser({ _id: users, active: true });
+        if (user.deviceToken) {
+        await this.notificationService.sendInvitationToInterGroup(user.deviceToken, groupOne.name);
+        }
+      }
       return newInvitation;
     } catch (error) {
       throw new Error(error.message);
@@ -270,6 +282,7 @@ export class InterGroupService {
 
   async acceptInvitationGroupToGroup(data: AceptOrRefuseDTO, currentUser: any) {
     try {
+      let integrantsOne = [];
       const { invitationId } = data;
       const userID = currentUser._id;
       const invitation = await this.invitationModel.findOne({ _id: invitationId });
@@ -284,6 +297,7 @@ export class InterGroupService {
       const groupSender = invitation.groupSender;
       const groupReceiver = invitation.groupReceiver;
       const firstGroup = await this.groupService.getGroup(groupSender);
+      integrantsOne.push(firstGroup.integrants);
       const secondGroup = await this.groupService.getGroup(groupReceiver);
       const createInterGroup = await new this.interGroupModel({
         groupSender,
@@ -298,6 +312,12 @@ export class InterGroupService {
       chat.setTimeAndPlace = true;
       chat.pending = false;
       await chat.save();
+      for await (let users of integrantsOne) {
+        const user = await this.usersService.findOneUser({ _id: users, active: true })
+        if (user.deviceToken) {
+        await this.notificationService.sendAcceptInterGroup(users.deviceToken, groupReceiver.name);
+      }
+    }
       return createInterGroup;
     } catch (error) {
       throw new Error(error.message);
@@ -306,12 +326,15 @@ export class InterGroupService {
 
   async refuseInvitationGroupToGroup(data: AceptOrRefuseDTO, currentUser: any) {
     try {
+      let integrantsOne = [];
       const { invitationId } = data;
       const userID = currentUser._id;
-      const invitation = await this.invitationModel.findOne({ _id: invitationId });
+      const invitation = await this.invitationModel.findOne({ _id: invitationId }).populate('groupSender');
       if (!invitation) throw new HttpException('This invitation does not exist', 404);
       if (!invitation.active) throw new HttpException('This invitation was canceled', 404);
       const group = await this.groupService.getGroup({ _id: invitation.groupReceiver });
+      const groupOne = await this.groupService.getGroup({ _id: invitation.groupSender });
+      integrantsOne.push(groupOne.integrants);
       if (group.admin != userID) throw new HttpException('You are not the admin of the group.', 404);
       invitation.active = false;
       await invitation.save();
@@ -320,6 +343,12 @@ export class InterGroupService {
       chat.setTimeAndPlace = false;
       chat.active = false;
       await chat.save();
+      for await (let users of integrantsOne) {
+        const user = await this.usersService.findOneUser({ _id: users, active: true })
+        if (user.deviceToken) {
+        await this.notificationService.sendNoAcceptInterGroup(users.deviceToken, invitation.groupReceiver.name);
+        }
+      }
       return group;
     } catch (error) {
       throw new Error(error.message);
@@ -342,9 +371,11 @@ export class InterGroupService {
 
   async proposalDateAndPlace(data: newProposalDto, currentUser: any) {
     try {
+      let integrantsTwo = [];
       const { interGroup } = data;
       const userId = currentUser._id;
       const obtainInterGroup = await this.interGroupModel.findOne({ _id: interGroup }).populate('groupSender').populate('groupReceiver');
+      integrantsTwo.push(obtainInterGroup.groupReceiver.integrants);
       if (!obtainInterGroup) throw new Error('This Intergroup does not exist');
       if (obtainInterGroup.active) throw new Error('This Intergroup is already active');
       if (obtainInterGroup.groupSender.admin != userId) {
@@ -372,6 +403,12 @@ export class InterGroupService {
       chat.meeting = proposal.proposalPlace;
       chat.dateProposal = proposal.proposalStartDate;
       await chat.save();
+      for await (let users of integrantsTwo) {
+        const user = await this.usersService.findOneUser({ _id: users, active: true })
+        if (user.deviceToken) {
+        await this.notificationService.sendProposal(users.deviceToken, proposal.groupSender.name);
+      }
+    }
       return 'Proposal Sended';
     } catch (error) {
       throw new Error(error.message);
@@ -394,9 +431,11 @@ export class InterGroupService {
 
   async acceptOrRefuseProposal(data: acceptOrRefuseProposalDto, currentUser: any) {
     try {
+      let integrantsOne = [];
       const { proposalId, accept } = data;
       const userId = currentUser._id;
       const proposal = await this.proposalModel.findOne({ _id: proposalId }).populate('groupSender').populate('groupReceiver');
+      integrantsOne.push(proposal.groupSender.integrants);
       if (!proposal) throw new Error('This proposal does not exist');
       if (proposal.groupReceiver.admin != userId) throw new Error('You are not the admin of the group.')
       proposal.active = false;
@@ -413,11 +452,23 @@ export class InterGroupService {
         chat.place = false;
         await this.chatService.createInterGroupMessage(chat._id, proposal.groupReceiver.name);
         await chat.save();
+        for await (let users of integrantsOne) {
+          const user = await this.usersService.findOneUser({ _id: users, active: true});
+          if (user.deviceToken) {
+          await this.notificationService.sendAcceptProposal(users.deviceToken, proposal.groupReceiver.name);
+        }
+      }
       } else {
         const chat = await this.chatService.getInterGroup(proposal.interGroup);
         chat.place = false;
         chat.setTimeAndPlace = true;
         await chat.save();
+        for await (let users of integrantsOne) {
+          const user = await this.usersService.findOneUser({_id: users, active: true})
+          if (user.deviceToken) {
+          await this.notificationService.sendNoAcceptPropoasl(users.deviceToken, proposal.groupReceiver.name);
+        }
+      }
       }
       return proposal;
     } catch (error) {
@@ -501,7 +552,7 @@ export class InterGroupService {
 
   async getInvitationId(invitationId: any) {
     try {
-      const invitation = await this.invitationModel.findOne({ _id: invitationId });
+      const invitation = await this.invitationModel.findOne({ _id: invitationId }).populate('groupSender').populate('groupReceiver').exec();
       if (!invitation) throw new HttpException('Invitation does not exist', 404);
       return invitation;
     } catch (error) {

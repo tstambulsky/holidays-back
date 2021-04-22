@@ -1,6 +1,6 @@
 import * as admin from 'firebase-admin';
 
-const serviceAccount = 'test-firebase-adminsdk-ww9ak-fe432d870e.json';
+const serviceAccount = require('../../../../holidays-c28f4-firebase-adminsdk-rcbzc-dea819de6b.json')
 
 const firebaseConfig = {
   apiKey: 'AIzaSyArM_huaRbNw8SzGIA_FEioqEZdVzL1qPA',
@@ -12,12 +12,9 @@ const firebaseConfig = {
 };
 
 if (!admin.apps.length) {
-  admin.initializeApp(
-    firebaseConfig
-    //       {
-    //     credential: admin.credential.cert(serviceAccount),
-    //     databaseURL: 'https://test.firebaseio.com'
-    //   }
+  admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+ }
   );
 }
 
