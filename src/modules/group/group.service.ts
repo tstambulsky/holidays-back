@@ -319,6 +319,17 @@ export class GroupService {
     }
   }
 
+  async getPendingInvitations(groupId: any) {
+    try {
+      const invitations = await this.invitationModel.find({ group: groupId, active: true, fromAdmin: true }).populate('user')
+        .populate('group');
+      if (invitations.length < 1) throw new HttpException('The group has no invitations pending acceptance.', 404);
+      return invitations
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
   /*async requestToJoinGroup(currentUser: any, data: RequestToGroupDTO) {
     try {
       const userId = currentUser._id;

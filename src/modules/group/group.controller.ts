@@ -469,17 +469,17 @@ export class GroupController {
     }
   }
 
-  /* @Get('/groups/filters')
-  async getGroupsByFilters(@Res() res, @Query() data: FiltersDTO, @CurrentUser() user) {
-  try {
-    const getFilters = await this.groupService.threeFilters(data.gender, data.distance, data.age, user);
-    return res.status(HttpStatus.OK).json({
-      getFilters
-    });
-  } catch (error) {
-    res.status(HttpStatus.BAD_REQUEST).json({
-      error: error.message
-    });
+  @Get('/invitations/pendings/:groupid')
+  async getPendings(@Res() res,@Param('groupid') groupid) {
+     try {
+      const response = await this.groupService.getPendingInvitations(groupid);
+      return res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (error) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        error: error.message
+      })
+    }
   }
-}*/
 }
