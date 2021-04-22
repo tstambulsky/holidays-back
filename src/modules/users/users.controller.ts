@@ -66,17 +66,6 @@ export class UsersController {
     }
   }
 
-  /* @Post('/register')
-  async createUser(@Res() res,@Body() user: User): Promise<User | Object> {
-    try {
-      return await this.userService.createUser(user);
-    } catch (err) {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        err: err.message
-      })
-    }
-  } */
-
   @Put('/update/:userId')
   async updateUser(@Res() res, @Body() updateUserDTO: UpdateUserDTO, @Param('userId') user): Promise<User> {
     try {
@@ -167,20 +156,6 @@ export class UsersController {
     }
   }
 
-  /*@Put('/update/photos') 
-  async updatePhotos(@Res() res, @Body() data: PhotoDTO, @CurrentUser() user) {
-  try {
-    const response = await this.userService.updatePhoto(data, user);
-    return res.status(HttpStatus.OK).json({
-      response
-    });
-  } catch (err) {
-    return res.status(HttpStatus.BAD_REQUEST).json({
-      error: err.message
-    });
-  }
-}*/
-
   @Post('/photos/profilephoto')
   @UseInterceptors(FileInterceptor('file', multerOptions))
   async uploadPhotoProfile(@Res() res, @CurrentUser() user, @UploadedFile() file) {
@@ -208,4 +183,19 @@ export class UsersController {
       response
     });
   }
+
+  @Get('/testtoken/:userid')
+  async testToken(@Res() res, @Param('userid') userid) {
+      try {
+        const users = await this.userService.getUserTestToken(userid);
+        return res.status(HttpStatus.OK).json({
+          users
+        });
+      } catch (err) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          error: err.message
+        });
+      }
+  }
+  
 }
