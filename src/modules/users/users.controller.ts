@@ -66,6 +66,7 @@ export class UsersController {
     }
   }
 
+
   @Put('/update/:userId')
   async updateUser(@Res() res, @Body() updateUserDTO: UpdateUserDTO, @Param('userId') user): Promise<User> {
     try {

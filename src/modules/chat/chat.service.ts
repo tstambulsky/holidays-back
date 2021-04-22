@@ -9,6 +9,7 @@ import { Message, MessageDocument } from './schema/message.schema';
 import { Chat, ChatDocument } from './schema/chat.schema';
 import { GroupService } from '../group/group.service';
 import { InterGroupService } from '../inter-group/interGroup.service';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class ChatService {
@@ -18,7 +19,8 @@ export class ChatService {
     @InjectModel(Chat.name) private chatModel: Model<ChatDocument>,
     @Inject(forwardRef(() => GroupService)) private readonly groupService: GroupService,
     private readonly interGroupService: InterGroupService,
-    private readonly usersService: UsersService
+    private readonly usersService: UsersService,
+    private readonly notificationService: NotificationService
   ) {}
 
   async getUserFromSocket(socket: Socket) {
@@ -389,8 +391,10 @@ export class ChatService {
 
   async getUnreadGroup(groupId: any, currentUser: any) {
     try {
+      let integrants = [];
       const group = await this.groupService.getGroup({ active: true, _id: groupId, integrants: currentUser._id });
       if (!group) throw new WsException('The user does not belong to the group or the group does not exist.');
+      integrants.push(group.integrants);
       const chat = await this.chatModel.findOne({ group: groupId, active: true });
       const messages = await this.messageModel
         .find({
@@ -398,6 +402,12 @@ export class ChatService {
           readBy: { $ne: currentUser._id }
         })
         .sort({ date: -1 });
+        for await (let users of integrants) {
+          const user = await this.usersService.findOneUser({ _id: users, active: true })
+          if (user.deviceToken) {
+          await this.notificationService.sendNewChatMessage(users.deviceToken, group.name);
+        }
+      }
         return messages;
     } catch (error) {
       throw new Error(error);
@@ -407,22 +417,39 @@ export class ChatService {
   async getUnreadInterGroup(currentUser: any, invitationId: any) {
     try {
       let userInGroupTwo;
+      let integrantsOne = [];
+      let integrantsTwo = [];
       //const group = await this.groupService.getGroupChat(groupId, currentUser);
       //const interGroup = await this.interGroupService.getInterGroupInactive(interGroupId);
       //if (!interGroup) throw new WsException('The intergroup does not exist.');
       const invitation = await this.interGroupService.getInvitationId(invitationId);
       const groupOne = invitation.groupSender;
+      integrantsOne.push(groupOne.integrants);
       const groupTwo = invitation.groupReceiver;
+      integrantsTwo.push(groupTwo.integrants);
       const userInGroup = await this.groupService.getOneUserWithGroup(currentUser, groupOne);
       if (userInGroup === null) userInGroupTwo = await this.groupService.getOneUserWithGroup(currentUser, groupTwo);
       if (userInGroupTwo === null) throw new WsException('The user does not belong to some group');
-      const chat = await this.chatModel.findOne({ invitation: invitationId, active: true });
+      const chat = await this.chatModel.findOne({ invitation: invitationId, active: true }).populate('interGroup');
       const messages = await this.messageModel
         .find({
           chat: chat._id,
           readBy: { $ne: currentUser._id }
         })
         .sort({ date: -1 });
+        
+        for await (let users of integrantsOne) {
+          const user = await this.usersService.findOneUser({_id: users, active: true});
+          if (user.deviceToken) {
+          await this.notificationService.sendNewChatMessage(users.deviceToken, chat.interGroup.name);
+        }
+      }
+         for await (let users of integrantsTwo) {
+           const user = await this.usersService.findOneUser({_id: users, active: true});
+           if (users.deviceToken) {
+          await this.notificationService.sendNewChatMessage(users.deviceToken, chat.interGroup.name);
+           }
+        }
         return messages;
       } catch (error) {
         throw new Error(error);
@@ -431,6 +458,7 @@ export class ChatService {
 
     async getUnreadAdmin(chatId: any, currentUser: any ) {
       try {
+        const user = await this.usersService.findOneUser({ _id: currentUser._id });
         const chat = await this.chatModel.findOne({ _id: chatId, active: true });
         const id = chat._id;
         const messages = await this.messageModel
@@ -439,6 +467,9 @@ export class ChatService {
             readBy: { $ne: currentUser._id }
           })
           .sort({ date: -1 });
+          if (user.deviceToken) {
+          await this.notificationService.sendNewChatMessage(user.deviceToken, chat.name);
+          }
           return messages;
       } catch (error) {
         throw new Error(error);

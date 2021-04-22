@@ -11,6 +11,7 @@ import { checkPromedio } from './utils/checkPromedio';
 import { ChatService } from '../chat/chat.service';
 import { getAvailability } from './utils/getAvailability';
 import { removeImage } from '../users/utils/deleteImage';
+import { NotificationService } from '../notification/notification.service';
 const moment = require('moment');
 moment.suppressDeprecationWarnings = true;
 
@@ -20,7 +21,8 @@ export class GroupService {
     @InjectModel(Group.name) private readonly groupModel: Model<GroupDocument>,
     @InjectModel(Invitation.name) private readonly invitationModel: Model<InvitationDocument>,
     @Inject(forwardRef(() => UsersService)) private userService: UsersService,
-    @Inject(forwardRef(() => ChatService)) private chatService: ChatService
+    @Inject(forwardRef(() => ChatService)) private chatService: ChatService,
+    private readonly notificationService: NotificationService
   ) {}
 
   async getGroups(): Promise<Group[]> {
@@ -296,7 +298,7 @@ export class GroupService {
 
   async sendInvitationToGroup(data: RequestToGroupDTO) {
     try {
-      const { user, group } = data;
+      const { user, group, fromAdmin } = data;
       const groupExist = await this.groupModel.findOne({ _id: group }).populate('integrants');
       const userExist = await this.userService.getUserById(user);
       if (!groupExist || !userExist) throw new Error('This group or user does not exist');
@@ -312,6 +314,15 @@ export class GroupService {
       } if (chat) {
         chat.active = true;
         chat.save();
+      }
+      if (fromAdmin == true) {
+        if (userExist.deviceToken) {
+        await this.notificationService.sendInvitationGroupToUser(userExist.deviceToken, groupExist.name);
+        }
+      } if (fromAdmin == false) {
+        if (userExist.deviceToken) {
+        await this.notificationService.sendInvitationToAdmin(userExist.deviceToken, userExist.name, groupExist.name);
+        }
       }
       return newInvitation;
     } catch (error) {
@@ -348,7 +359,7 @@ export class GroupService {
     try {
       const { invitationId } = data;
       const userId = currentUser._id;
-      const invitation = await this.invitationModel.findOne({ _id: invitationId, fromAdmin: false });
+      const invitation = await this.invitationModel.findOne({ _id: invitationId, fromAdmin: false }).populate('user');
       if (!invitation) throw new Error('This invitation does not exist');
       if (invitation.success) throw new Error('This invitation is already success');
       if (!invitation.active) throw new Error('This invitation was canceled');
@@ -372,6 +383,9 @@ export class GroupService {
       const chats = await this.chatService.getOneChatAdminWithUser(userId, invitation.user);
       chats.active = false;
       await chats.save();
+      if (invitation.user.deviceToken) {
+       await this.notificationService.sendAcceptGroup(invitation.user.deviceToken, group.name);
+      }
       return group;
     } catch (error) {
       throw new Error(error.message);
@@ -382,7 +396,7 @@ export class GroupService {
     try {
       const { invitationId } = data;
       const userId = currentUser._id;
-      const invitation = await this.invitationModel.findOne({ _id: invitationId, fromAdmin: false });
+      const invitation = await this.invitationModel.findOne({ _id: invitationId, fromAdmin: false }).populate('user');
       if (!invitation) throw new Error('This invitation does not exist');
       if (!invitation.active) throw new Error('This invitation was canceled');
       const group = await this.groupModel.findOne({ _id: invitation.group }).populate('integrants');
@@ -392,6 +406,9 @@ export class GroupService {
       const chat = await this.chatService.getOneChatAdminWithUser(userId, invitation.user);
       chat.active = false;
       await chat.save();
+      if (invitation.user.deviceToken) {
+      await this.notificationService.sendNoAcceptGroup(invitation.user.deviceToken, group.name);
+      }
       return group;
     } catch (error) {
       throw new Error(error.message);

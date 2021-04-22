@@ -107,7 +107,7 @@ export class UsersService {
   async findOneUser(data: any) {
     try {
       const search = await this.userModel.findOne(data);
-      console.log('user', search);
+      if (!search) throw new HttpException('User not found', 404);
       return search;
     } catch (err) {
       throw new Error(err.message);

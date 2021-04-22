@@ -9,6 +9,7 @@ import { GroupModule } from '../group/group.module';
 import { ChatController } from './chat.controller';
 import { InterGroupModule } from '../inter-group/interGroup.module';
 import { Chat, ChatSchema } from './schema/chat.schema';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
@@ -20,7 +21,8 @@ import { Chat, ChatSchema } from './schema/chat.schema';
     UsersModule,
     forwardRef(() => GroupModule),
     InterGroupModule,
-    HttpModule
+    HttpModule,
+    NotificationModule
   ],
   providers: [ChatGateway, ChatService],
   controllers: [ChatController],
