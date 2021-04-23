@@ -77,7 +77,7 @@ export class InterGroupService {
   async getInterGroupsInactive() {
     try {
       const interGroup = await this.interGroupModel.find({active: false });
-      if (interGroup.length < 1) throw new HttpException('Does not have intergroups inactives.', 404);
+      if (interGroup.length < 0) throw new HttpException('Does not have intergroups inactives.', 404);
       return interGroup;
     } catch (err) {
       throw new Error(err.message);

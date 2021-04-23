@@ -57,6 +57,12 @@ export class Chat {
 
   @Prop({ default: true })
   active: boolean;
+
+  @Prop()
+  unreadMessages: number;
+
+  @Prop()
+  lastMessage: string;
 }
 
 export type ChatDocument = Chat & mongoose.Document;
