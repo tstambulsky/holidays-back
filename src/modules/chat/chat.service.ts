@@ -402,6 +402,12 @@ export class ChatService {
           readBy: { $ne: currentUser._id }
         })
         .sort({ date: -1 });
+        if (messages.length > 0) {
+        chat.unreadMessages = messages.length;
+        chat.lastMessage = messages[0].content;
+        console.log('ultimomensaje', messages[0].content);
+        await chat.save();
+        }
         for await (let users of integrants) {
           const user = await this.usersService.findOneUser({ _id: users, active: true })
           if (user.deviceToken) {
@@ -437,7 +443,11 @@ export class ChatService {
           readBy: { $ne: currentUser._id }
         })
         .sort({ date: -1 });
-        
+        if (messages.length > 0) {
+        chat.unreadMessages = messages.length;
+        chat.lastMessage = messages[0].content;
+        await chat.save();
+        }
         for await (let users of integrantsOne) {
           const user = await this.usersService.findOneUser({_id: users, active: true});
           if (user.deviceToken) {
@@ -467,6 +477,11 @@ export class ChatService {
             readBy: { $ne: currentUser._id }
           })
           .sort({ date: -1 });
+          if (messages.length > 0) {
+          chat.unreadMessages = messages.length;
+          chat.lastMessage = messages[0].content;
+          await chat.save();
+          }
           if (user.deviceToken) {
           await this.notificationService.sendNewChatMessage(user.deviceToken, chat.name);
           }

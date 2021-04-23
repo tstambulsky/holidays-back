@@ -289,7 +289,7 @@ export class GroupService {
         .populate('meetingPlaceOne')
         .populate('meetingPlaceTwo')
         .populate('typeOfActivity');
-      if (groups.length < 1) throw new Error('The user has no previous groups.');
+      if (groups.length < 0) throw new Error('The user has no previous groups.');
       return groups;
     } catch (err) {
       throw new Error(err.message);
@@ -334,7 +334,7 @@ export class GroupService {
     try {
       const invitations = await this.invitationModel.find({ group: groupId, active: true, fromAdmin: true }).populate('user')
         .populate('group');
-      if (invitations.length < 1) throw new HttpException('The group has no invitations pending acceptance.', 404);
+      if (invitations.length < 0) throw new HttpException('The group has no invitations pending acceptance.', 404);
       return invitations
     } catch (error) {
       throw new Error(error.message);
@@ -359,12 +359,12 @@ export class GroupService {
     try {
       const { invitationId } = data;
       const userId = currentUser._id;
-      const invitation = await this.invitationModel.findOne({ _id: invitationId, fromAdmin: false }).populate('user');
+      const invitation: any = await this.invitationModel.findOne({ _id: invitationId, fromAdmin: false }).populate('user');
       if (!invitation) throw new Error('This invitation does not exist');
       if (invitation.success) throw new Error('This invitation is already success');
       if (!invitation.active) throw new Error('This invitation was canceled');
       const group = await this.groupModel.findOne({ _id: invitation.group }).populate('integrants');
-      const user = await this.userService.getUserById(invitation.user);
+      const user = await this.userService.getUserById(invitation.user._id);
       //Validate that user does not have other
       const valid = await this.validateGroups(user, group);
       if (!valid) {
@@ -383,8 +383,8 @@ export class GroupService {
       const chats = await this.chatService.getOneChatAdminWithUser(userId, invitation.user);
       chats.active = false;
       await chats.save();
-      if (invitation.user.deviceToken) {
-       await this.notificationService.sendAcceptGroup(invitation.user.deviceToken, group.name);
+      if (user.deviceToken) {
+       await this.notificationService.sendAcceptGroup(user.deviceToken, group.name);
       }
       return group;
     } catch (error) {
