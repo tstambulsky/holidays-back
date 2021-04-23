@@ -481,7 +481,7 @@ export class InterGroupService {
       let groupId = [];
       let interGroups = [];
 
-      const userInGroup = await this.groupService.getUserGroups(currentUser);
+      const userInGroup = await this.groupService.getUserGroupsAll(currentUser);
 
       userInGroup.forEach((element) => {
         groupId.push(element._id);
@@ -489,8 +489,7 @@ export class InterGroupService {
 
       for await (let element of groupId) {
         const searchInterGroups = await this.interGroupModel.findOne({
-          active: true,
-          confirmed: true,
+         
           $or: [{ groupSender: element }, { groupReceiver: element }]
         });
         if (searchInterGroups !== null) await interGroups.push({ searchInterGroups });
@@ -529,20 +528,24 @@ export class InterGroupService {
     try {
       let groupId = [];
       let interGroups = [];
-      let searchInterGroups;
+      let searchInterGroups = [];
 
-      const userInGroup = await this.groupService.getUserGroups(currentUser);
+      const userInGroup = await this.groupService.getUserGroupsAll(currentUser);
 
       userInGroup.forEach((elements) => {
         groupId.push(elements._id);
       });
 
       for await (let element of groupId) {
-        searchInterGroups = await this.invitationModel.findOne({
+        const invitations = await this.invitationModel.find({
           $or: [{ groupSender: element }, { groupReceiver: element }]
         });
-        if (searchInterGroups) interGroups.push({ searchInterGroups });
-      }
+          invitations.forEach((invitation) => {
+        if (invitation) {
+          interGroups.push(invitation);
+        }
+      });
+      };
       return interGroups;
     } catch (error) {
       throw new Error(error.message);

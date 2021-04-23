@@ -61,7 +61,7 @@ export class ChatService {
     let groupWithoutUserLogged;
     const userId = currentUser._id;
     const group = await this.chatModel.findOne({invitation: invitationId, active: true});
-    if (!group) throw new WsException('The chat does not exist');
+    if (group) {
     const invitation = await this.interGroupService.getInvitationId(invitationId);
     const isInGroup = await this.groupService.getOneUserGroup(userId, invitation.groupSender, invitation.groupReceiver);
     if (!isInGroup) throw new WsException('Your does not belong to any group');
@@ -72,6 +72,7 @@ export class ChatService {
     } else {
       groupWithoutUserLogged = groupUserOne;
     }
+  }
     return groupWithoutUserLogged;
   } catch (error) {
     throw new Error(error.message)
@@ -114,8 +115,8 @@ export class ChatService {
       const groups = await this.groupService.getUserGroups(currentUser);
       for await (let group of groups) {
         await this.getUnreadGroup(group._id, currentUser);
-        const chat = await this.chatModel.find({ group: group._id, active: true });
-        if (chat) {
+        const chat = await this.chatModel.findOne({ group: group._id, active: true });
+        if (!chat.adminUser) {
           allChats.push(chat);
         }
       }
@@ -140,14 +141,15 @@ export class ChatService {
   async getChatInterGroupsUser(currentUser: any) {
     try {
       let allChats = [];
-      let interGroupsId = [];
+      let invitationsId = [];
       const interGroups = await this.interGroupService.getMyIntergroupsNoActives(currentUser);
       interGroups.forEach((element) => {
-        interGroupsId.push(element.searchInterGroups._id);
+        invitationsId.push(element._id);
       });
-      for await (let element of interGroupsId) {
-        await this.getUnreadInterGroup(currentUser, element._id);
-        const chat = await this.chatModel.findOne({ invitation: element._id, active: true });
+      for await (let element of invitationsId) {
+        await this.getUnreadInterGroup(currentUser, element);
+        const chat = await this.chatModel.findOne({ invitation: element, active: true });
+        if (chat) {
         const group = await this.getChatPopulateGroup(element._id, currentUser);
         chat.otherGroup = group;
         chat.save();
@@ -155,6 +157,7 @@ export class ChatService {
           allChats.push(chat);
         }
       }
+    }
       return allChats;
     } catch (error) {
       throw new Error(error);
@@ -468,6 +471,7 @@ export class ChatService {
       let userInGroupTwo;
       let integrantsOne = [];
       let integrantsTwo = [];
+      let allMessages = [];
       //const group = await this.groupService.getGroupChat(groupId, currentUser);
       //const interGroup = await this.interGroupService.getInterGroupInactive(interGroupId);
       //if (!interGroup) throw new WsException('The intergroup does not exist.');
@@ -479,18 +483,21 @@ export class ChatService {
       const userInGroup = await this.groupService.getOneUserWithGroup(currentUser, groupOne);
       if (userInGroup === null) userInGroupTwo = await this.groupService.getOneUserWithGroup(currentUser, groupTwo);
       if (userInGroupTwo === null) throw new WsException('The user does not belong to some group');
-      const chat = await this.chatModel.findOne({ invitation: invitationId, active: true }).populate('interGroup');
+      const chat: any = await this.chatModel.findOne({ invitation: invitationId, active: true }).populate('interGroup');
+      if (chat) {
       const messages = await this.messageModel
         .find({
           chat: chat._id,
           readBy: { $ne: currentUser._id }
         })
         .sort({ date: -1 });
+        allMessages.push(messages);
         if (messages.length > 0) {
         chat.unreadMessages = messages.length;
         chat.lastMessage = messages[0].content;
         await chat.save();
         }
+      }
         /*for await (let users of integrantsOne) {
           const user = await this.usersService.findOneUser({_id: users, active: true});
           if (user.deviceToken) {
@@ -503,7 +510,7 @@ export class ChatService {
           await this.notificationService.sendNewChatMessage(users.deviceToken, chat.interGroup.name);
            }
         }*/
-        return messages;
+        return allMessages;
       } catch (error) {
         throw new Error(error);
       }

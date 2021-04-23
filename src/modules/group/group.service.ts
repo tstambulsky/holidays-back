@@ -482,6 +482,22 @@ export class GroupService {
     }
   }
 
+  async getUserGroupsAll(currentUser: any) {
+     try {
+      const userID = currentUser._id;
+      const groups = await this.groupModel
+        .find({integrants: userID })
+        .populate('integrants')
+        .populate('meetingPlaceOne')
+        .populate('meetingPlaceTwo')
+        .populate('typeOfActivity');
+      if (groups.length < 0) throw new Error('The user does not belong to any group');
+      return groups;
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
    async getPreviousUserGroups(currentUser: any) {
     try {
       const userID = currentUser._id;
@@ -517,7 +533,7 @@ export class GroupService {
       const groupId = group._id;
       const userId = currentUser._id;
       const groups = await this.groupModel
-        .findOne({ active: true, integrants: userId, _id: groupId })
+        .findOne({ integrants: userId, _id: groupId })
         .populate('integrants')
         .populate('meetingPlaceOne')
         .populate('meetingPlaceTwo')
