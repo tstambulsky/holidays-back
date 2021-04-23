@@ -103,7 +103,8 @@ export class ChatService {
       adminUser: group.admin,
       name: `${userExist.name} ${userExist.lastName} + Admin chat of ${group.name}`,
       user: userExist._id
-    }).save();
+    });
+    await chat.save();
     return chat;
   }
 
@@ -267,10 +268,12 @@ export class ChatService {
   }
 
   async saveMessageGroup(content: string, currentUser: any, groupId: any) {
+    let integrants = [];
     const userId = currentUser._id;
     const user = await this.usersService.getUserById(userId);
     const group = await this.groupService.getGroup({ active: true, integrants: userId, _id: groupId });
     if (!group) throw new WsException('Group does not exist or user does not belong to the group');
+    integrants.push(group.integrants);
     const chat = await this.chatModel.findOne({ group: groupId, active: true });
     const newMessage = await new this.messageModel({
       content,
@@ -281,6 +284,12 @@ export class ChatService {
       chat: chat._id
     });
     await newMessage.save();
+     for await (let users of integrants) {
+          const user = await this.usersService.findOneUser({ _id: users, active: true })
+          if (user.deviceToken && user._id != userId) {
+          await this.notificationService.sendNewChatMessage(users.deviceToken, group.name);
+        }
+      }
     return newMessage;
   }
 
@@ -305,6 +314,8 @@ export class ChatService {
   }
 
   async saveMessageInterGroup(content: string, currentUser: any, invitationId: any) {
+    let integrantsOne = [];
+    let integrantsTwo = [];
     let userInGroupTwo;
     const userId = currentUser._id;
     const user = await this.usersService.getUserById(userId);
@@ -313,7 +324,9 @@ export class ChatService {
     //if (!interGroup) throw new WsException('The intergroup does not exist.');
     const invitation = await this.interGroupService.getInvitationId(invitationId);
     const groupOne = invitation.groupSender;
+    integrantsOne.push(groupOne.integrants);
     const groupTwo = invitation.groupReceiver;
+    integrantsTwo.push(groupTwo.integrants);
     const userInGroup = await this.groupService.getOneUserWithGroup(currentUser, groupOne);
     if (userInGroup === null) userInGroupTwo = await this.groupService.getOneUserWithGroup(currentUser, groupTwo);
     if (userInGroupTwo === null) throw new WsException('The user does not belong to some group');
@@ -325,7 +338,20 @@ export class ChatService {
       author: userId,
       chat: chat._id
     });
-    return await newMessage.save();
+    await newMessage.save();
+      for await (let users of integrantsOne) {
+        const user = await this.usersService.findOneUser({_id: users, active: true});
+          if (user.deviceToken && user._id != userId) {
+          await this.notificationService.sendNewChatMessage(users.deviceToken, chat.interGroup.name);
+          }
+        }
+      for await (let users of integrantsTwo) {
+        const user = await this.usersService.findOneUser({_id: users, active: true});
+          if (users.deviceToken && user._id != userId) {
+          await this.notificationService.sendNewChatMessage(users.deviceToken, chat.interGroup.name);
+           }
+        }
+    return newMessage;
   }
 
   async getAllMessagesInterGroup(currentUser: any, invitationId: any) {
@@ -361,10 +387,9 @@ export class ChatService {
     const userId = currentUser._id;
     const userExist = await this.usersService.getUserById(userId);
     if (!userExist) throw new WsException('User does not exist');
-    const chat = await this.chatModel.findOne({ _id: chatId, active: true });
+    const chat: any = await this.chatModel.findOne({ _id: chatId, active: true }).populate('adminUser').populate('user');
     if (!chat) throw new WsException('Chat does not exist');
-    const group = await this.groupService.getGroupAdmin(groupId, chat.adminUser);
-    if (!group) throw new WsException('The group does not exist');
+    const group = await this.groupService.getGroupAdmin(groupId, chat.adminUser._id);
     const newMessage = await new this.messageModel({
       content,
       name: userExist.name,
@@ -373,7 +398,20 @@ export class ChatService {
       author: userId,
       chat: chat._id
     });
-    return await newMessage.save();
+    await newMessage.save();
+    if (chat.adminUser == userId) {
+          const user = await this.usersService.findOneUser({_id: chat.user, active: true })
+       if (user.deviceToken) {
+            await this.notificationService.sendNewChatMessage(chat.user.deviceToken, chat.name);
+          }
+        } 
+    if (chat.adminUser != userId) {
+              const user = await this.usersService.findOneUser({_id: chat.adminUser, active: true })
+       if (user.deviceToken) {
+            await this.notificationService.sendNewChatMessage(chat.adminUser.deviceToken, chat.name);
+          }
+        }
+    return newMessage;
   }
 
   async getAllMessagesAdmin(chatId: any, currentUser: any ) {
@@ -411,15 +449,14 @@ export class ChatService {
         if (messages.length > 0) {
         chat.unreadMessages = messages.length;
         chat.lastMessage = messages[0].content;
-        console.log('ultimomensaje', messages[0].content);
         await chat.save();
         }
-        for await (let users of integrants) {
+        /*for await (let users of integrants) {
           const user = await this.usersService.findOneUser({ _id: users, active: true })
           if (user.deviceToken) {
           await this.notificationService.sendNewChatMessage(users.deviceToken, group.name);
         }
-      }
+      }*/
         return messages;
     } catch (error) {
       throw new Error(error);
@@ -476,6 +513,7 @@ export class ChatService {
       try {
         const user = await this.usersService.findOneUser({ _id: currentUser._id });
         const chat = await this.chatModel.findOne({ _id: chatId, active: true });
+        if (!chat) throw new WsException('Chat does not exist, id incorrect or group inactive.');
         const id = chat._id;
         const messages = await this.messageModel
           .find({
@@ -488,12 +526,13 @@ export class ChatService {
           chat.lastMessage = messages[0].content;
           await chat.save();
           }
-          if (user.deviceToken) {
+          /*if (user.deviceToken) {
           await this.notificationService.sendNewChatMessage(user.deviceToken, chat.name);
-          }
+          }*/
           return messages;
       } catch (error) {
         throw new Error(error);
       }
     }
+
 }
