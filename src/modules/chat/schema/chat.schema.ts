@@ -7,6 +7,7 @@ import { InterGroup } from '../../inter-group/schema/interGroup.schema';
 import { Invitation } from '../../group/schema/invitation.schema';
 import { Proposal } from 'src/modules/inter-group/schema/proposal.schema';
 import { Meeting } from 'src/modules/meeting-place/schema/meetingPlace.schema';
+import { Message } from './message.schema';
 
 @Schema({ timestamps: true })
 export class Chat {
@@ -61,8 +62,8 @@ export class Chat {
   @Prop()
   unreadMessages: number;
 
-  @Prop()
-  lastMessage: string;
+  @Prop({type: mongoose.SchemaTypes.ObjectId, ref: 'Message'})
+  lastMessage: Message;
 }
 
 export type ChatDocument = Chat & mongoose.Document;

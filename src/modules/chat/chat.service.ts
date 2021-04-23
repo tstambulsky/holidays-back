@@ -115,7 +115,7 @@ export class ChatService {
       const groups = await this.groupService.getUserGroups(currentUser);
       for await (let group of groups) {
         await this.getUnreadGroup(group._id, currentUser);
-        const chat = await this.chatModel.findOne({ group: group._id, active: true });
+        const chat = await this.chatModel.findOne({ group: group._id, active: true }).populate('lastMessage');
         if (!chat.adminUser) {
           allChats.push(chat);
         }
@@ -148,7 +148,7 @@ export class ChatService {
       });
       for await (let element of invitationsId) {
         await this.getUnreadInterGroup(currentUser, element);
-        const chat = await this.chatModel.findOne({ invitation: element, active: true });
+        const chat = await this.chatModel.findOne({ invitation: element, active: true }).populate('lastMessage');
         if (chat) {
         const group = await this.getChatPopulateGroup(element._id, currentUser);
         chat.otherGroup = group;
@@ -196,7 +196,7 @@ export class ChatService {
 
   async getChatAdminUser(currentUser: any) {
     try {
-      const chats = await this.chatModel.find({ user: currentUser._id, active: true });
+      const chats = await this.chatModel.find({ user: currentUser._id, active: true }).populate('lastMessage');
       if (!chats) throw new WsException('The user is not an admin of any group');
       for await (let chat of chats) {
         await this.getUnreadAdmin(chat._id, currentUser);
@@ -229,7 +229,7 @@ export class ChatService {
 
   async getChatAdmin(currentUser: any) {
     try {
-      const chats = await this.chatModel.find({ adminUser: currentUser._id, active: true });
+      const chats = await this.chatModel.find({ adminUser: currentUser._id, active: true }).populate('lastMessage');;
       if (!chats) throw new WsException('You are not the admin or the user does not exist.');
       for await (let chat of chats) {
       await this.getUnreadAdmin(chat._id, currentUser);
@@ -442,7 +442,7 @@ export class ChatService {
       const group = await this.groupService.getGroup({ active: true, _id: groupId, integrants: currentUser._id });
       if (!group) throw new WsException('The user does not belong to the group or the group does not exist.');
       integrants.push(group.integrants);
-      const chat = await this.chatModel.findOne({ group: groupId, active: true });
+      const chat: any = await this.chatModel.findOne({ group: groupId, active: true });
       const messages = await this.messageModel
         .find({
           chat: chat._id,
@@ -451,7 +451,7 @@ export class ChatService {
         .sort({ date: -1 });
         if (messages.length > 0) {
         chat.unreadMessages = messages.length;
-        chat.lastMessage = messages[0].content;
+        chat.lastMessage = messages[0]._id;
         await chat.save();
         }
         /*for await (let users of integrants) {
@@ -483,7 +483,7 @@ export class ChatService {
       const userInGroup = await this.groupService.getOneUserWithGroup(currentUser, groupOne);
       if (userInGroup === null) userInGroupTwo = await this.groupService.getOneUserWithGroup(currentUser, groupTwo);
       if (userInGroupTwo === null) throw new WsException('The user does not belong to some group');
-      const chat: any = await this.chatModel.findOne({ invitation: invitationId, active: true }).populate('interGroup');
+      const chat: any = await this.chatModel.findOne({ invitation: invitationId, active: true }).populate('interGroup').populate('lastMessage');
       if (chat) {
       const messages = await this.messageModel
         .find({
@@ -491,10 +491,11 @@ export class ChatService {
           readBy: { $ne: currentUser._id }
         })
         .sort({ date: -1 });
+        console.log(messages[0]);
         allMessages.push(messages);
         if (messages.length > 0) {
         chat.unreadMessages = messages.length;
-        chat.lastMessage = messages[0].content;
+        chat.lastMessage = messages[0]._id;
         await chat.save();
         }
       }
@@ -519,7 +520,7 @@ export class ChatService {
     async getUnreadAdmin(chatId: any, currentUser: any ) {
       try {
         const user = await this.usersService.findOneUser({ _id: currentUser._id });
-        const chat = await this.chatModel.findOne({ _id: chatId, active: true });
+        const chat: any = await this.chatModel.findOne({ _id: chatId, active: true });
         if (!chat) throw new WsException('Chat does not exist, id incorrect or group inactive.');
         const id = chat._id;
         const messages = await this.messageModel
@@ -530,7 +531,7 @@ export class ChatService {
           .sort({ date: -1 });
           if (messages.length > 0) {
           chat.unreadMessages = messages.length;
-          chat.lastMessage = messages[0].content;
+          chat.lastMessage = messages[0]._id;
           await chat.save();
           }
           /*if (user.deviceToken) {
