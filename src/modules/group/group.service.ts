@@ -310,6 +310,7 @@ export class GroupService {
       if (alreadyInvite.length > 0) throw new Error('User already invite');
       const newInvitation = new this.invitationModel(data);
       await newInvitation.save();
+      const name = `${userExist.name} + ${userExist.lastName}`;
       const chat = await this.chatService.getOneChatAdminUserWithout(user, group);
       if (!chat) {
          await this.chatService.createAdminChat(group, userExist);
@@ -326,7 +327,7 @@ export class GroupService {
           const user = await this.userService.findOneUser({_id: users, active: true});
           console.log('devicee', user.deviceToken);
           if(user.deviceToken) {
-             await this.notificationService.sendInvitationToAdmin(user.deviceToken, userExist.name, groupExist.name);
+             await this.notificationService.sendInvitationToAdmin(user.deviceToken, name, groupExist.name);
         }
           }
         }
@@ -458,6 +459,7 @@ export class GroupService {
       const group = await this.groupModel.findOne({ _id: invitation.group }).populate('integrants');
       integrants.push(group.integrants);
       const chat = await this.chatService.getOneChatAdminUser(userId, group._id);
+      const name = `${user.name} + ${user.lastName}`;
       if (success) {
         //Validate that user does not have other
         const valid = await this.validateGroups(user, group);
@@ -477,7 +479,7 @@ export class GroupService {
           console.log('integrants', integrants)
           const user = await this.userService.findOneUser({_id: users, active: true});
           if (user.deviceToken) {
-        await this.notificationService.sendUserAccept(user.deviceToken, user.name, group.name);
+        await this.notificationService.sendUserAccept(user.deviceToken, name, group.name);
           }
         }
       } else {
@@ -488,7 +490,7 @@ export class GroupService {
           console.log('integrants', integrants)
           const user = await this.userService.findOneUser({_id: users, active: true});
           if (user.deviceToken) {
-        await this.notificationService.sendUserNoAccept(user.deviceToken, user.name, group.name);
+        await this.notificationService.sendUserNoAccept(user.deviceToken, name, group.name);
           }
       }
     }
