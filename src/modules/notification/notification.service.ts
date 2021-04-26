@@ -127,6 +127,53 @@ export class NotificationService {
     }
   }
 
+  async sendUserAccept(token: string, name: any, group: any) {
+    try {
+      const message = {
+        notification: {
+          title: 'Solicitud de grupo aceptada',
+          body: `El usuario ${name} ha aceptado la invitación al grupo ${group}`,
+          sound: 'default'
+        },
+        data: {
+          title: 'Solicitud de grupo aceptada',
+          body: `El usuario ${name} ha aceptado la invitación al grupo ${group}`,
+          Emergency_category: 'Emergency'
+        }
+      };
+      await this.sendNotification(token, message);
+      const notification = await this.cleanData(token, message);
+      await this.createNotification(notification);
+      return true;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async sendUserNoAccept(token: string, name: any, group: any) {
+    try {
+      const message = {
+        notification: {
+          title: 'Solicitud de grupo no aceptada',
+          body: `El usuario ${name} no ha aceptado la invitación al grupo ${group}`,
+          sound: 'default'
+        },
+        data: {
+          title: 'Solicitud de grupo no aceptada',
+          body: `El usuario ${name} no ha aceptado la invitación al grupo ${group}`,
+          Emergency_category: 'Emergency'
+        }
+      };
+      await this.sendNotification(token, message);
+      const notification = await this.cleanData(token, message);
+      await this.createNotification(notification);
+      return true;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+
   async sendInvitationGroupToUser(token: string, group: any) {
     try {
       const message = {

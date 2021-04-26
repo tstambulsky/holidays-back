@@ -298,10 +298,12 @@ export class GroupService {
 
   async sendInvitationToGroup(data: RequestToGroupDTO) {
     try {
+      let integrants = [];
       const { user, group, fromAdmin } = data;
-      const groupExist = await this.groupModel.findOne({ _id: group }).populate('integrants');
+      const groupExist = await this.groupModel.findOne({ _id: group }).populate('integrants').populate('admin');
       const userExist = await this.userService.getUserById(user);
       if (!groupExist || !userExist) throw new Error('This group or user does not exist');
+      integrants.push(groupExist.integrants);
       const isIngroup = await this.groupModel.findOne({ _id: group, integrants: user });
       if (isIngroup) throw new Error('This User is already in the group');
       const alreadyInvite = await this.invitationModel.find({ user, group, active: true });
@@ -320,10 +322,12 @@ export class GroupService {
         await this.notificationService.sendInvitationGroupToUser(userExist.deviceToken, groupExist.name);
         }
       } if (fromAdmin == false) {
-        if (userExist.deviceToken) {
-        await this.notificationService.sendInvitationToAdmin(userExist.deviceToken, userExist.name, groupExist.name);
+        for await (let user of integrants) {
+          if(user.deviceToken) {
+             await this.notificationService.sendInvitationToAdmin(user.deviceToken, userExist.name, groupExist.name);
         }
-      }
+          }
+        }
       return newInvitation;
     } catch (error) {
       throw new Error(error.message);
@@ -441,6 +445,7 @@ export class GroupService {
 
   async acceptOrRefuseMyRequests(data: AceptOrRefuseDTO, currentUser: any) {
     try {
+      let integrants = [];
       const { invitationId, success } = data;
       const userId = currentUser._id;
       const user = await this.userService.getUserById(userId);
@@ -448,6 +453,7 @@ export class GroupService {
       const invitation = await this.invitationModel.findOne({ _id: invitationId, fromAdmin: true, active: true }).populate('user');
       if (!invitation) throw new Error('Bad invitation');
       const group = await this.groupModel.findOne({ _id: invitation.group }).populate('integrants');
+      integrants.push(group.integrants);
       const chat = await this.chatService.getOneChatAdminUser(userId, group._id);
       if (success) {
         //Validate that user does not have other
@@ -464,11 +470,21 @@ export class GroupService {
         invitation.success = true;
         invitation.active = false;
         chat.active = false;
+        for await (let user of integrants){
+          if (user.deviceToken) {
+        await this.notificationService.sendUserAccept(user.deviceToken, user.name, group.name);
+          }
+        }
       } else {
         invitation.success = false;
         invitation.active = false;
         chat.active = false;
+         for await (let user of integrants){
+          if (user.deviceToken) {
+        await this.notificationService.sendUserNoAccept(user.deviceToken, user.name, group.name);
+          }
       }
+    }
       await invitation.save();
       await chat.save();
       return 'The changes to your invitation have been saved.';
