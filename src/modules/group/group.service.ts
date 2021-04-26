@@ -317,11 +317,11 @@ export class GroupService {
       }
       if (fromAdmin == true) {
         if (userExist.deviceToken) {
-        await this.notificationService.sendInvitationGroupToUser(userExist.deviceToken, groupExist.name);
+        await this.notificationService.sendInvitationGroupToUser(userExist.deviceToken);
         }
       } if (fromAdmin == false) {
         if (userExist.deviceToken) {
-        await this.notificationService.sendInvitationToAdmin(userExist.deviceToken, userExist.name, groupExist.name);
+        await this.notificationService.sendInvitationToAdmin(userExist.deviceToken);
         }
       }
       return newInvitation;
@@ -395,7 +395,7 @@ export class GroupService {
       chats.active = false;
       await chats.save();
       if (user.deviceToken) {
-       await this.notificationService.sendAcceptGroup(user.deviceToken, group.name);
+       await this.notificationService.sendAcceptGroup(user.deviceToken);
       }
       return group;
     } catch (error) {
@@ -418,7 +418,7 @@ export class GroupService {
       chat.active = false;
       await chat.save();
       if (invitation.user.deviceToken) {
-      await this.notificationService.sendNoAcceptGroup(invitation.user.deviceToken, group.name);
+      await this.notificationService.sendNoAcceptGroup(invitation.user.deviceToken);
       }
       return group;
     } catch (error) {
