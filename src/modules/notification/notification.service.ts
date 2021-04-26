@@ -95,7 +95,7 @@ export class NotificationService {
           Emergency_category: 'Emergency'
         }
       };
-      await this.sendNotification(token, message.notification);
+      await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
       await this.createNotification(notification);
       return true;
@@ -118,7 +118,7 @@ export class NotificationService {
           Emergency_category: 'Emergency'
         }
       };
-      await this.sendNotification(token, message.notification);
+      await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
       await this.createNotification(notification);
       return true;
@@ -141,7 +141,7 @@ export class NotificationService {
           Emergency_category: 'Emergency'
         }
       };
-      await this.sendNotification(token, message.notification);
+      await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
       await this.createNotification(notification);
       return true;
@@ -164,7 +164,7 @@ export class NotificationService {
           Emergency_category: 'Emergency'
         }
       };
-      await this.sendNotification(token, message.notification);
+      await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
       await this.createNotification(notification);
       return true;
@@ -187,7 +187,7 @@ export class NotificationService {
           Emergency_category: 'Emergency'
         }
       };
-      await this.sendNotification(token, message.notification);
+      await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
       await this.createNotification(notification);
       return true;
@@ -210,7 +210,7 @@ export class NotificationService {
           Emergency_category: 'Emergency'
         }
       };
-      await this.sendNotification(token, message.notification);
+      await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
       await this.createNotification(notification);
       return true;
@@ -233,7 +233,7 @@ export class NotificationService {
           Emergency_category: 'Emergency'
         }
       };
-      await this.sendNotification(token, message.notification);
+      await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
       await this.createNotification(notification);
       return true;
@@ -256,7 +256,7 @@ export class NotificationService {
           Emergency_category: 'Emergency'
         }
       };
-      await this.sendNotification(token, message.notification);
+      await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
       await this.createNotification(notification);
       return true;
@@ -279,7 +279,7 @@ export class NotificationService {
           Emergency_category: 'Emergency'
         }
       };
-      await this.sendNotification(token, message.notification);
+      await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
       await this.createNotification(notification);
       return true;
@@ -302,7 +302,7 @@ export class NotificationService {
           Emergency_category: 'Emergency'
         }
       };
-      await this.sendNotification(token, message.notification);
+      await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
       await this.createNotification(notification);
       return true;
@@ -325,7 +325,7 @@ export class NotificationService {
           Emergency_category: 'Emergency'
         }
       };
-      await this.sendNotification(token, message.notification);
+      await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
       await this.createNotification(notification);
       return true;
