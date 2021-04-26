@@ -482,4 +482,18 @@ export class GroupController {
       })
     }
   }
+
+  @Get('/invitations/pendings')
+  async getPendingsUser(@Res() res, @CurrentUser() user) {
+     try {
+      const response = await this.groupService.getPendingInvitationsUser(user);
+      return res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (error) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        error: error.message
+      })
+    }
+  }
 }
