@@ -322,7 +322,9 @@ export class GroupService {
         await this.notificationService.sendInvitationGroupToUser(userExist.deviceToken, groupExist.name);
         }
       } if (fromAdmin == false) {
-        for await (let user of integrants) {
+        for await (let users of integrants) {
+          const user = await this.userService.findOneUser({_id: users, active: true});
+          console.log('devicee', user.deviceToken);
           if(user.deviceToken) {
              await this.notificationService.sendInvitationToAdmin(user.deviceToken, userExist.name, groupExist.name);
         }
@@ -421,8 +423,9 @@ export class GroupService {
       const chat = await this.chatService.getOneChatAdminWithUser(userId, invitation.user);
       chat.active = false;
       await chat.save();
-      if (invitation.user.deviceToken) {
-      await this.notificationService.sendNoAcceptGroup(invitation.user.deviceToken, group.name);
+      const user = await this.userService.findOneUser({_id: invitation.user, active: true});
+      if (user.deviceToken) {
+      await this.notificationService.sendNoAcceptGroup(user.deviceToken, group.name);
       }
       return group;
     } catch (error) {
@@ -470,7 +473,9 @@ export class GroupService {
         invitation.success = true;
         invitation.active = false;
         chat.active = false;
-        for await (let user of integrants){
+        for await (let users of integrants){
+          console.log('integrants', integrants)
+          const user = await this.userService.findOneUser({_id: users, active: true});
           if (user.deviceToken) {
         await this.notificationService.sendUserAccept(user.deviceToken, user.name, group.name);
           }
@@ -479,7 +484,9 @@ export class GroupService {
         invitation.success = false;
         invitation.active = false;
         chat.active = false;
-         for await (let user of integrants){
+         for await (let users of integrants){
+          console.log('integrants', integrants)
+          const user = await this.userService.findOneUser({_id: users, active: true});
           if (user.deviceToken) {
         await this.notificationService.sendUserNoAccept(user.deviceToken, user.name, group.name);
           }
