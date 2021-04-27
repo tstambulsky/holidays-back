@@ -315,7 +315,7 @@ export class InterGroupService {
       for await (let users of integrantsOne) {
         const user = await this.usersService.findOneUser({ _id: users, active: true })
         if (user.deviceToken) {
-        await this.notificationService.sendAcceptInterGroup(users.deviceToken, groupReceiver.name);
+        await this.notificationService.sendAcceptInterGroup(user.deviceToken, groupReceiver.name);
       }
     }
       return createInterGroup;
