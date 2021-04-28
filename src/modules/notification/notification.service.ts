@@ -52,8 +52,8 @@ export class NotificationService {
       console.log(message);
       const user = await this.userService.getByDeviceToken(token);
       return {
-        title: message.title,
-        body: message.body,
+        title: message.data.title,
+        body: message.data.body,
         to: user
       };
     } catch (error) {
