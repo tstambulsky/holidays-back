@@ -286,6 +286,8 @@ export class ChatService {
       group: chat._id,
       chat: chat._id
     });
+    //@ts-ignore
+    newMessage.readBy.push(userId)
     await newMessage.save();
      for await (let users of integrants) {
           const user = await this.usersService.findOneUser({ _id: users, active: true })
@@ -297,6 +299,7 @@ export class ChatService {
   }
 
   async getAllMessagesGroup(groupId: any, currentUser: any) {
+    let allUnread = [];
     const group = await this.groupService.getGroup({ active: true, _id: groupId, integrants: currentUser._id });
     if (!group) throw new WsException('The user does not belong to the group or the group does not exist.');
     const chat = await this.chatModel.findOne({ group: groupId, active: true });
@@ -308,10 +311,16 @@ export class ChatService {
       for await (let message of messages) {
         const mesg = await this.messageModel.findOne({ _id: message._id, readBy: { $ne: currentUser._id } });
          if (mesg) {
+           allUnread.push(mesg);
           //@ts-ignore
           mesg.readBy.push(currentUser._id);
           mesg.save();
          }
+      }
+      if (allUnread.length < 1) {
+       chat.unreadMessages = 0;
+       chat.lastMessage = undefined;
+       await chat.save();
       }
     return messages;
   }
@@ -341,6 +350,8 @@ export class ChatService {
       author: userId,
       chat: chat._id
     });
+     //@ts-ignore
+    newMessage.readBy.push(userId)
     await newMessage.save();
       for await (let users of integrantsOne) {
         const user = await this.usersService.findOneUser({_id: users, active: true});
@@ -358,6 +369,7 @@ export class ChatService {
   }
 
   async getAllMessagesInterGroup(currentUser: any, invitationId: any) {
+    let allUnread = [];
     const userId = currentUser._id;
     let userInGroupTwo;
     //const group = await this.groupService.getGroupChat(groupId, currentUser);
@@ -379,9 +391,15 @@ export class ChatService {
         const mesg: any = await this.messageModel.findOne({ _id: message._id, readBy: { $ne: currentUser._id }});
             //@ts-ignore
             if (mesg) {
+            allUnread.push(mesg);
             mesg.readBy.push(userId);
             mesg.save();
             }
+      }
+      if (allUnread.length < 1) {
+       chat.unreadMessages = 0;
+       chat.lastMessage = undefined;
+       await chat.save();
       }
       return messages;
   }
@@ -401,6 +419,8 @@ export class ChatService {
       author: userId,
       chat: chat._id
     });
+     //@ts-ignore
+    newMessage.readBy.push(userId)
     await newMessage.save();
     if (chat.adminUser._id == userId) {
           const user = await this.usersService.findOneUser({_id: chat.user, active: true })
@@ -418,6 +438,7 @@ export class ChatService {
   }
 
   async getAllMessagesAdmin(chatId: any, currentUser: any ) {
+    let allUnread = [];
     const chat = await this.chatModel.findOne({ _id: chatId, active: true });
     const id = chat._id;
     const messages = await this.messageModel
@@ -428,10 +449,16 @@ export class ChatService {
         for await (let message of messages) {
         const mesg = await this.messageModel.findOne({ _id: message._id, readBy: { $ne: currentUser._id } })
          if (mesg) {
+           allUnread.push(mesg);
           //@ts-ignore
           mesg.readBy.push(currentUser._id);
           mesg.save();
          }
+      }
+       if (allUnread.length < 1) {
+       chat.unreadMessages = 0;
+       chat.lastMessage = undefined;
+       await chat.save();
       }
       return messages;
   }
