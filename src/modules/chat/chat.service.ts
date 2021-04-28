@@ -402,13 +402,13 @@ export class ChatService {
       chat: chat._id
     });
     await newMessage.save();
-    if (chat.adminUser == userId) {
+    if (chat.adminUser._id == userId) {
           const user = await this.usersService.findOneUser({_id: chat.user, active: true })
        if (user.deviceToken) {
             await this.notificationService.sendNewChatMessage(user.deviceToken, chat.name);
           }
         } 
-    if (chat.adminUser != userId) {
+    if (chat.adminUser._id != userId) {
               const user = await this.usersService.findOneUser({_id: chat.adminUser, active: true })
        if (user.deviceToken) {
             await this.notificationService.sendNewChatMessage(user.deviceToken, chat.name);
