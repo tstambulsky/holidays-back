@@ -37,6 +37,7 @@ export class NotificationService {
 
   async createNotification(data: NotificationDto) {
     try {
+      console.log('data', data);
       const notification = new this.notificationModel(data);
       await notification.save();
       return true;
@@ -48,9 +49,10 @@ export class NotificationService {
 
   async cleanData(token: string, message: any) {
     try {
+      console.log(message);
       const user = await this.userService.getByDeviceToken(token);
       return {
-        title: message.tittle,
+        title: message.title,
         body: message.body,
         to: user
       };
