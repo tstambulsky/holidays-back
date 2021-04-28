@@ -486,7 +486,6 @@ export class GroupService {
         invitation.active = false;
         chat.active = false;
          for await (let users of integrants){
-          console.log('integrants', integrants)
           const user = await this.userService.findOneUser({_id: users, active: true});
           if (user.deviceToken) {
         await this.notificationService.sendUserNoAccept(user.deviceToken, name, group.name);

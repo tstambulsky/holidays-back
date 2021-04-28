@@ -15,7 +15,6 @@ export class NotificationService {
 
   async sendNotification(token: string, message: any) {
     try {
-      console.log(message);
       const response = await admin.messaging().sendToDevice(token, message);
       console.log(response);
       return 'message sended';
@@ -37,7 +36,6 @@ export class NotificationService {
 
   async createNotification(data: NotificationDto) {
     try {
-      console.log('data', data);
       const notification = new this.notificationModel(data);
       await notification.save();
       return true;
@@ -49,7 +47,6 @@ export class NotificationService {
 
   async cleanData(token: string, message: any) {
     try {
-      console.log(message);
       const user = await this.userService.getByDeviceToken(token);
       return {
         title: message.data.title,
@@ -75,7 +72,6 @@ export class NotificationService {
           Emergency_category: 'Emergency'
         }
       };
-      console.log(message);
       await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
       await this.createNotification(notification);
@@ -99,7 +95,6 @@ export class NotificationService {
           Emergency_category: 'Emergency'
         }
       };
-      console.log(message);
       await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
       await this.createNotification(notification);
@@ -193,7 +188,6 @@ export class NotificationService {
           Emergency_category: 'Emergency'
         }
       };
-      console.log(message);
       await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
       await this.createNotification(notification);
