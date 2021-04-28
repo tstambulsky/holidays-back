@@ -290,7 +290,7 @@ export class ChatService {
      for await (let users of integrants) {
           const user = await this.usersService.findOneUser({ _id: users, active: true })
           if (user.deviceToken && user._id != userId) {
-          await this.notificationService.sendNewChatMessage(users.deviceToken, group.name);
+          await this.notificationService.sendNewChatMessage(user.deviceToken, group.name);
         }
       }
     return newMessage;
@@ -345,13 +345,13 @@ export class ChatService {
       for await (let users of integrantsOne) {
         const user = await this.usersService.findOneUser({_id: users, active: true});
           if (user.deviceToken && user._id != userId) {
-          await this.notificationService.sendNewChatMessage(users.deviceToken, chat.interGroup.name);
+          await this.notificationService.sendNewChatMessage(user.deviceToken, chat.interGroup.name);
           }
         }
       for await (let users of integrantsTwo) {
         const user = await this.usersService.findOneUser({_id: users, active: true});
-          if (users.deviceToken && user._id != userId) {
-          await this.notificationService.sendNewChatMessage(users.deviceToken, chat.interGroup.name);
+          if (user.deviceToken && user._id != userId) {
+          await this.notificationService.sendNewChatMessage(user.deviceToken, chat.interGroup.name);
            }
         }
     return newMessage;
@@ -405,13 +405,13 @@ export class ChatService {
     if (chat.adminUser == userId) {
           const user = await this.usersService.findOneUser({_id: chat.user, active: true })
        if (user.deviceToken) {
-            await this.notificationService.sendNewChatMessage(chat.user.deviceToken, chat.name);
+            await this.notificationService.sendNewChatMessage(user.deviceToken, chat.name);
           }
         } 
     if (chat.adminUser != userId) {
               const user = await this.usersService.findOneUser({_id: chat.adminUser, active: true })
        if (user.deviceToken) {
-            await this.notificationService.sendNewChatMessage(chat.adminUser.deviceToken, chat.name);
+            await this.notificationService.sendNewChatMessage(user.deviceToken, chat.name);
           }
         }
     return newMessage;

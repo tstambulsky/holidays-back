@@ -346,7 +346,7 @@ export class InterGroupService {
       for await (let users of integrantsOne) {
         const user = await this.usersService.findOneUser({ _id: users, active: true })
         if (user.deviceToken) {
-        await this.notificationService.sendNoAcceptInterGroup(users.deviceToken, invitation.groupReceiver.name);
+        await this.notificationService.sendNoAcceptInterGroup(user.deviceToken, invitation.groupReceiver.name);
         }
       }
       return group;
@@ -406,7 +406,7 @@ export class InterGroupService {
       for await (let users of integrantsTwo) {
         const user = await this.usersService.findOneUser({ _id: users, active: true })
         if (user.deviceToken) {
-        await this.notificationService.sendProposal(users.deviceToken, proposal.groupSender.name);
+        await this.notificationService.sendProposal(user.deviceToken, proposal.groupSender.name);
       }
     }
       return 'Proposal Sended';
@@ -455,7 +455,7 @@ export class InterGroupService {
         for await (let users of integrantsOne) {
           const user = await this.usersService.findOneUser({ _id: users, active: true});
           if (user.deviceToken) {
-          await this.notificationService.sendAcceptProposal(users.deviceToken, proposal.groupReceiver.name);
+          await this.notificationService.sendAcceptProposal(user.deviceToken, proposal.groupReceiver.name);
         }
       }
       } else {
@@ -466,7 +466,7 @@ export class InterGroupService {
         for await (let users of integrantsOne) {
           const user = await this.usersService.findOneUser({_id: users, active: true})
           if (user.deviceToken) {
-          await this.notificationService.sendNoAcceptPropoasl(users.deviceToken, proposal.groupReceiver.name);
+          await this.notificationService.sendNoAcceptPropoasl(user.deviceToken, proposal.groupReceiver.name);
         }
       }
       }
