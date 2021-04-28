@@ -13,9 +13,10 @@ export class NotificationService {
     @Inject(forwardRef(() => UsersService)) private readonly userService: UsersService
   ) {}
 
-  async sendNotification(token: string, payload: any) {
+  async sendNotification(token: string, message: any) {
     try {
-      const response = await admin.messaging().sendToDevice(token, payload);
+      console.log(message);
+      const response = await admin.messaging().sendToDevice(token, message);
       console.log(response);
       return 'message sended';
     } catch (error) {
