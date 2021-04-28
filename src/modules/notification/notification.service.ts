@@ -96,6 +96,7 @@ export class NotificationService {
           Emergency_category: 'Emergency'
         }
       };
+      console.log(message);
       await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
       await this.createNotification(notification);
