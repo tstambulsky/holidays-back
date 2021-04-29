@@ -371,11 +371,18 @@ export class InterGroupService {
 
   async proposalDateAndPlace(data: newProposalDto, currentUser: any) {
     try {
+      const date = moment().subtract(3, 'hours');
+      const today = new Date(date);
+      const dateProposalPost = new Date(data.proposalStartDate);
+      if (dateProposalPost <= date) {
+        throw new Error('You cannot enter a past date or time.');
+      };
       let integrantsTwo = [];
       const { interGroup } = data;
       const userId = currentUser._id;
       const obtainInterGroup = await this.interGroupModel.findOne({ _id: interGroup }).populate('groupSender').populate('groupReceiver');
-      integrantsTwo.push(obtainInterGroup.groupReceiver.integrants);
+      const groupTwo = await this.groupService.getGroup(obtainInterGroup.groupReceiver);
+      integrantsTwo.push(groupTwo.integrants);
       if (!obtainInterGroup) throw new Error('This Intergroup does not exist');
       if (obtainInterGroup.active) throw new Error('This Intergroup is already active');
       if (obtainInterGroup.groupSender.admin != userId) {
