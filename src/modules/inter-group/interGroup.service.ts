@@ -257,7 +257,8 @@ export class InterGroupService {
       interGroupChat.name = `${groupOne.name} + ${groupTwo.name}`;
       await interGroupChat.save();
       for await (let users of integrantsTwo) {
-        console.log(users._id);
+        console.log('user', users._id);
+        console.log('user entero', users);
         const user = await this.usersService.findOneUser({ _id: users._id, active: true });
         if (user.deviceToken) {
         await this.notificationService.sendInvitationToInterGroup(user.deviceToken, groupOne.name);
