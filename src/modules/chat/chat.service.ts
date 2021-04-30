@@ -293,7 +293,9 @@ export class ChatService {
     await newMessage.save();
      for await (let users of integrants) {
           const user = await this.usersService.findOneUser({ _id: users, active: true })
-          if (user.deviceToken && user._id != userId) {
+          if (user.deviceToken && user._id !== userId) {
+            console.log(user._id);
+            console.log(userId);
           await this.notificationService.sendNewChatMessage(user.deviceToken, group.name);
         }
       }
@@ -524,7 +526,6 @@ export class ChatService {
           readBy: { $ne: currentUser._id }
         })
         .sort({ date: -1 });
-        console.log(messages[0]);
         allMessages.push(messages);
         if (messages.length > 0) {
         chat.unreadMessages = messages.length;
