@@ -291,10 +291,10 @@ export class ChatService {
     //@ts-ignore
     newMessage.readBy.push(userId)
     await newMessage.save();
+      if (integrants.length > 1) {
      for await (let users of integrants) {
-       if (users !== userId) {
           const user = await this.usersService.findOneUser({ _id: users, active: true })
-          if (user.deviceToken) {
+          if (user.deviceToken && user._id !== userId) {
           await this.notificationService.sendNewChatMessage(user.deviceToken, group.name);
         }
       }
