@@ -274,9 +274,11 @@ export class ChatService {
     let integrants = [];
     const userId = currentUser._id;
     const user = await this.usersService.getUserById(userId);
-    const group = await this.groupService.getGroup({ active: true, integrants: userId, _id: groupId });
+    const group: any = await this.groupService.getGroup({ active: true, integrants: userId, _id: groupId });
     if (!group) throw new WsException('Group does not exist or user does not belong to the group');
-    integrants.push(group.integrants);
+    group.integrants.forEach(element => {
+      integrants.push(element._id)
+    });
     const chat = await this.chatModel.findOne({ group: groupId, active: true });
     const newMessage = await new this.messageModel({
       content,
@@ -335,10 +337,14 @@ export class ChatService {
     //const interGroup = await this.interGroupService.getInterGroupInactive(interGroupId);
     //if (!interGroup) throw new WsException('The intergroup does not exist.');
     const invitation = await this.interGroupService.getInvitationId(invitationId);
-    const groupOne = invitation.groupSender;
-    integrantsOne.push(groupOne.integrants);
-    const groupTwo = invitation.groupReceiver;
-    integrantsTwo.push(groupTwo.integrants);
+    const groupOne: any = invitation.groupSender;
+    groupOne.integrants.forEach(element => {
+      integrantsOne.push(element._id);
+    });
+    const groupTwo: any = invitation.groupReceiver;
+    groupTwo.integrants.forEach(element => {
+      integrantsTwo.push(element._id);
+    });
     const userInGroup = await this.groupService.getOneUserWithGroup(currentUser, groupOne);
     if (userInGroup === null) userInGroupTwo = await this.groupService.getOneUserWithGroup(currentUser, groupTwo);
     if (userInGroupTwo === null) throw new WsException('The user does not belong to some group');
@@ -423,13 +429,13 @@ export class ChatService {
     newMessage.readBy.push(userId)
     await newMessage.save();
     if (chat.adminUser._id == userId) {
-          const user = await this.usersService.findOneUser({_id: chat.user, active: true })
+          const user = await this.usersService.findOneUser({_id: chat.user._id, active: true })
        if (user.deviceToken) {
             await this.notificationService.sendNewChatMessage(user.deviceToken, chat.name);
           }
         } 
     if (chat.adminUser._id != userId) {
-              const user = await this.usersService.findOneUser({_id: chat.adminUser, active: true })
+              const user = await this.usersService.findOneUser({_id: chat.adminUser._id, active: true })
        if (user.deviceToken) {
             await this.notificationService.sendNewChatMessage(user.deviceToken, chat.name);
           }
