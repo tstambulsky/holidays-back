@@ -291,7 +291,8 @@ export class ChatService {
     //@ts-ignore
     newMessage.readBy.push(userId)
     await newMessage.save();
-      if (integrants.length > 1) {
+    console.log(integrants.length);
+      if (integrants.length > 0) {
      for await (let users of integrants) {
           const user = await this.usersService.findOneUser({ _id: users, active: true })
           if (user.deviceToken && user._id !== userId) {
