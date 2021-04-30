@@ -553,7 +553,6 @@ export class ChatService {
 
     async getUnreadAdmin(chatId: any, currentUser: any ) {
       try {
-        const user = await this.usersService.findOneUser({ _id: currentUser._id });
         const chat: any = await this.chatModel.findOne({ _id: chatId, active: true });
         if (!chat) throw new WsException('Chat does not exist, id incorrect or group inactive.');
         const id = chat._id;
@@ -577,4 +576,21 @@ export class ChatService {
       }
     }
 
+    async getAllChats(currentUser: any) {
+      try {
+        const userId = currentUser._id;
+        let allChats = [];
+        const group = await this.getChatGroupUser(userId);
+        allChats.push(group);
+        const interGroup = await this.getChatInterGroupsUser(userId);
+        allChats.push(interGroup);
+        const admin = await this.getChatAdmin(userId);
+        allChats.push(admin);
+        const userToAdmin = await this.getChatAdminUser(userId);
+        allChats.push(userToAdmin);
+        return allChats;
+      } catch (error) {
+        throw new Error(error);
+      }
+    }
 }

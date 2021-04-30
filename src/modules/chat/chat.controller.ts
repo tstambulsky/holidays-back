@@ -65,6 +65,20 @@ export class ChatController {
     }
   };
 
+  @Get('/allchats')
+  async getAllChats(@Res() res, @CurrentUser() user) {
+    try {
+      const response = await this.chatService.getAllChats(user)
+      res.status(HttpStatus.OK).json({
+        response
+      })
+    } catch (error) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        error: error.message
+      })
+    }
+  };
+
   @Post('/sendgroup')
   async sendmessagegroup(@Res() res, @Body() data: MessageDTO, @CurrentUser() user) {
     try {
