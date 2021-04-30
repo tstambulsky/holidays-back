@@ -248,8 +248,10 @@ export class InterGroupService {
       // });
       // if (alreadyInIntergroup.length > 0) throw new Error('The group(s) are already in an intergroup');
       const groupOne = await this.groupService.getGroup(groupSender);
-      const groupTwo = await this.groupService.getGroup(data.groupReceiver);
-      integrantsTwo.push(groupTwo.integrants);
+      const groupTwo: any = await this.groupService.getGroup(data.groupReceiver);
+      groupTwo.integrants.forEach(element => {
+        integrantsTwo.push(element._id);
+      });
       console.log(integrantsTwo);
       const newInvitation = new this.invitationModel(data);
       await newInvitation.save();
@@ -257,9 +259,8 @@ export class InterGroupService {
       interGroupChat.name = `${groupOne.name} + ${groupTwo.name}`;
       await interGroupChat.save();
       for await (let users of integrantsTwo) {
-        console.log('user', users._id);
         console.log('user entero', users);
-        const user = await this.usersService.findOneUser({ _id: users._id, active: true });
+        const user = await this.usersService.findOneUser({ _id: users, active: true });
         if (user.deviceToken) {
         await this.notificationService.sendInvitationToInterGroup(user.deviceToken, groupOne.name);
         }
