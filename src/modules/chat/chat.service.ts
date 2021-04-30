@@ -293,7 +293,7 @@ export class ChatService {
     await newMessage.save();
      for await (let users of integrants) {
           const findUser = await this.usersService.findOneUser({ _id: users, active: true })
-             if (findUser.deviceToken && user.email != findUser.email) {
+             if (findUser.deviceToken !== undefined && user.email !== findUser.email) {
           await this.notificationService.sendNewChatMessage(findUser.deviceToken, group.name);
       }
       }
