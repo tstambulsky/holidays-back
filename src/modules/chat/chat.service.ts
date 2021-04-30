@@ -292,10 +292,12 @@ export class ChatService {
     newMessage.readBy.push(userId)
     await newMessage.save();
     console.log(integrants.length);
-      if (integrants.length > 0) {
+      if (integrants.length > 1) {
      for await (let users of integrants) {
           const user = await this.usersService.findOneUser({ _id: users, active: true })
-          if (user.deviceToken && user._id !== userId) {
+          if (user.deviceToken != undefined || null && user._id != userId) {
+            console.log(user._id);
+            console.log(userId);
           await this.notificationService.sendNewChatMessage(user.deviceToken, group.name);
         }
       }
