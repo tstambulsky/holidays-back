@@ -2,6 +2,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Notification } from 'rxjs';
 import { NotificationService } from './notification.service';
+import { NotificationController } from './notification.controller';
 import { NotificationSchema } from './schema/notification.schema';
 import { UsersModule } from '../users/users.module';
 

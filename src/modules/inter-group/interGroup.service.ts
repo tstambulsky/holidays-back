@@ -250,13 +250,15 @@ export class InterGroupService {
       const groupOne = await this.groupService.getGroup(groupSender);
       const groupTwo = await this.groupService.getGroup(data.groupReceiver);
       integrantsTwo.push(groupTwo.integrants);
+      console.log(integrantsTwo);
       const newInvitation = new this.invitationModel(data);
       await newInvitation.save();
       const interGroupChat = await this.chatService.createInterGroupChatInvitation(newInvitation._id);
       interGroupChat.name = `${groupOne.name} + ${groupTwo.name}`;
       await interGroupChat.save();
       for await (let users of integrantsTwo) {
-        const user = await this.usersService.findOneUser({ _id: users, active: true });
+        console.log(users._id);
+        const user = await this.usersService.findOneUser({ _id: users._id, active: true });
         if (user.deviceToken) {
         await this.notificationService.sendInvitationToInterGroup(user.deviceToken, groupOne.name);
         }
@@ -298,6 +300,7 @@ export class InterGroupService {
       const groupReceiver = invitation.groupReceiver;
       const firstGroup = await this.groupService.getGroup(groupSender);
       integrantsOne.push(firstGroup.integrants);
+      console.log(integrantsOne);
       const secondGroup = await this.groupService.getGroup(groupReceiver);
       const createInterGroup = await new this.interGroupModel({
         groupSender,
@@ -313,7 +316,9 @@ export class InterGroupService {
       chat.pending = false;
       await chat.save();
       for await (let users of integrantsOne) {
-        const user = await this.usersService.findOneUser({ _id: users, active: true })
+        console.log(users._id);
+        console.log('users enter', users);
+        const user = await this.usersService.findOneUser({ _id: users._id, active: true })
         if (user.deviceToken) {
         await this.notificationService.sendAcceptInterGroup(user.deviceToken, groupReceiver.name);
       }
@@ -383,6 +388,7 @@ export class InterGroupService {
       const obtainInterGroup = await this.interGroupModel.findOne({ _id: interGroup }).populate('groupSender').populate('groupReceiver');
       const groupTwo = await this.groupService.getGroup(obtainInterGroup.groupReceiver);
       integrantsTwo.push(groupTwo.integrants);
+      console.log(integrantsTwo);
       if (!obtainInterGroup) throw new Error('This Intergroup does not exist');
       if (obtainInterGroup.active) throw new Error('This Intergroup is already active');
       if (obtainInterGroup.groupSender.admin != userId) {

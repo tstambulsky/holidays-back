@@ -24,9 +24,10 @@ export class NotificationService {
     }
   }
 
-  async getNotifications(): Promise<Notification[]> {
+  async getNotifications(currentUser: any ): Promise<Notification[]> {
     try {
-      const notifications = await this.notificationModel.find();
+      const userId = currentUser._id;
+      const notifications = await this.notificationModel.find({ to: userId, message: false });
       return notifications;
     } catch (error) {
       console.log(error);
@@ -38,7 +39,7 @@ export class NotificationService {
     try {
       const notification = new this.notificationModel(data);
       await notification.save();
-      return true;
+      return notification;
     } catch (error) {
       console.log(error);
       throw new Error(error.message);
@@ -374,7 +375,9 @@ export class NotificationService {
       };
       await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
-      await this.createNotification(notification);
+      const msg = await this.createNotification(notification);
+      msg.message = true;
+      await msg.save()
       return true;
     } catch (error) {
       throw new Error(error.message);

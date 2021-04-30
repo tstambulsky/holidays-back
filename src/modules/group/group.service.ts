@@ -325,7 +325,6 @@ export class GroupService {
       } if (fromAdmin == false) {
         for await (let users of integrants) {
           const user = await this.userService.findOneUser({_id: users, active: true});
-          console.log('devicee', user.deviceToken);
           if(user.deviceToken) {
              await this.notificationService.sendInvitationToAdmin(user.deviceToken, name, groupExist.name);
         }

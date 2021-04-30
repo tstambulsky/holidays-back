@@ -184,7 +184,7 @@ export class UsersService {
       let allUsers = [];
       const usersFiltered = users.filter((element) => element.email !== null && element.phone !== null);
       for await (let user of usersFiltered) {
-        const data = await this.userModel.findOne({ $or: [{ email: user.email }, { phoneNumber: user.phone }] });
+        const data = await this.userModel.findOne({ $or: [{ email: user.email }, { phoneNumber: user.phone }, { provider_id: user.providerId }] });
         if (data !== null) {
           allUsers.push(data);
         }
