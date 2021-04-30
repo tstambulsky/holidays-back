@@ -295,13 +295,13 @@ export class ChatService {
       if (integrants.length > 1) {
      for await (let users of integrants) {
           const user = await this.usersService.findOneUser({ _id: users, active: true })
-          if (user.deviceToken != undefined || null && user._id != userId) {
-            console.log(user._id);
-            console.log(userId);
+             if (user.deviceToken) {
+           if (user._id !== userId) {
           await this.notificationService.sendNewChatMessage(user.deviceToken, group.name);
-        }
+           }
       }
       }
+    }
     return newMessage;
   }
 
