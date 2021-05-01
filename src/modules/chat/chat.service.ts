@@ -277,8 +277,10 @@ export class ChatService {
     const group: any = await this.groupService.getGroup({ active: true, integrants: userId, _id: groupId });
     if (!group) throw new WsException('Group does not exist or user does not belong to the group');
     group.integrants.forEach(element => {
-      if (element._id !== userId) {
-      integrants.push(element._id)
+      if (element._id == userId) {
+        console.log('User send no need push');
+      } else {
+        integrants.push(element._id);
       }
     });
     const chat = await this.chatModel.findOne({ group: groupId, active: true });
@@ -295,7 +297,9 @@ export class ChatService {
     await newMessage.save();
      for await (let users of integrants) {
           const findUser = await this.usersService.findOneUser({ _id: users, active: true })
-             if (findUser.deviceToken !== undefined && user.email !== findUser.email) {
+             if (findUser.deviceToken) {
+               console.log(findUser._id);
+               console.log(userId);
           await this.notificationService.sendNewChatMessage(findUser.deviceToken, group.name);
       }
       }
