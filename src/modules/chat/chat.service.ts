@@ -277,7 +277,9 @@ export class ChatService {
     const group: any = await this.groupService.getGroup({ active: true, integrants: userId, _id: groupId });
     if (!group) throw new WsException('Group does not exist or user does not belong to the group');
     group.integrants.forEach(element => {
+      if (element._id !== userId) {
       integrants.push(element._id)
+      }
     });
     const chat = await this.chatModel.findOne({ group: groupId, active: true });
     const newMessage = await new this.messageModel({
