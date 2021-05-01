@@ -298,8 +298,6 @@ export class ChatService {
      for await (let users of integrants) {
           const findUser = await this.usersService.findOneUser({ _id: users, active: true })
              if (findUser.deviceToken) {
-               console.log(findUser._id);
-               console.log(userId);
           await this.notificationService.sendNewChatMessage(findUser.deviceToken, group.name);
       }
       }
@@ -345,11 +343,19 @@ export class ChatService {
     const invitation = await this.interGroupService.getInvitationId(invitationId);
     const groupOne: any = invitation.groupSender;
     groupOne.integrants.forEach(element => {
+       if (element._id == userId) {
+        console.log('User send no need push');
+       } else {
       integrantsOne.push(element._id);
+       }
     });
     const groupTwo: any = invitation.groupReceiver;
     groupTwo.integrants.forEach(element => {
+      if (element._id == userId) {
+        console.log('User send no need push');
+       } else {
       integrantsTwo.push(element._id);
+       }
     });
     const userInGroup = await this.groupService.getOneUserWithGroup(currentUser, groupOne);
     if (userInGroup === null) userInGroupTwo = await this.groupService.getOneUserWithGroup(currentUser, groupTwo);
@@ -367,13 +373,13 @@ export class ChatService {
     await newMessage.save();
       for await (let users of integrantsOne) {
         const user = await this.usersService.findOneUser({_id: users, active: true});
-          if (user.deviceToken && user._id != userId) {
+          if (user.deviceToken) {
           await this.notificationService.sendNewChatMessage(user.deviceToken, chat.interGroup.name);
           }
         }
       for await (let users of integrantsTwo) {
         const user = await this.usersService.findOneUser({_id: users, active: true});
-          if (user.deviceToken && user._id != userId) {
+          if (user.deviceToken) {
           await this.notificationService.sendNewChatMessage(user.deviceToken, chat.interGroup.name);
            }
         }
