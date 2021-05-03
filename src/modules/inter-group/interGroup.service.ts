@@ -239,8 +239,8 @@ export class InterGroupService {
       let integrantsTwo = [];
       const { groupSender } = data;
       const userId = currentUser._id;
-      const groupExistAndAdmin = await this.groupService.getGroup({ active: true, _id: groupSender, admin: userId });
-      if (!groupExistAndAdmin) throw new Error('This group does not exist or the user is not the admin');
+      const groupExistAndAdmin = await this.groupService.getGroup({ active: true, _id: groupSender});
+      if (!groupExistAndAdmin) throw new Error('This group does not exist');
       // const alreadyInIntergroup = await this.interGroupModel.find({
       //   active: true,
       //   groupSender: groupSender || groupReceiver,
