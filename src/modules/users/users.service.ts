@@ -182,9 +182,9 @@ export class UsersService {
   async searchContact(users: any[]) {
     try {
       let allUsers = [];
-      const usersFiltered = users.filter((element) => element.email !== null && element.phone !== null && element.provider_id !== null);
+      const usersFiltered = users.filter((element) => element.email !== null && element.phone !== null);
       for await (let user of usersFiltered) {
-        const data = await this.userModel.findOne({ $or: [{ email: user.email }, { phoneNumber: user.phone }, { provider_id: user.providerId }] });
+        const data = await this.userModel.findOne({ active: true,  $or: [{ email: user.email }, { phoneNumber: user.phone }] });
         if (data !== null) {
           allUsers.push(data);
         }
