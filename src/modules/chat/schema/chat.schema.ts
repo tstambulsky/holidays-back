@@ -64,6 +64,9 @@ export class Chat {
 
   @Prop({type: mongoose.SchemaTypes.ObjectId, ref: 'Message'})
   lastMessage: Message;
+
+  @Prop({ default: 0 })
+  invitations: number;
 }
 
 export type ChatDocument = Chat & mongoose.Document;

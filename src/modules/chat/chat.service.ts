@@ -115,8 +115,11 @@ export class ChatService {
       const groups = await this.groupService.getUserGroups(currentUser);
       for await (let group of groups) {
         await this.getUnreadGroup(group._id, currentUser);
+        const invitations = await this.groupService.getPendingInvitationsUser(group);
         const chat = await this.chatModel.findOne({ group: group._id, active: true }).populate('lastMessage');
         if (!chat.adminUser) {
+          chat.invitations = invitations.length;
+          await chat.save();
           allChats.push(chat);
         }
       }
@@ -142,17 +145,29 @@ export class ChatService {
     try {
       let allChats = [];
       let invitationsId = [];
+      let proposal;
       const interGroups = await this.interGroupService.getMyIntergroupsNoActives(currentUser);
       interGroups.forEach((element) => {
-        invitationsId.push(element._id);
+        invitationsId.push(element);
       });
       for await (let element of invitationsId) {
-        await this.getUnreadInterGroup(currentUser, element);
-        const chat = await this.chatModel.findOne({ invitation: element, active: true }).populate('lastMessage');
+        const interGroup = await this.interGroupService.getInterGroupByGroups(element.groupSender, element.groupReceiver);
+        if (interGroup) {
+        proposal = await this.interGroupService.getProposalsInterGroup(interGroup._id);
+        }
+        await this.getUnreadInterGroup(currentUser, element._id);
+        const chat = await this.chatModel.findOne({ invitation: element._id, active: true }).populate('lastMessage');
         if (chat) {
         const group = await this.getChatPopulateGroup(element._id, currentUser);
         chat.otherGroup = group;
-        chat.save();
+        if (interGroup) {
+        if (proposal != undefined || null && interGroup.groupReceiver.admin == currentUser._id) {
+          chat.place = true;
+        } else {
+          chat.place = false
+        }
+      }
+        await chat.save();
         if (chat !== null) { 
           allChats.push(chat);
         }

@@ -610,4 +610,13 @@ export class InterGroupService {
       throw new Error(error.message);
     }
   }
+
+  async getInterGroupByGroups(groupSender: any, groupReceiver: any) {
+    try {
+      const interGroup = await this.interGroupModel.findOne({ groupSender, groupReceiver }).populate('groupSender').populate('groupReceiver');
+      return interGroup;
+    } catch (error) {
+      throw new Error(error.message)
+    }
+  }
 }
