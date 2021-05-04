@@ -78,6 +78,7 @@ export class CalificationService {
       let interGroupsUser = [];
       const allInterGroups = await this.interGroupService.getInterGroupsInactive();
       for await (let interGroup of allInterGroups) {
+        if (interGroup.startDate && interGroup.endDate && interGroup.meetingPlaceOne) {
         const groupSender: any = interGroup.groupSender;
         const groupReceiver: any = interGroup.groupReceiver;
         const isInGroup = await this.groupService.getOneUserGroup(userId, groupSender, groupReceiver);
@@ -85,6 +86,7 @@ export class CalificationService {
           interGroupsUser.push(interGroup._id);
         }
       }
+    }
       for await (let interGroup of interGroupsUser) {
         let interGroups = {
           id: '',
