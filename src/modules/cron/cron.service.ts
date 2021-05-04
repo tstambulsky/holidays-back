@@ -33,7 +33,7 @@ export class CronService {
     try {
       const intergroups = await this.intergroupService.getInterGroups();
       for await (let inter of intergroups) {
-        if (inter.meetingPlaceOne) {
+        if (inter.meetingPlaceOne !== null || undefined ) {
         const endDate = inter.endDate ? inter.endDate.getTime() : null;
         const now = new Date().getTime();
         if (endDate < now || !endDate) {
