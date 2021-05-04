@@ -33,16 +33,12 @@ export class CronService {
     try {
       const intergroups = await this.intergroupService.getInterGroups();
       for await (let inter of intergroups) {
-        if (inter.meetingPlaceOne && inter.startDate && inter.endDate ) {
         const endDate = inter.endDate ? inter.endDate.getTime() : null;
         const now = new Date().getTime();
         if (endDate < now || !endDate) {
           console.log('Change to inactive intergroup: ', inter.name);
           await this.intergroupService.toInactiveInterGroup(inter);
         }
-      } else {
-        console.log('left accept proposal')
-      }
     }
     } catch (error) {
       console.log(error);

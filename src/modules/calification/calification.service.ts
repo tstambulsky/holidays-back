@@ -85,8 +85,6 @@ export class CalificationService {
         if (isInGroup) { 
           interGroupsUser.push(interGroup._id);
         }
-      } else {
-        console.log('the group does not have a Date');
       }
     }
       for await (let interGroup of interGroupsUser) {
