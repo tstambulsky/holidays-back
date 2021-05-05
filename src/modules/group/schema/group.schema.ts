@@ -3,6 +3,7 @@ import { User } from '../../users/schema/users.schema';
 import { Meeting } from '../../meeting-place/schema/meetingPlace.schema';
 import { TypeOfActivity } from '../../typeOfActivity/schema/typeOfActivity.schema';
 import * as mongoose from 'mongoose';
+import { cloudinaryConfig } from 'src/config/cloudinary';
 
 export type GroupDocument = Group & mongoose.Document;
 
@@ -32,7 +33,7 @@ export class Group {
   @Prop({})
   description: string;
 
-  @Prop({ type: String, required: false })
+  @Prop({ type: String, required: false, default: cloudinaryConfig.group_photo})
   photo?: string;
 
   @Prop({ default: true })

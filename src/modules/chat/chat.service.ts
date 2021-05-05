@@ -146,27 +146,28 @@ export class ChatService {
     try {
       let allChats = [];
       let invitationsId = [];
-      let proposal;
       const interGroups = await this.interGroupService.getMyIntergroupsNoActives(currentUser);
       interGroups.forEach((element) => {
         invitationsId.push(element);
       });
       for await (let element of invitationsId) {
         const interGroup = await this.interGroupService.getInterGroupByGroups(element.groupSender, element.groupReceiver);
-        if (interGroup) {
-        proposal = await this.interGroupService.getProposalsInterGroup(interGroup._id);
-        }
         await this.getUnreadInterGroup(currentUser, element._id);
         const chat = await this.chatModel.findOne({ invitation: element._id, active: true }).populate('lastMessage');
         if (chat) {
         const group = await this.getChatPopulateGroup(element._id, currentUser);
         chat.otherGroup = group;
         if (interGroup) {
-        if (proposal != undefined || null && interGroup.groupReceiver.admin == currentUser._id) {
+        const proposal = await this.interGroupService.getProposalsInterGroup(interGroup._id);
+        if (proposal) {
+          if (interGroup.groupReceiver.admin == currentUser._id) {
           chat.place = true;
+          await chat.save();
         } else {
-          chat.place = false
+          chat.place = false;
+          await chat.save();
         }
+      }
       }
         await chat.save();
         if (chat !== null) { 
