@@ -115,7 +115,8 @@ export class ChatService {
       const groups = await this.groupService.getUserGroups(currentUser);
       for await (let group of groups) {
         await this.getUnreadGroup(group._id, currentUser);
-        const invitations = await this.groupService.getPendingInvitationsUser(group);
+        const invitations = await this.groupService.getInvitationToGroup(group);
+        console.log(invitations.length);
         const chat = await this.chatModel.findOne({ group: group._id, active: true }).populate('lastMessage');
         if (!chat.adminUser) {
           chat.invitations = invitations.length;
