@@ -161,10 +161,10 @@ export class ChatService {
         const proposal = await this.interGroupService.getProposalsInterGroup(interGroup._id);
         if (proposal) {
           if (interGroup.groupReceiver.admin == currentUser._id) {
-          chat.place = true;
+          chat.isAdmin = true;
           await chat.save();
         } else {
-          chat.place = false;
+          chat.isAdmin = false;
           await chat.save();
         }
       }

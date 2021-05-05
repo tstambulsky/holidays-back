@@ -67,6 +67,9 @@ export class Chat {
 
   @Prop({ default: 0 })
   invitations: number;
+
+  @Prop()
+  isAdmin: boolean;
 }
 
 export type ChatDocument = Chat & mongoose.Document;
