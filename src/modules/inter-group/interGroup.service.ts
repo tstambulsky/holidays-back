@@ -378,7 +378,6 @@ export class InterGroupService {
   async proposalDateAndPlace(data: newProposalDto, currentUser: any) {
     try {
       const date = moment().subtract(3, 'hours');
-      const today = new Date(date);
       const dateProposalPost = new Date(data.proposalStartDate);
       if (dateProposalPost <= date) {
         throw new Error('You cannot enter a past date or time.');

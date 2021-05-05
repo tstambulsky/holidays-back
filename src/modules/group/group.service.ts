@@ -728,4 +728,33 @@ export class GroupService {
     }
   }
 
+   async searchNearbyAndDistance(currentUser: any) {
+    try {
+      const userId = currentUser._id;
+      const user = await this.userService.getUserById(userId);
+      if (!user || !user.latitude) throw new Error('We dont have information about this user');
+      const groups = await this.groupModel.find({ active: true }).populate('meetingPlaceOne');
+      const groupsFiltered = groups.filter((element) => element.meetingPlaceOne !== null);
+      for await (let data of groupsFiltered) {
+        const distance = distanceBetweenLocations(user, data.meetingPlaceOne);
+         data.distance = distance;
+         await data.save();
+      }
+      let groupsToday = [];
+      const date = new Date();
+      const today = date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate();
+      const allGroups = await this.groupModel.find({ active: true }).sort({distance: 1});
+      for await (let groups of allGroups) {
+        const date = groups.startDate.getFullYear()+'-'+(groups.startDate.getMonth()+1)+'-'+groups.startDate.getDate();
+        if (date == today) {
+          groupsToday.push(groups)
+        }
+      };
+      return groupsToday;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+
 }

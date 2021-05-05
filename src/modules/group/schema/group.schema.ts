@@ -58,5 +58,8 @@ export class Group {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   groupCreatedBy: User;
+
+  @Prop()
+  distance: number;
 }
 export const GroupSchema = SchemaFactory.createForClass(Group);

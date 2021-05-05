@@ -496,4 +496,18 @@ export class GroupController {
       })
     }
   }
+
+  @Get('/search/nearbytoday')
+   async getNearbyToday(@Res() res, @CurrentUser() user) {
+     try {
+      const response = await this.groupService.searchNearbyAndDistance(user);
+      return res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (error) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        error: error.message
+      })
+    }
+  }
 }
