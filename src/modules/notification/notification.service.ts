@@ -87,12 +87,12 @@ export class NotificationService {
       const message = {
         notification: {
           title: 'Grupo aceptado',
-          body: `Fuiste aceptado al grupo ${name}`,
+          body: `Fuiste aceptado al grupo ${name}.`,
           sound: 'default'
         },
         data: {
           title: 'Grupo aceptado',
-          body: `Fuiste aceptado al grupo ${name}`,
+          body: `Fuiste aceptado al grupo ${name}.`,
           Emergency_category: 'Emergency'
         }
       };
@@ -110,12 +110,12 @@ export class NotificationService {
       const message = {
         notification: {
           title: 'Grupo no aceptado',
-          body: `No fuiste aceptado al grupo ${name}`,
+          body: `No fuiste aceptado al grupo ${name}.`,
           sound: 'default'
         },
         data: {
           title: 'Grupo no aceptado',
-          body: `No fuiste aceptado al grupo ${name}`,
+          body: `No fuiste aceptado al grupo ${name}.`,
           Emergency_category: 'Emergency'
         }
       };
@@ -133,12 +133,12 @@ export class NotificationService {
       const message = {
         notification: {
           title: 'Solicitud de grupo aceptada',
-          body: `El usuario ${name} ha aceptado la invitación al grupo ${group}`,
+          body: `El usuario ${name} ha aceptado la invitación al grupo ${group}.`,
           sound: 'default'
         },
         data: {
           title: 'Solicitud de grupo aceptada',
-          body: `El usuario ${name} ha aceptado la invitación al grupo ${group}`,
+          body: `El usuario ${name} ha aceptado la invitación al grupo ${group}.`,
           Emergency_category: 'Emergency'
         }
       };
@@ -156,12 +156,12 @@ export class NotificationService {
       const message = {
         notification: {
           title: 'Solicitud de grupo no aceptada',
-          body: `El usuario ${name} no ha aceptado la invitación al grupo ${group}`,
+          body: `El usuario ${name} no ha aceptado la invitación al grupo ${group}.`,
           sound: 'default'
         },
         data: {
           title: 'Solicitud de grupo no aceptada',
-          body: `El usuario ${name} no ha aceptado la invitación al grupo ${group}`,
+          body: `El usuario ${name} no ha aceptado la invitación al grupo ${group}.`,
           Emergency_category: 'Emergency'
         }
       };
@@ -180,12 +180,12 @@ export class NotificationService {
       const message = {
         notification: {
           title: 'Invitacion de grupo',
-          body: `Has sido invitado al grupo ${group}`,
+          body: `Has sido invitado al grupo ${group}.`,
           sound: 'default'
         },
         data: {
           title: 'Invitacion de grupo',
-          body:  `Has sido invitado al grupo ${group}`,
+          body:  `Has sido invitado al grupo ${group}.`,
           Emergency_category: 'Emergency'
         }
       };
@@ -203,12 +203,12 @@ export class NotificationService {
       const message = {
         notification: {
           title: 'Solicitud de unión a grupo',
-          body:  `El usuario ${name} quiere unirse al grupo ${group}`,
+          body:  `El usuario ${name} quiere unirse al grupo ${group}.`,
           sound: 'default'
         },
         data: {
           title: 'Solicitud de unión a grupo',
-          body: `El usuario ${name} quiere unirse al grupo ${group}`,
+          body: `El usuario ${name} quiere unirse al grupo ${group}.`,
           Emergency_category: 'Emergency'
         }
       };
@@ -249,12 +249,12 @@ export class NotificationService {
       const message = {
         notification: {
           title: 'Inter Grupo aceptado',
-          body: `El grupo ${group} aceptó la invitación al inter grupo,`,
+          body: `El grupo ${group} aceptó la invitación al inter grupo.`,
           sound: 'default'
         },
         data: {
           title: 'Inter Grupo aceptado',
-          body: `El grupo ${group} aceptó la invitación al inter grupo,`,
+          body: `El grupo ${group} aceptó la invitación al inter grupo.`,
           Emergency_category: 'Emergency'
         }
       };
@@ -272,12 +272,12 @@ export class NotificationService {
       const message = {
         notification: {
           title: 'Inter Grupo no aceptado',
-          body: `El grupo ${group} no aceptó la invitación al inter grupo,`,
+          body: `El grupo ${group} no aceptó la invitación al inter grupo.`,
           sound: 'default'
         },
         data: {
           title: 'Inter Grupo no aceptado',
-          body: `El grupo ${group} no aceptó la invitación al inter grupo,`,
+          body: `El grupo ${group} no aceptó la invitación al inter grupo.`,
           Emergency_category: 'Emergency'
         }
       };
@@ -341,12 +341,12 @@ export class NotificationService {
       const message = {
         notification: {
           title: 'Propuesta de juntada',
-          body: `El grupo ${group} no ha aceptado la propuesta de juntada`,
+          body: `El grupo ${group} no ha aceptado la propuesta de juntada.`,
           sound: 'default'
         },
         data: {
           title: 'Propuesta de juntada',
-          body: `El grupo ${group} no ha aceptado la propuesta de juntada`,
+          body: `El grupo ${group} no ha aceptado la propuesta de juntada.`,
           Emergency_category: 'Emergency'
         }
       };
@@ -364,12 +364,12 @@ export class NotificationService {
       const message = {
         notification: {
           title: 'Tienes mensajes nuevos sin leer',
-          body: `Nuevos mensajes en ${group}`,
+          body: `Nuevos mensajes en ${group}.`,
           sound: 'default'
         },
         data: {
           title: 'Tienes mensajes nuevos sin leer',
-          body: `Nuevos mensajes en ${group}`,
+          body: `Nuevos mensajes en ${group}.`,
           Emergency_category: 'Emergency'
         }
       };
