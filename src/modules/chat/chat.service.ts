@@ -150,14 +150,16 @@ export class ChatService {
       interGroups.forEach((element) => {
         invitationsId.push(element);
       });
+      console.log('funciona getmyintergroupsnoactives');
       for await (let element of invitationsId) {
         const interGroup = await this.interGroupService.getInterGroupByGroups(element.groupSender, element.groupReceiver);
-        await this.getUnreadInterGroup(currentUser, element._id);
+        console.log('funciona getintergroupbygroups');
         const chat = await this.chatModel.findOne({ invitation: element._id, active: true }).populate('lastMessage');
         if (chat) {
         const group = await this.getChatPopulateGroup(element._id, currentUser);
         chat.otherGroup = group;
         if (interGroup) {
+        await this.getUnreadInterGroup(currentUser, element._id);
         const proposal = await this.interGroupService.getProposalsInterGroup(interGroup._id);
         if (proposal) {
           if (interGroup.groupReceiver.admin == currentUser._id) {
@@ -538,6 +540,7 @@ export class ChatService {
       //const interGroup = await this.interGroupService.getInterGroupInactive(interGroupId);
       //if (!interGroup) throw new WsException('The intergroup does not exist.');
       const invitation = await this.interGroupService.getInvitationId(invitationId);
+      console.log('invitation funca bro', invitation);
       const groupOne = invitation.groupSender;
       integrantsOne.push(groupOne.integrants);
       const groupTwo = invitation.groupReceiver;

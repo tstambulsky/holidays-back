@@ -410,7 +410,7 @@ export class InterGroupService {
       }
       await proposal.save();
       const chat = await this.chatService.getInterGroup(obtainInterGroup._id);
-      //chat.place = true;
+      chat.place = true;
       chat.setTimeAndPlace = false;
       chat.pending = false;
       chat.proposal = proposal._id;
