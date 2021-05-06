@@ -221,7 +221,7 @@ export class ChatService {
         const chat = await this.chatModel.findOne({ group: group._id, active: true }).populate('lastMessage');
         if (!chat.adminUser) {
           chat.invitations = invitations.length;
-          chat.unreadMessages = chat.unreadMessages + invitations.length;
+          chat.unreadMessages += invitations.length;
           if (invitations.length > 0 ) {
             const message = await new this.messageModel({
               content: `${invitations.length} solicitud/es de unión a grupo`
