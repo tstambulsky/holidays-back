@@ -217,14 +217,14 @@ export class ChatService {
       for await (let group of groups) {
         await this.getUnreadGroup(group._id, currentUser);
         const invitations = await this.groupService.getInvitationToGroup(group);
-        console.log(invitations.length);
         const chat = await this.chatModel.findOne({ group: group._id, active: true }).populate('lastMessage');
         if (!chat.adminUser) {
           chat.invitations = invitations.length;
           if (invitations.length > 0 ) {
              chat.unreadMessages += invitations.length;
             const message = await new this.messageModel({
-              content: `${invitations.length} solicitud/es de unión a grupo`
+              content: `${invitations.length} solicitud/es de unión a grupo`,
+              chat: chat._id
             });
             await message.save();
             chat.lastMessage = message._id;
