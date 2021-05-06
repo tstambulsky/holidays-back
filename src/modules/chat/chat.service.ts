@@ -34,6 +34,72 @@ export class ChatService {
     return user;
   }
 
+   async createInterGroupMessageOne(chatId: any, userId: any) {
+    try {
+      const user = await this.usersService.findOneUser({_id: userId});
+      const message = await new this.messageModel({
+        content: 'Ha enviado una solicitud para unirse!',
+        author: user._id,
+        image: user.profilePhoto,
+        name: user.name,
+        chat: chatId
+      })
+      await message.save();
+      return message;
+    } catch (error) {
+      throw new Error(error.message)
+    }
+  }
+
+  async createInterGroupMessageTwo(chatId: any, userId: any) {
+    try {
+      const user = await this.usersService.findOneUser({_id: userId});
+      const message = await new this.messageModel({
+        content: 'Hola, nos gustaría sumarnos al plan.',
+        author: user._id,
+        image: user.profilePhoto,
+        name: user.name,
+        chat: chatId
+      })
+      await message.save();
+      return message;
+    } catch (error) {
+      throw new Error(error.message)
+    }
+  }
+
+  async createInterGroupMessageFour(chatId: any) {
+     try {
+      const message = await new this.messageModel({
+        content: `¡Toque aceptado!`,
+        chat: chatId
+      })
+      await message.save();
+      return message;
+    } catch (error) {
+      throw new Error(error.message)
+    }
+  }
+
+
+  async createInterGroupMessageThree(chatId: any, userId: any, group: any) {
+    try {
+      const user = await this.usersService.findOneUser({_id: userId});
+      const message = await new this.messageModel({
+        content: `${group} han Enviado un toque!`,
+        author: user._id,
+        image: user.profilePhoto,
+        name: user.name,
+        chat: chatId
+      })
+      await message.save();
+      return message;
+    } catch (error) {
+      throw new Error(error.message)
+    }
+  }
+
+
   async createInterGroupMessage(chatId: any, name: any) {
     try {
       const message = await new this.messageModel({
@@ -155,6 +221,14 @@ export class ChatService {
         const chat = await this.chatModel.findOne({ group: group._id, active: true }).populate('lastMessage');
         if (!chat.adminUser) {
           chat.invitations = invitations.length;
+          chat.unreadMessages = chat.unreadMessages + invitations.length;
+          if (invitations.length > 0 ) {
+            const message = await new this.messageModel({
+              content: `${invitations.length} solicitud/es de unión a grupo`
+            });
+            await message.save();
+            chat.lastMessage = message._id;
+          }
           await chat.save();
           allChats.push(chat);
         }
@@ -190,8 +264,12 @@ export class ChatService {
         const interGroup = await this.interGroupService.getInterGroupByGroups(element.groupSender, element.groupReceiver);
         const chat = await this.chatModel.findOne({ invitation: element._id, active: true }).populate('lastMessage');
         if (chat) {
+        const invitation = await this.interGroupService.getInvitationId(element._id);
         const group = await this.getChatPopulateGroup(element._id, currentUser);
         chat.otherGroup = group;
+        if (invitation) {
+        chat.unreadMessages = chat.unreadMessages + 1;
+        }
         if (interGroup) {
         const proposal = await this.interGroupService.getProposalsInterGroup(interGroup._id);
         if (proposal) {

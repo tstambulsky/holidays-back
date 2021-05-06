@@ -257,6 +257,8 @@ export class InterGroupService {
       const interGroupChat = await this.chatService.createInterGroupChatInvitation(newInvitation._id);
       interGroupChat.name = `${groupOne.name} + ${groupTwo.name}`;
       await interGroupChat.save();
+      await this.chatService.createInterGroupMessageThree(interGroupChat._id, groupOne.admin, groupOne.name);
+      await this.chatService.createInterGroupMessageTwo(interGroupChat._id, groupOne.admin);
       for await (let users of integrantsTwo) {
         const user = await this.usersService.findOneUser({ _id: users, active: true });
         if (user.deviceToken) {
@@ -316,6 +318,7 @@ export class InterGroupService {
       chat.setTimeAndPlace = true;
       chat.pending = false;
       await chat.save();
+      await this.chatService.createInterGroupMessageFour(chat._id);
       for await (let users of integrantsOne) {
         const user = await this.usersService.findOneUser({ _id: users, active: true })
         if (user.deviceToken) {
@@ -468,8 +471,10 @@ export class InterGroupService {
         await intergroup.save();
         const chat = await this.chatService.getInterGroup(proposal.interGroup);
         chat.place = false;
-        await this.chatService.createInterGroupMessage(chat._id, proposal.groupReceiver.name);
         await chat.save();
+        await this.chatService.createInterGroupMessageOne(chat._id, proposal.groupReceiver.admin);
+        await this.chatService.createInterGroupMessageTwo(chat._id, proposal.groupReceiver.admin);
+        await this.chatService.createInterGroupMessage(chat._id, proposal.groupReceiver.name);
         for await (let users of integrantsOne) {
           const user = await this.usersService.findOneUser({ _id: users, active: true});
           if (user.deviceToken) {
