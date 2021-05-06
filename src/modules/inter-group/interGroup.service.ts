@@ -436,7 +436,9 @@ export class InterGroupService {
       const proposals = await this.proposalModel
         .findOne({ interGroup: interGroupId, active: true, success: false })
         .populate('proposalPlace')
-        .populate('interGroup');
+        .populate('interGroup')
+        .populate('groupSender')
+        .populate('groupReceiver');
       return proposals;
     } catch (error) {
       throw new Error(error.message);

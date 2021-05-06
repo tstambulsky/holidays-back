@@ -312,6 +312,7 @@ export class GroupService {
       await newInvitation.save();
       let name = `${userExist.name} ${userExist.lastName}`;
       const chat = await this.chatService.getOneChatAdminUserWithout(user, group);
+      const chatGroup = await this.chatService.getChatbyGroup(group);
       if (!chat) {
          await this.chatService.createAdminChat(group, userExist);
       } if (chat) {
@@ -323,6 +324,8 @@ export class GroupService {
         await this.notificationService.sendInvitationGroupToUser(userExist.deviceToken, groupExist.name);
         }
       } if (fromAdmin == false) {
+        await this.chatService.createGroupMessage(chatGroup._id, user);
+        await this.chatService.createGroupMessageTwo(chatGroup._id, user);
         for await (let users of integrants) {
           const user = await this.userService.findOneUser({_id: users, active: true});
           if(user.deviceToken) {

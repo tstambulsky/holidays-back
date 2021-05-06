@@ -47,6 +47,41 @@ export class ChatService {
     }
   }
 
+  async createGroupMessage(chatId: any, userId: any) {
+    try {
+      const user = await this.usersService.findOneUser({_id: userId});
+      const message = await new this.messageModel({
+        content: 'Ha enviado una solicitud para unirse!',
+        author: user._id,
+        image: user.profilePhoto,
+        name: user.name,
+        chat: chatId
+      })
+      await message.save();
+      return message;
+    } catch (error) {
+      throw new Error(error.message)
+    }
+  }
+
+  async createGroupMessageTwo(chatId: any, userId: any) {
+    try {
+      const user = await this.usersService.findOneUser({_id: userId});
+      const message = await new this.messageModel({
+        content: 'Hola, me gustaría unirme al grupo',
+        author: user._id,
+        image: user.profilePhoto,
+        name: user.name,
+        chat: chatId
+      })
+      await message.save();
+      return message;
+    } catch (error) {
+      throw new Error(error.message)
+    }
+  }
+
+
   async createGroupChat(groupId: any) {
     const group = await this.groupService.getGroup(groupId);
     const chat = await new this.chatModel({
@@ -150,11 +185,9 @@ export class ChatService {
       interGroups.forEach((element) => {
         invitationsId.push(element);
       });
-      console.log('funciona getmyintergroupsnoactives');
       for await (let element of invitationsId) {
         await this.getUnreadInterGroup(currentUser, element._id);
         const interGroup = await this.interGroupService.getInterGroupByGroups(element.groupSender, element.groupReceiver);
-        console.log('funciona getintergroupbygroups');
         const chat = await this.chatModel.findOne({ invitation: element._id, active: true }).populate('lastMessage');
         if (chat) {
         const group = await this.getChatPopulateGroup(element._id, currentUser);
@@ -162,7 +195,7 @@ export class ChatService {
         if (interGroup) {
         const proposal = await this.interGroupService.getProposalsInterGroup(interGroup._id);
         if (proposal) {
-          if (interGroup.groupReceiver.admin == currentUser._id) {
+          if (proposal.groupReceiver.admin == currentUser._id) {
           chat.isAdmin = true;
           await chat.save();
         } else {
@@ -540,7 +573,6 @@ export class ChatService {
       //const interGroup = await this.interGroupService.getInterGroupInactive(interGroupId);
       //if (!interGroup) throw new WsException('The intergroup does not exist.');
       const invitation = await this.interGroupService.getInvitationId(invitationId);
-      console.log('invitation funca bro', invitation._id);
       const groupOne = invitation.groupSender;
       integrantsOne.push(groupOne.integrants);
       const groupTwo = invitation.groupReceiver;
