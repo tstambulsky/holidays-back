@@ -540,7 +540,7 @@ export class ChatService {
       //const interGroup = await this.interGroupService.getInterGroupInactive(interGroupId);
       //if (!interGroup) throw new WsException('The intergroup does not exist.');
       const invitation = await this.interGroupService.getInvitationId(invitationId);
-      console.log('invitation funca bro', invitation);
+      console.log('invitation funca bro', invitation._id);
       const groupOne = invitation.groupSender;
       integrantsOne.push(groupOne.integrants);
       const groupTwo = invitation.groupReceiver;
