@@ -152,6 +152,7 @@ export class ChatService {
       });
       console.log('funciona getmyintergroupsnoactives');
       for await (let element of invitationsId) {
+        await this.getUnreadInterGroup(currentUser, element._id);
         const interGroup = await this.interGroupService.getInterGroupByGroups(element.groupSender, element.groupReceiver);
         console.log('funciona getintergroupbygroups');
         const chat = await this.chatModel.findOne({ invitation: element._id, active: true }).populate('lastMessage');
@@ -159,7 +160,6 @@ export class ChatService {
         const group = await this.getChatPopulateGroup(element._id, currentUser);
         chat.otherGroup = group;
         if (interGroup) {
-        await this.getUnreadInterGroup(currentUser, element._id);
         const proposal = await this.interGroupService.getProposalsInterGroup(interGroup._id);
         if (proposal) {
           if (interGroup.groupReceiver.admin == currentUser._id) {
