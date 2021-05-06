@@ -218,23 +218,24 @@ export class ChatService {
         await this.getUnreadGroup(group._id, currentUser);
         const invitations = await this.groupService.getInvitationToGroup(group);
         const chat = await this.chatModel.findOne({ group: group._id, active: true }).populate('lastMessage');
+        console.log(chat._id);
         if (!chat.adminUser) {
           chat.invitations = invitations.length;
           if (invitations.length > 0 ) {
              chat.unreadMessages += invitations.length;
-            const message = await new this.messageModel({
+            const message = new this.messageModel({
               content: `${invitations.length} solicitud/es de unión a grupo`,
               chat: chat._id
             });
             await message.save();
-            chat.lastMessage = message._id;
+            chat.lastMessage = message;
           }
           await chat.save();
+          console.log(chat.lastMessage);
           allChats.push(chat);
         }
       }
       const chats = allChats.filter((data) => !!data);
-
       return chats;
     } catch (error) {
       throw new Error(error);
