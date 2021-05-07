@@ -10,6 +10,9 @@ import { Chat, ChatDocument } from './schema/chat.schema';
 import { GroupService } from '../group/group.service';
 import { InterGroupService } from '../inter-group/interGroup.service';
 import { NotificationService } from '../notification/notification.service';
+const moment = require('moment');
+moment.suppressDeprecationWarnings = true;
+
 
 @Injectable()
 export class ChatService {
@@ -147,12 +150,48 @@ export class ChatService {
     }
   }
 
+   async createGroupMessageThree(chatId: any) {
+    try {
+      const message = new this.messageModel({
+              content: 'Tienes solicitudes de unión a grupo',
+              chat: chatId
+            });
+      await message.save();
+      return message;
+    } catch (error) {
+      throw new Error(error.message)
+    }
+  }
+
+  async createMeetingMessage(name: any, time: any, meeting: any) {
+  try {
+      const message = new this.messageModel({
+              content: `Juntada: Hoy a las ${time} en ${meeting}`,
+              name
+            });
+      await message.save();
+      return message;
+    } catch (error) {
+      throw new Error(error.message)
+    }
+  }
+
+  async getMeetingMessageGroup(name: any) {
+  try {
+     const message = await this.messageModel.findOne({name: name});
+      return message;
+    } catch (error) {
+      throw new Error(error.message)
+    }
+  }
+
 
   async createGroupChat(groupId: any) {
     const group = await this.groupService.getGroup(groupId);
     const chat = await new this.chatModel({
       group: groupId,
-      name: group.name
+      name: group.name,
+      Image: group.photo
     }).save();
     return chat;
   }
@@ -212,26 +251,28 @@ export class ChatService {
 
   async getChatGroupUser(currentUser: any) {
     try {
+      const date = new Date();
+      const today = date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate();
       let allChats = [];
       const groups = await this.groupService.getUserGroups(currentUser);
       for await (let group of groups) {
+        const testGroup = await this.groupService.getGroup(group);
+        const dateGroup =  testGroup.startDate.getFullYear()+'-'+( testGroup.startDate.getMonth()+1)+'-'+ testGroup.startDate.getDate();
         await this.getUnreadGroup(group._id, currentUser);
         const invitations = await this.groupService.getInvitationToGroup(group);
         const chat = await this.chatModel.findOne({ group: group._id, active: true }).populate('lastMessage');
-        console.log(chat._id);
         if (!chat.adminUser) {
           chat.invitations = invitations.length;
           if (invitations.length > 0 ) {
              chat.unreadMessages += invitations.length;
-            const message = new this.messageModel({
-              content: `${invitations.length} solicitud/es de unión a grupo`,
-              chat: chat._id
-            });
-            await message.save();
-            chat.lastMessage = message;
+          }
+          if (today == dateGroup) {
+            const message = await this.getMeetingMessageGroup(testGroup.name);
+            if (message) {
+              chat.lastMessage = message;
+            }
           }
           await chat.save();
-          console.log(chat.lastMessage);
           allChats.push(chat);
         }
       }
@@ -254,6 +295,8 @@ export class ChatService {
 
   async getChatInterGroupsUser(currentUser: any) {
     try {
+      const date = new Date();
+      const today = date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate();
       let allChats = [];
       let invitationsId = [];
       const interGroups = await this.interGroupService.getMyIntergroupsNoActives(currentUser);
@@ -269,7 +312,7 @@ export class ChatService {
         const group = await this.getChatPopulateGroup(element._id, currentUser);
         chat.otherGroup = group;
         if (invitation) {
-        chat.unreadMessages = chat.unreadMessages + 1;
+        chat.unreadMessages = + 1;
         }
         if (interGroup) {
         const proposal = await this.interGroupService.getProposalsInterGroup(interGroup._id);
@@ -280,6 +323,13 @@ export class ChatService {
         } else {
           chat.isAdmin = false;
           await chat.save();
+        }
+      }
+      if (interGroup.startDate) {
+        const dateInterGroup = interGroup.startDate.getFullYear()+'-'+( interGroup.startDate.getMonth()+1)+'-'+ interGroup.startDate.getDate();
+        if (today == dateInterGroup) {
+          const message = await this.getMeetingMessageGroup(interGroup.name);
+          chat.lastMessage = message;
         }
       }
       }
@@ -444,7 +494,7 @@ export class ChatService {
       .find({
         chat: chat._id
       })
-      .sort({ date: -1 });
+      .sort({ date: 1 });
       for await (let message of messages) {
         const mesg = await this.messageModel.findOne({ _id: message._id, readBy: { $ne: currentUser._id } });
          if (mesg) {
@@ -535,7 +585,7 @@ export class ChatService {
       .find({
         chat: chat._id
       })
-      .sort({ date: -1 });
+      .sort({ date: 1 });
         for await (let message of messages) {
         const mesg: any = await this.messageModel.findOne({ _id: message._id, readBy: { $ne: currentUser._id }});
             //@ts-ignore
@@ -594,7 +644,7 @@ export class ChatService {
       .find({
         chat: id
       })
-      .sort({ date: -1 });
+      .sort({ date: 1 });
         for await (let message of messages) {
         const mesg = await this.messageModel.findOne({ _id: message._id, readBy: { $ne: currentUser._id } })
          if (mesg) {
@@ -624,7 +674,7 @@ export class ChatService {
           chat: chat._id,
           readBy: { $ne: currentUser._id }
         })
-        .sort({ date: -1 });
+        .sort({ date: 1 });
         if (messages.length > 0) {
         chat.unreadMessages = messages.length;
         chat.lastMessage = messages[0]._id;
@@ -666,7 +716,7 @@ export class ChatService {
           chat: chat._id,
           readBy: { $ne: currentUser._id }
         })
-        .sort({ date: -1 });
+        .sort({ date: 1 });
         allMessages.push(messages);
         if (messages.length > 0) {
         chat.unreadMessages = messages.length;
@@ -702,7 +752,7 @@ export class ChatService {
             chat: id,
             readBy: { $ne: currentUser._id }
           })
-          .sort({ date: -1 });
+          .sort({ date: 1 });
           if (messages.length > 0) {
           chat.unreadMessages = messages.length;
           chat.lastMessage = messages[0]._id;

@@ -453,7 +453,7 @@ export class InterGroupService {
       let integrantsOne = [];
       const { proposalId, accept } = data;
       const userId = currentUser._id;
-      const proposal: any = await this.proposalModel.findOne({ _id: proposalId }).populate('groupSender').populate('groupReceiver');
+      const proposal: any = await this.proposalModel.findOne({ _id: proposalId }).populate('groupSender').populate('groupReceiver').populate('proposalPlace');
       proposal.groupSender.integrants.forEach(element => {
         integrantsOne.push(element._id)
       });
@@ -463,18 +463,20 @@ export class InterGroupService {
       proposal.success = accept;
       await proposal.save();
       if (accept) {
-        const intergroup = await this.interGroupModel.findOne({ _id: proposal.interGroup });
-        intergroup.startDate = proposal.proposalStartDate;
-        intergroup.endDate = proposal.proposalEndDate;
-        intergroup.meetingPlaceOne = proposal.proposalPlace;
-        intergroup.active = true;
-        await intergroup.save();
+        const interGroup = await this.interGroupModel.findOne({ _id: proposal.interGroup });
+        interGroup.startDate = proposal.proposalStartDate;
+        interGroup.endDate = proposal.proposalEndDate;
+        interGroup.meetingPlaceOne = proposal.proposalPlace;
+        interGroup.active = true;
+        await interGroup.save();
         const chat = await this.chatService.getInterGroup(proposal.interGroup);
         chat.place = false;
         await chat.save();
         await this.chatService.createInterGroupMessageOne(chat._id, proposal.groupReceiver.admin);
         await this.chatService.createInterGroupMessageTwo(chat._id, proposal.groupReceiver.admin);
         await this.chatService.createInterGroupMessage(chat._id, proposal.groupReceiver.name);
+           const time = interGroup.startDate.getHours()+':'+interGroup.startDate.getMinutes();
+           await this.chatService.createMeetingMessage(interGroup.name, time, proposal.proposalPlace)
         for await (let users of integrantsOne) {
           const user = await this.usersService.findOneUser({ _id: users, active: true});
           if (user.deviceToken) {

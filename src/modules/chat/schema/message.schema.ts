@@ -26,6 +26,9 @@ export class Message {
 
   @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }])
   readBy: User;
+
+  @Prop()
+  nameGroup: string;
 }
 
 export type MessageDocument = Message & mongoose.Document;

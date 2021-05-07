@@ -137,7 +137,10 @@ export class GroupService {
       const valid = await this.validateGroups(currentUser, group);
       if(!valid) throw new HttpException('You have another group at the same time', 404);
       await group.save();
+      const meeting = await this.groupModel.findOne({ _id: group._id}).populate('meetingPlaceOne');
       await this.chatService.createGroupChat(group._id);
+      const time = group.startDate.getHours()+':'+group.startDate.getMinutes();
+      await this.chatService.createMeetingMessage(group.name, time, meeting.name);
       return group;
     } catch (err) {
       throw new Error(err.message);
@@ -326,6 +329,9 @@ export class GroupService {
       } if (fromAdmin == false) {
         await this.chatService.createGroupMessage(chatGroup._id, user);
         await this.chatService.createGroupMessageTwo(chatGroup._id, user);
+        const message = await this.chatService.createGroupMessageThree(chatGroup._id);
+        chatGroup.lastMessage = message;
+        chatGroup.save();
         for await (let users of integrants) {
           const user = await this.userService.findOneUser({_id: users, active: true});
           if(user.deviceToken) {
@@ -715,11 +721,11 @@ export class GroupService {
 
   async getGroupsBestCalificated() {
       try {
-        const groups = await this.groupModel.find({active: true});
+        const groups = await this.groupModel.find({active: true}).sort({calificationsAverage: 1});
           for await (let group of groups) {
             await this.getGroup(group._id);
        };
-       const allGroups = await this.groupModel.find().sort({calificationsAverage: 1}).exec();
+       const allGroups = await this.groupModel.find({ active: true }).sort({calificationsAverage: -1}).exec();
        return allGroups;
     } catch (error) {
     throw new Error(error.message)
