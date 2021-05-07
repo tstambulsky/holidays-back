@@ -406,7 +406,9 @@ export class GroupService {
       if (user.deviceToken) {
        await this.notificationService.sendAcceptGroup(user.deviceToken, group.name);
       }
-      return group;
+      return {
+        group, 
+      response: "You have accepted the request successfully"};
     } catch (error) {
       throw new Error(error.message);
     }
@@ -430,7 +432,10 @@ export class GroupService {
       if (user.deviceToken) {
       await this.notificationService.sendNoAcceptGroup(user.deviceToken, group.name);
       }
-      return group;
+      return {
+        group,
+        response: "You have successfully rejected the request"
+      };
     } catch (error) {
       throw new Error(error.message);
     }
