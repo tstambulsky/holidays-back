@@ -325,7 +325,10 @@ export class InterGroupService {
         await this.notificationService.sendAcceptInterGroup(user.deviceToken, secondGroup.name);
       }
     }
-      return createInterGroup;
+      return {
+        createInterGroup,
+        response: "The changes to your invitation have been saved."
+      }
     } catch (error) {
       throw new Error(error.message);
     }
@@ -358,7 +361,10 @@ export class InterGroupService {
         await this.notificationService.sendNoAcceptInterGroup(user.deviceToken, invitation.groupReceiver.name);
         }
       }
-      return group;
+      return {
+        group,
+        response: "The changes to your invitation have been saved."
+      };
     } catch (error) {
       throw new Error(error.message);
     }
@@ -553,7 +559,6 @@ export class InterGroupService {
     try {
       let groupId = [];
       let interGroups = [];
-      let searchInterGroups = [];
 
       const userInGroup = await this.groupService.getUserGroupsAll(currentUser);
 
