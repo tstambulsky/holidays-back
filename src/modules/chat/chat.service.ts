@@ -198,6 +198,7 @@ export class ChatService {
 
   async getChatPopulateGroup(invitationId: any, currentUser: any) {
     try {
+      console.log(invitationId);
       let groupWithoutUserLogged;
       const userId = currentUser._id;
       const group = await this.chatModel.findOne({ invitation: invitationId, active: true });
