@@ -24,7 +24,7 @@ export class ChatService {
     private readonly interGroupService: InterGroupService,
     private readonly usersService: UsersService,
     private readonly notificationService: NotificationService
-  ) {}
+  ) { }
 
   async getUserFromSocket(socket: Socket) {
     const authenticationToken =
@@ -37,9 +37,9 @@ export class ChatService {
     return user;
   }
 
-   async createInterGroupMessageOne(chatId: any, userId: any) {
+  async createInterGroupMessageOne(chatId: any, userId: any) {
     try {
-      const user = await this.usersService.findOneUser({_id: userId});
+      const user = await this.usersService.findOneUser({ _id: userId });
       const message = await new this.messageModel({
         content: 'Ha enviado una solicitud para unirse!',
         author: user._id,
@@ -56,7 +56,7 @@ export class ChatService {
 
   async createInterGroupMessageTwo(chatId: any, userId: any) {
     try {
-      const user = await this.usersService.findOneUser({_id: userId});
+      const user = await this.usersService.findOneUser({ _id: userId });
       const message = await new this.messageModel({
         content: 'Hola, nos gustaría sumarnos al plan.',
         author: user._id,
@@ -72,7 +72,7 @@ export class ChatService {
   }
 
   async createInterGroupMessageFour(chatId: any) {
-     try {
+    try {
       const message = await new this.messageModel({
         content: `¡Toque aceptado!`,
         chat: chatId
@@ -87,7 +87,7 @@ export class ChatService {
 
   async createInterGroupMessageThree(chatId: any, userId: any, group: any) {
     try {
-      const user = await this.usersService.findOneUser({_id: userId});
+      const user = await this.usersService.findOneUser({ _id: userId });
       const message = await new this.messageModel({
         content: `${group} han Enviado un toque!`,
         author: user._id,
@@ -118,7 +118,7 @@ export class ChatService {
 
   async createGroupMessage(chatId: any, userId: any) {
     try {
-      const user = await this.usersService.findOneUser({_id: userId});
+      const user = await this.usersService.findOneUser({ _id: userId });
       const message = await new this.messageModel({
         content: 'Ha enviado una solicitud para unirse!',
         author: user._id,
@@ -135,7 +135,7 @@ export class ChatService {
 
   async createGroupMessageTwo(chatId: any, userId: any) {
     try {
-      const user = await this.usersService.findOneUser({_id: userId});
+      const user = await this.usersService.findOneUser({ _id: userId });
       const message = await new this.messageModel({
         content: 'Hola, me gustaría unirme al grupo',
         author: user._id,
@@ -150,12 +150,12 @@ export class ChatService {
     }
   }
 
-   async createGroupMessageThree(chatId: any) {
+  async createGroupMessageThree(chatId: any) {
     try {
       const message = new this.messageModel({
-              content: 'Tienes solicitudes de unión a grupo',
-              chat: chatId
-            });
+        content: 'Tienes solicitudes de unión a grupo',
+        chat: chatId
+      });
       await message.save();
       return message;
     } catch (error) {
@@ -164,11 +164,11 @@ export class ChatService {
   }
 
   async createMeetingMessage(name: any, time: any, meeting: any) {
-  try {
+    try {
       const message = new this.messageModel({
-              content: `Juntada: Hoy a las ${time} en ${meeting}`,
-              name
-            });
+        content: `Juntada: Hoy a las ${time} en ${meeting}`,
+        name
+      });
       await message.save();
       return message;
     } catch (error) {
@@ -177,8 +177,8 @@ export class ChatService {
   }
 
   async getMeetingMessageGroup(name: any) {
-  try {
-     const message = await this.messageModel.findOne({name: name});
+    try {
+      const message = await this.messageModel.findOne({ name: name });
       return message;
     } catch (error) {
       throw new Error(error.message)
@@ -198,26 +198,26 @@ export class ChatService {
 
   async getChatPopulateGroup(invitationId: any, currentUser: any) {
     try {
-    let groupWithoutUserLogged;
-    const userId = currentUser._id;
-    const group = await this.chatModel.findOne({invitation: invitationId, active: true});
-    if (group) {
-    const invitation = await this.interGroupService.getInvitationId(invitationId);
-    const isInGroup = await this.groupService.getOneUserGroup(userId, invitation.groupSender, invitation.groupReceiver);
-    if (!isInGroup) throw new WsException('Your does not belong to any group');
-    const groupUserOne: any = await this.groupService.getGroup(invitation.groupSender);
-    const groupUserTwo: any = await this.groupService.getGroup(invitation.groupReceiver);
-    if (groupUserOne.name == isInGroup.name) {
-      groupWithoutUserLogged = groupUserTwo; 
-    } else {
-      groupWithoutUserLogged = groupUserOne;
+      let groupWithoutUserLogged;
+      const userId = currentUser._id;
+      const group = await this.chatModel.findOne({ invitation: invitationId, active: true });
+      if (group) {
+        const invitation = await this.interGroupService.getInvitationId(invitationId);
+        const isInGroup = await this.groupService.getOneUserGroup(userId, invitation.groupSender, invitation.groupReceiver);
+        if (!isInGroup) throw new WsException('Your does not belong to any group');
+        const groupUserOne: any = await this.groupService.getGroup(invitation.groupSender);
+        const groupUserTwo: any = await this.groupService.getGroup(invitation.groupReceiver);
+        if (groupUserOne.name == isInGroup.name) {
+          groupWithoutUserLogged = groupUserTwo;
+        } else {
+          groupWithoutUserLogged = groupUserOne;
+        }
+      }
+      return groupWithoutUserLogged;
+    } catch (error) {
+      throw new Error(error.message)
     }
   }
-    return groupWithoutUserLogged;
-  } catch (error) {
-    throw new Error(error.message)
-  }
-}
 
   async createInterGroupChat(interGroupId: any) {
     const interGroup = await this.interGroupService.getInterGroup(interGroupId);
@@ -252,19 +252,19 @@ export class ChatService {
   async getChatGroupUser(currentUser: any) {
     try {
       const date = new Date();
-      const today = date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate();
+      const today = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
       let allChats = [];
       const groups = await this.groupService.getUserGroups(currentUser);
       for await (let group of groups) {
         const testGroup = await this.groupService.getGroup(group);
-        const dateGroup =  testGroup.startDate.getFullYear()+'-'+( testGroup.startDate.getMonth()+1)+'-'+ testGroup.startDate.getDate();
+        const dateGroup = testGroup.startDate.getFullYear() + '-' + (testGroup.startDate.getMonth() + 1) + '-' + testGroup.startDate.getDate();
         await this.getUnreadGroup(group._id, currentUser);
         const invitations = await this.groupService.getInvitationToGroup(group);
         const chat = await this.chatModel.findOne({ group: group._id, active: true }).populate('lastMessage');
         if (!chat.adminUser) {
           chat.invitations = invitations.length;
-          if (invitations.length > 0 ) {
-             chat.unreadMessages += invitations.length;
+          if (invitations.length > 0) {
+            chat.unreadMessages += invitations.length;
           }
           if (today == dateGroup) {
             const message = await this.getMeetingMessageGroup(testGroup.name);
@@ -296,7 +296,7 @@ export class ChatService {
   async getChatInterGroupsUser(currentUser: any) {
     try {
       const date = new Date();
-      const today = date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate();
+      const today = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
       let allChats = [];
       let invitationsId = [];
       const interGroups = await this.interGroupService.getMyIntergroupsNoActives(currentUser);
@@ -308,37 +308,39 @@ export class ChatService {
         const interGroup = await this.interGroupService.getInterGroupByGroups(element.groupSender, element.groupReceiver);
         const chat = await this.chatModel.findOne({ invitation: element._id, active: true }).populate('lastMessage');
         if (chat) {
-        const invitation = await this.interGroupService.getInvitationId(element._id);
-        const group = await this.getChatPopulateGroup(element._id, currentUser);
-        chat.otherGroup = group;
-        if (invitation) {
-        chat.unreadMessages = + 1;
-        }
-        if (interGroup) {
-        const proposal = await this.interGroupService.getProposalsInterGroup(interGroup._id);
-        if (proposal) {
-          if (proposal.groupReceiver.admin == currentUser._id) {
-          chat.isAdmin = true;
+          const invitation = await this.interGroupService.getInvitationId(element._id);
+          const group = await this.getChatPopulateGroup(element._id, currentUser);
+          chat.otherGroup = group;
+          if (invitation) {
+            chat.unreadMessages = + 1;
+          }
+          if (interGroup) {
+            const proposal = await this.interGroupService.getProposalsInterGroup(interGroup._id);
+            if (proposal) {
+              if (proposal.groupReceiver.admin == currentUser._id) {
+                chat.isAdmin = true;
+                await chat.save();
+              } else {
+                chat.isAdmin = false;
+                await chat.save();
+              }
+            }
+            if (interGroup.startDate) {
+              const dateInterGroup = interGroup.startDate.getFullYear() + '-' + (interGroup.startDate.getMonth() + 1) + '-' + interGroup.startDate.getDate();
+              if (today == dateInterGroup) {
+                const message = await this.getMeetingMessageGroup(interGroup.name);
+                if (message) {
+                  chat.lastMessage = message;
+                }
+              }
+            }
+          }
           await chat.save();
-        } else {
-          chat.isAdmin = false;
-          await chat.save();
+          if (chat !== null) {
+            allChats.push(chat);
+          }
         }
       }
-      if (interGroup.startDate) {
-        const dateInterGroup = interGroup.startDate.getFullYear()+'-'+( interGroup.startDate.getMonth()+1)+'-'+ interGroup.startDate.getDate();
-        if (today == dateInterGroup) {
-          const message = await this.getMeetingMessageGroup(interGroup.name);
-          chat.lastMessage = message;
-        }
-      }
-      }
-        await chat.save();
-        if (chat !== null) { 
-          allChats.push(chat);
-        }
-      }
-    }
       return allChats;
     } catch (error) {
       throw new Error(error);
@@ -398,7 +400,7 @@ export class ChatService {
     }
   }
 
-   async getOneChatAdminUserWithout(userId: any, groupId: any) {
+  async getOneChatAdminUserWithout(userId: any, groupId: any) {
     try {
       const chat = await this.chatModel.findOne({ user: userId, group: groupId, active: false });
       return chat;
@@ -413,7 +415,7 @@ export class ChatService {
       const chats = await this.chatModel.find({ adminUser: currentUser._id, active: true }).populate('lastMessage');;
       if (!chats) throw new WsException('You are not the admin or the user does not exist.');
       for await (let chat of chats) {
-      await this.getUnreadAdmin(chat._id, currentUser);
+        await this.getUnreadAdmin(chat._id, currentUser);
       }
       return chats;
     } catch (error) {
@@ -476,12 +478,12 @@ export class ChatService {
     //@ts-ignore
     newMessage.readBy.push(userId)
     await newMessage.save();
-     for await (let users of integrants) {
-          const findUser = await this.usersService.findOneUser({ _id: users, active: true })
-             if (findUser.deviceToken) {
-          await this.notificationService.sendNewChatMessage(findUser.deviceToken, group.name);
+    for await (let users of integrants) {
+      const findUser = await this.usersService.findOneUser({ _id: users, active: true })
+      if (findUser.deviceToken) {
+        await this.notificationService.sendNewChatMessage(findUser.deviceToken, group.name);
       }
-      }
+    }
     return newMessage;
   }
 
@@ -495,20 +497,20 @@ export class ChatService {
         chat: chat._id
       })
       .sort({ date: 1 });
-      for await (let message of messages) {
-        const mesg = await this.messageModel.findOne({ _id: message._id, readBy: { $ne: currentUser._id } });
-         if (mesg) {
-           allUnread.push(mesg);
-          //@ts-ignore
-          mesg.readBy.push(currentUser._id);
-          mesg.save();
-         }
+    for await (let message of messages) {
+      const mesg = await this.messageModel.findOne({ _id: message._id, readBy: { $ne: currentUser._id } });
+      if (mesg) {
+        allUnread.push(mesg);
+        //@ts-ignore
+        mesg.readBy.push(currentUser._id);
+        mesg.save();
       }
-      if (allUnread.length < 1) {
-       chat.unreadMessages = 0;
-       chat.lastMessage = undefined;
-       await chat.save();
-      }
+    }
+    if (allUnread.length < 1) {
+      chat.unreadMessages = 0;
+      chat.lastMessage = undefined;
+      await chat.save();
+    }
     return messages;
   }
 
@@ -524,19 +526,19 @@ export class ChatService {
     const invitation = await this.interGroupService.getInvitationId(invitationId);
     const groupOne: any = invitation.groupSender;
     groupOne.integrants.forEach(element => {
-       if (element._id == userId) {
+      if (element._id == userId) {
         console.log('User send no need push');
-       } else {
-      integrantsOne.push(element._id);
-       }
+      } else {
+        integrantsOne.push(element._id);
+      }
     });
     const groupTwo: any = invitation.groupReceiver;
     groupTwo.integrants.forEach(element => {
       if (element._id == userId) {
         console.log('User send no need push');
-       } else {
-      integrantsTwo.push(element._id);
-       }
+      } else {
+        integrantsTwo.push(element._id);
+      }
     });
     const userInGroup = await this.groupService.getOneUserWithGroup(currentUser, groupOne);
     if (userInGroup === null) userInGroupTwo = await this.groupService.getOneUserWithGroup(currentUser, groupTwo);
@@ -549,21 +551,21 @@ export class ChatService {
       author: userId,
       chat: chat._id
     });
-     //@ts-ignore
+    //@ts-ignore
     newMessage.readBy.push(userId)
     await newMessage.save();
-      for await (let users of integrantsOne) {
-        const user = await this.usersService.findOneUser({_id: users, active: true});
-          if (user.deviceToken) {
-          await this.notificationService.sendNewChatMessage(user.deviceToken, chat.interGroup.name);
-          }
-        }
-      for await (let users of integrantsTwo) {
-        const user = await this.usersService.findOneUser({_id: users, active: true});
-          if (user.deviceToken) {
-          await this.notificationService.sendNewChatMessage(user.deviceToken, chat.interGroup.name);
-           }
-        }
+    for await (let users of integrantsOne) {
+      const user = await this.usersService.findOneUser({ _id: users, active: true });
+      if (user.deviceToken) {
+        await this.notificationService.sendNewChatMessage(user.deviceToken, chat.interGroup.name);
+      }
+    }
+    for await (let users of integrantsTwo) {
+      const user = await this.usersService.findOneUser({ _id: users, active: true });
+      if (user.deviceToken) {
+        await this.notificationService.sendNewChatMessage(user.deviceToken, chat.interGroup.name);
+      }
+    }
     return newMessage;
   }
 
@@ -586,21 +588,21 @@ export class ChatService {
         chat: chat._id
       })
       .sort({ date: 1 });
-        for await (let message of messages) {
-        const mesg: any = await this.messageModel.findOne({ _id: message._id, readBy: { $ne: currentUser._id }});
-            //@ts-ignore
-            if (mesg) {
-            allUnread.push(mesg);
-            mesg.readBy.push(userId);
-            mesg.save();
-            }
+    for await (let message of messages) {
+      const mesg: any = await this.messageModel.findOne({ _id: message._id, readBy: { $ne: currentUser._id } });
+      //@ts-ignore
+      if (mesg) {
+        allUnread.push(mesg);
+        mesg.readBy.push(userId);
+        mesg.save();
       }
-      if (allUnread.length < 1) {
-       chat.unreadMessages = 0;
-       chat.lastMessage = undefined;
-       await chat.save();
-      }
-      return messages;
+    }
+    if (allUnread.length < 1) {
+      chat.unreadMessages = 0;
+      chat.lastMessage = undefined;
+      await chat.save();
+    }
+    return messages;
   }
 
   async saveMessageAdmin(content: string, chatId: any, groupId: any, currentUser: any) {
@@ -618,25 +620,25 @@ export class ChatService {
       author: userId,
       chat: chat._id
     });
-     //@ts-ignore
+    //@ts-ignore
     newMessage.readBy.push(userId)
     await newMessage.save();
     if (chat.adminUser._id == userId) {
-          const user = await this.usersService.findOneUser({_id: chat.user._id, active: true })
-       if (user.deviceToken) {
-            await this.notificationService.sendNewChatMessage(user.deviceToken, chat.name);
-          }
-        } 
+      const user = await this.usersService.findOneUser({ _id: chat.user._id, active: true })
+      if (user.deviceToken) {
+        await this.notificationService.sendNewChatMessage(user.deviceToken, chat.name);
+      }
+    }
     if (chat.adminUser._id != userId) {
-              const user = await this.usersService.findOneUser({_id: chat.adminUser._id, active: true })
-       if (user.deviceToken) {
-            await this.notificationService.sendNewChatMessage(user.deviceToken, chat.name);
-          }
-        }
+      const user = await this.usersService.findOneUser({ _id: chat.adminUser._id, active: true })
+      if (user.deviceToken) {
+        await this.notificationService.sendNewChatMessage(user.deviceToken, chat.name);
+      }
+    }
     return newMessage;
   }
 
-  async getAllMessagesAdmin(chatId: any, currentUser: any ) {
+  async getAllMessagesAdmin(chatId: any, currentUser: any) {
     let allUnread = [];
     const chat = await this.chatModel.findOne({ _id: chatId, active: true });
     const id = chat._id;
@@ -645,21 +647,21 @@ export class ChatService {
         chat: id
       })
       .sort({ date: 1 });
-        for await (let message of messages) {
-        const mesg = await this.messageModel.findOne({ _id: message._id, readBy: { $ne: currentUser._id } })
-         if (mesg) {
-           allUnread.push(mesg);
-          //@ts-ignore
-          mesg.readBy.push(currentUser._id);
-          mesg.save();
-         }
+    for await (let message of messages) {
+      const mesg = await this.messageModel.findOne({ _id: message._id, readBy: { $ne: currentUser._id } })
+      if (mesg) {
+        allUnread.push(mesg);
+        //@ts-ignore
+        mesg.readBy.push(currentUser._id);
+        mesg.save();
       }
-       if (allUnread.length < 1) {
-       chat.unreadMessages = 0;
-       chat.lastMessage = undefined;
-       await chat.save();
-      }
-      return messages;
+    }
+    if (allUnread.length < 1) {
+      chat.unreadMessages = 0;
+      chat.lastMessage = undefined;
+      await chat.save();
+    }
+    return messages;
   }
 
   async getUnreadGroup(groupId: any, currentUser: any) {
@@ -675,18 +677,18 @@ export class ChatService {
           readBy: { $ne: currentUser._id }
         })
         .sort({ date: 1 });
-        if (messages.length > 0) {
+      if (messages.length > 0) {
         chat.unreadMessages = messages.length;
         chat.lastMessage = messages[0]._id;
         await chat.save();
-        }
-        /*for await (let users of integrants) {
-          const user = await this.usersService.findOneUser({ _id: users, active: true })
-          if (user.deviceToken) {
-          await this.notificationService.sendNewChatMessage(users.deviceToken, group.name);
-        }
-      }*/
-        return messages;
+      }
+      /*for await (let users of integrants) {
+        const user = await this.usersService.findOneUser({ _id: users, active: true })
+        if (user.deviceToken) {
+        await this.notificationService.sendNewChatMessage(users.deviceToken, group.name);
+      }
+    }*/
+      return messages;
     } catch (error) {
       throw new Error(error);
     }
@@ -711,77 +713,77 @@ export class ChatService {
       if (userInGroupTwo === null) throw new WsException('The user does not belong to some group');
       const chat: any = await this.chatModel.findOne({ invitation: invitationId, active: true }).populate('interGroup').populate('lastMessage');
       if (chat) {
-      const messages = await this.messageModel
-        .find({
-          chat: chat._id,
-          readBy: { $ne: currentUser._id }
-        })
-        .sort({ date: 1 });
-        allMessages.push(messages);
-        if (messages.length > 0) {
-        chat.unreadMessages = messages.length;
-        chat.lastMessage = messages[0]._id;
-        await chat.save();
-        }
-      }
-        /*for await (let users of integrantsOne) {
-          const user = await this.usersService.findOneUser({_id: users, active: true});
-          if (user.deviceToken) {
-          await this.notificationService.sendNewChatMessage(users.deviceToken, chat.interGroup.name);
-        }
-      }
-         for await (let users of integrantsTwo) {
-           const user = await this.usersService.findOneUser({_id: users, active: true});
-           if (users.deviceToken) {
-          await this.notificationService.sendNewChatMessage(users.deviceToken, chat.interGroup.name);
-           }
-        }*/
-        return allMessages;
-      } catch (error) {
-        throw new Error(error);
-      }
-    }
-
-    async getUnreadAdmin(chatId: any, currentUser: any ) {
-      try {
-        const chat: any = await this.chatModel.findOne({ _id: chatId, active: true });
-        if (!chat) throw new WsException('Chat does not exist, id incorrect or group inactive.');
-        const id = chat._id;
         const messages = await this.messageModel
           .find({
-            chat: id,
+            chat: chat._id,
             readBy: { $ne: currentUser._id }
           })
           .sort({ date: 1 });
-          if (messages.length > 0) {
+        allMessages.push(messages);
+        if (messages.length > 0) {
           chat.unreadMessages = messages.length;
           chat.lastMessage = messages[0]._id;
           await chat.save();
-          }
-          /*if (user.deviceToken) {
-          await this.notificationService.sendNewChatMessage(user.deviceToken, chat.name);
-          }*/
-          return messages;
-      } catch (error) {
-        throw new Error(error);
+        }
+      }
+      /*for await (let users of integrantsOne) {
+        const user = await this.usersService.findOneUser({_id: users, active: true});
+        if (user.deviceToken) {
+        await this.notificationService.sendNewChatMessage(users.deviceToken, chat.interGroup.name);
       }
     }
+       for await (let users of integrantsTwo) {
+         const user = await this.usersService.findOneUser({_id: users, active: true});
+         if (users.deviceToken) {
+        await this.notificationService.sendNewChatMessage(users.deviceToken, chat.interGroup.name);
+         }
+      }*/
+      return allMessages;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 
-    async getAllChats(currentUser: any) {
-      try {
-        const userId = currentUser._id;
-        let allChats = [];
-        const group = await this.getChatGroupUser(userId);
-        allChats.push(group);
-        const interGroup = await this.getChatInterGroupsUser(userId);
-        allChats.push(interGroup);
-        const admin = await this.getChatAdmin(userId);
-        allChats.push(admin);
-        const userToAdmin = await this.getChatAdminUser(userId);
-        allChats.push(userToAdmin);
-        return allChats;
-      } catch (error) {
-        throw new Error(error);
+  async getUnreadAdmin(chatId: any, currentUser: any) {
+    try {
+      const chat: any = await this.chatModel.findOne({ _id: chatId, active: true });
+      if (!chat) throw new WsException('Chat does not exist, id incorrect or group inactive.');
+      const id = chat._id;
+      const messages = await this.messageModel
+        .find({
+          chat: id,
+          readBy: { $ne: currentUser._id }
+        })
+        .sort({ date: 1 });
+      if (messages.length > 0) {
+        chat.unreadMessages = messages.length;
+        chat.lastMessage = messages[0]._id;
+        await chat.save();
       }
+      /*if (user.deviceToken) {
+      await this.notificationService.sendNewChatMessage(user.deviceToken, chat.name);
+      }*/
+      return messages;
+    } catch (error) {
+      throw new Error(error);
     }
+  }
+
+  async getAllChats(currentUser: any) {
+    try {
+      const userId = currentUser._id;
+      let allChats = [];
+      const group = await this.getChatGroupUser(userId);
+      allChats.push(group);
+      const interGroup = await this.getChatInterGroupsUser(userId);
+      allChats.push(interGroup);
+      const admin = await this.getChatAdmin(userId);
+      allChats.push(admin);
+      const userToAdmin = await this.getChatAdminUser(userId);
+      allChats.push(userToAdmin);
+      return allChats;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 }
