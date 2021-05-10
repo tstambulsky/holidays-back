@@ -705,11 +705,11 @@ export class ChatService {
       //if (!interGroup) throw new WsException('The intergroup does not exist.');
       const invitation = await this.interGroupService.getInvitationId(invitationId);
       const groupOne = invitation.groupSender;
-      if (groupOne) {
+      if (groupOne.integrants) {
       integrantsOne.push(groupOne.integrants);
       }
       const groupTwo = invitation.groupReceiver;
-      if (groupTwo) {
+      if (groupTwo.integrants) {
       integrantsTwo.push(groupTwo.integrants);
       }
       const userInGroup = await this.groupService.getOneUserWithGroup(currentUser, groupOne);
