@@ -705,12 +705,16 @@ export class ChatService {
       //if (!interGroup) throw new WsException('The intergroup does not exist.');
       const invitation = await this.interGroupService.getInvitationId(invitationId);
       const groupOne = invitation.groupSender;
+      if (groupOne) {
       integrantsOne.push(groupOne.integrants);
+      }
       const groupTwo = invitation.groupReceiver;
+      if (groupTwo) {
       integrantsTwo.push(groupTwo.integrants);
+      }
       const userInGroup = await this.groupService.getOneUserWithGroup(currentUser, groupOne);
       if (userInGroup === null) userInGroupTwo = await this.groupService.getOneUserWithGroup(currentUser, groupTwo);
-      if (userInGroupTwo === null) throw new WsException('The user does not belong to some group');
+      //if (userInGroupTwo === null) throw new WsException('The user does not belong to some group');
       const chat: any = await this.chatModel.findOne({ invitation: invitationId, active: true }).populate('interGroup').populate('lastMessage');
       if (chat) {
         const messages = await this.messageModel
