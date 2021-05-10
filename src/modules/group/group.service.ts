@@ -39,6 +39,15 @@ export class GroupService {
     return groups;
   }
 
+  async getOneGroup(data: any) {
+    try {  
+      const search = await this.groupModel.findOne(data);
+      return search;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
   async getGroupChat(groupId: any, currentUser: any) {
     try {
       const group = await this.groupModel.findOne({ active: true, _id: groupId, integrants: currentUser._id });

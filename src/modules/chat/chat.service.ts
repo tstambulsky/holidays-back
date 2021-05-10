@@ -198,17 +198,24 @@ export class ChatService {
 
   async getChatPopulateGroup(invitationId: any, currentUser: any) {
     try {
-      console.log(invitationId);
       let groupWithoutUserLogged;
+      let groupUserOne;
+      let groupUserTwo;
       const userId = currentUser._id;
       const group = await this.chatModel.findOne({ invitation: invitationId, active: true });
       if (group) {
         const invitation = await this.interGroupService.getInvitationId(invitationId);
         const isInGroup = await this.groupService.getOneUserGroup(userId, invitation.groupSender, invitation.groupReceiver);
         if (!isInGroup) throw new WsException('Your does not belong to any group');
-        const groupUserOne: any = await this.groupService.getGroup(invitation.groupSender);
-        const groupUserTwo: any = await this.groupService.getGroup(invitation.groupReceiver);
-        if (groupUserOne.name == isInGroup.name) {
+        const existGroup = await this.groupService.getOneGroup({ _id: invitation.groupSender});
+        if (existGroup) {
+        groupUserOne = await this.groupService.getGroup(invitation.groupSender);
+        }
+        const existGroupTwo = await this.groupService.getOneGroup({ _id: invitation.groupReceiver});
+        if (existGroupTwo) {
+        groupUserTwo = await this.groupService.getGroup(invitation.groupReceiver);
+        }
+        if (groupUserOne && groupUserOne.name == isInGroup.name) {
           groupWithoutUserLogged = groupUserTwo;
         } else {
           groupWithoutUserLogged = groupUserOne;
