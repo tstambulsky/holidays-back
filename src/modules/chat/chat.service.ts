@@ -712,8 +712,10 @@ export class ChatService {
       if (groupTwo.integrants) {
       integrantsTwo.push(groupTwo.integrants);
       }
+      if (groupOne.integrants && groupTwo.integrants) {
       const userInGroup = await this.groupService.getOneUserWithGroup(currentUser, groupOne);
       if (userInGroup === null) userInGroupTwo = await this.groupService.getOneUserWithGroup(currentUser, groupTwo);
+      }
       //if (userInGroupTwo === null) throw new WsException('The user does not belong to some group');
       const chat: any = await this.chatModel.findOne({ invitation: invitationId, active: true }).populate('interGroup').populate('lastMessage');
       if (chat) {
