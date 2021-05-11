@@ -308,7 +308,7 @@ export class GroupService {
     }
   }
 
-  async sendInvitationToGroup(data: RequestToGroupDTO) {
+  async sendInvitationToGroup(data: RequestToGroupDTO,currentUser: any) {
     try {
       let integrants = [];
       const { user, group, fromAdmin } = data;
@@ -348,6 +348,7 @@ export class GroupService {
         }
           }
         }
+      await this.chatService.getAllChats(currentUser);
       return newInvitation;
     } catch (error) {
       throw new Error(error.message);
@@ -421,6 +422,7 @@ export class GroupService {
       if (user.deviceToken) {
        await this.notificationService.sendAcceptGroup(user.deviceToken, group.name);
       }
+       await this.chatService.getAllChats(currentUser);
       return {
         group, 
       response: "You have accepted the request successfully"};
@@ -447,6 +449,7 @@ export class GroupService {
       if (user.deviceToken) {
       await this.notificationService.sendNoAcceptGroup(user.deviceToken, group.name);
       }
+       await this.chatService.getAllChats(currentUser);
       return {
         group,
         response: "You have successfully rejected the request"
@@ -516,6 +519,7 @@ export class GroupService {
     }
       await invitation.save();
       await chat.save();
+      await this.chatService.getAllChats(currentUser);
       return 'The changes to your invitation have been saved.';
     } catch (error) {
       throw new Error(error.message);
@@ -711,6 +715,7 @@ export class GroupService {
       const chat = await this.chatService.getChatbyGroup(groupId);
       await chat.updateOne({ image: url });
       await removeImage(file.path);
+      await this.chatService.getAllChats(currentUser);
       return group;
     } catch (error) {
       throw new Error(error.message);

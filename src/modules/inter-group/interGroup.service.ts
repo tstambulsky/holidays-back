@@ -281,6 +281,7 @@ export class InterGroupService {
         await this.notificationService.sendInvitationToInterGroup(user.deviceToken, groupOne.name);
         }
       }
+      await this.chatService.getAllChats(currentUser);
       return newInvitation;
     } catch (error) {
       throw new Error(error.message);
@@ -341,6 +342,7 @@ export class InterGroupService {
         await this.notificationService.sendAcceptInterGroup(user.deviceToken, secondGroup.name);
       }
     }
+      await this.chatService.getAllChats(currentUser);
       return {
         createInterGroup,
         response: "The changes to your invitation have been saved."
@@ -377,6 +379,7 @@ export class InterGroupService {
         await this.notificationService.sendNoAcceptInterGroup(user.deviceToken, invitation.groupReceiver.name);
         }
       }
+       await this.chatService.getAllChats(currentUser);
       return {
         group,
         response: "The changes to your invitation have been saved."
@@ -448,6 +451,7 @@ export class InterGroupService {
         await this.notificationService.sendProposal(user.deviceToken, proposal.groupSender.name);
       }
     }
+      await this.chatService.getAllChats(currentUser);
       return 'Proposal Sended';
     } catch (error) {
       throw new Error(error.message);
@@ -517,6 +521,7 @@ export class InterGroupService {
         }
       }
       }
+      await this.chatService.getAllChats(currentUser);
       return proposal;
     } catch (error) {
       throw new Error(error.message);
