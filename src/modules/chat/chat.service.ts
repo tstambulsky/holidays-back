@@ -565,13 +565,13 @@ export class ChatService {
     for await (let users of integrantsOne) {
       const user = await this.usersService.findOneUser({ _id: users, active: true });
       if (user.deviceToken) {
-        await this.notificationService.sendNewChatMessage(user.deviceToken, chat.interGroup.name);
+        await this.notificationService.sendNewChatMessage(user.deviceToken, chat.name);
       }
     }
     for await (let users of integrantsTwo) {
       const user = await this.usersService.findOneUser({ _id: users, active: true });
       if (user.deviceToken) {
-        await this.notificationService.sendNewChatMessage(user.deviceToken, chat.interGroup.name);
+        await this.notificationService.sendNewChatMessage(user.deviceToken, chat.name);
       }
     }
     return newMessage;
