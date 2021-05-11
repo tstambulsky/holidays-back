@@ -191,8 +191,9 @@ export class ChatService {
     const chat = await new this.chatModel({
       group: groupId,
       name: group.name,
-      Image: group.photo
-    }).save();
+      image: group.photo
+    });
+    await chat.save();
     return chat;
   }
 
