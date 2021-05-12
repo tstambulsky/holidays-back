@@ -96,7 +96,7 @@ export class CalificationService {
         const response = await this.getUsersWithoutCalification(interGroup._id, currentUser);
         for await (let user of response) {
         const users: any = await this.userService.getUserById(user);
-          if (users._id != userId) {
+          if (users._id !== userId) {
          interGroups.integrants.push(users);
           }
         }
