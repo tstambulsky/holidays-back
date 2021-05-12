@@ -789,13 +789,21 @@ export class ChatService {
       const userId = currentUser._id;
       let allChats = [];
       const group = await this.getChatGroupUser(userId);
+      if (group) {
       allChats.push(group);
+      }
       const interGroup = await this.getChatInterGroupsUser(userId);
+      if (interGroup) {
       allChats.push(interGroup);
+      }
       const admin = await this.getChatAdmin(userId);
+      if (admin) {
       allChats.push(admin);
+      }
       const userToAdmin = await this.getChatAdminUser(userId);
+      if (userToAdmin) {
       allChats.push(userToAdmin);
+      }
       return allChats;
     } catch (error) {
       throw new Error(error);
