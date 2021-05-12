@@ -58,7 +58,7 @@ export class InterGroupService {
   async getInterGroupById(interGroupId: any) {
     try {
       let integrants = [];
-      const interGroup = await this.interGroupModel.findOne({ _id: interGroupId });
+      const interGroup = await this.interGroupModel.findOne({ _id: interGroupId }).populate('groupSender').populate('groupReceiver').populate('meetingPlaceOne');
       if (interGroup) {
         const groupOne = await this.groupService.getOneGroup({_id: interGroup.groupSender});
         if (groupOne) {
