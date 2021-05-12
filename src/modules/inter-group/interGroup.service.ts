@@ -502,7 +502,7 @@ export class InterGroupService {
         await this.chatService.createInterGroupMessageTwo(chat._id, proposal.groupReceiver.admin);
         await this.chatService.createInterGroupMessage(chat._id, proposal.groupReceiver.name);
            const time = interGroup.startDate.getHours()+':'+interGroup.startDate.getMinutes();
-           await this.chatService.createMeetingMessage(interGroup.name, time, proposal.proposalPlace)
+           await this.chatService.createMeetingMessage(interGroup.name, time, proposal.proposalPlace.name)
         for await (let users of integrantsOne) {
           const user = await this.usersService.findOneUser({ _id: users, active: true});
           if (user.deviceToken) {
