@@ -541,7 +541,7 @@ export class InterGroupService {
 
       for await (let element of groupId) {
         const searchInterGroups = await this.interGroupModel.findOne({
-         
+         confirmed: true, 
           $or: [{ groupSender: element }, { groupReceiver: element }]
         });
         if (searchInterGroups !== null) await interGroups.push({ searchInterGroups });
