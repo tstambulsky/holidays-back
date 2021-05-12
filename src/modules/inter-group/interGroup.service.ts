@@ -543,7 +543,7 @@ export class InterGroupService {
         const searchInterGroups = await this.interGroupModel.findOne({
          confirmed: true, 
           $or: [{ groupSender: element }, { groupReceiver: element }]
-        });
+        }).populate('groupSender').populate('groupReceiver').populate('meetingPlaceOne');
         if (searchInterGroups !== null) await interGroups.push({ searchInterGroups });
       }
       return await interGroups;
