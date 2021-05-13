@@ -256,7 +256,8 @@ export class ChatService {
       group: groupId,
       adminUser: group.admin,
       name: `${userExist.name} ${userExist.lastName} + Admin chat of ${group.name}`,
-      user: userExist._id
+      user: userExist._id,
+      image: group.photo
     });
     await chat.save();
     return chat;

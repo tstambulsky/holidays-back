@@ -508,6 +508,7 @@ export class GroupService {
         invitation.success = true;
         invitation.active = false;
         chat.active = false;
+        await chat.save();
         for await (let users of integrants){
           const user = await this.userService.findOneUser({_id: users, active: true});
           if (user.deviceToken) {
@@ -518,6 +519,7 @@ export class GroupService {
         invitation.success = false;
         invitation.active = false;
         chat.active = false;
+        await chat.save();
          for await (let users of integrants){
           const user = await this.userService.findOneUser({_id: users, active: true});
           if (user.deviceToken) {
