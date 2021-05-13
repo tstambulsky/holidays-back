@@ -12,6 +12,9 @@ export class Notification {
 
   @Prop()
   body: string;
+
+  @Prop({ default: false })
+  message: boolean;
 }
 
 export type NotificationDocument = Notification & mongoose.Document;

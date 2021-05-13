@@ -30,8 +30,6 @@ const greatCircleDistance = (angle: number) => 2 * Math.PI * earthRadius * (angl
 export const distanceBetweenLocations = (user: any, locationY: Meeting): number => {
   const fromLocation = cleanDistance(user);
   const toLocation = cleanDistance(locationY);
-  console.log('user', fromLocation);
-  console.log('meeting', toLocation)
   const distance = greatCircleDistance(centralSubtendedAngle(fromLocation, toLocation));
   return distance;
 };

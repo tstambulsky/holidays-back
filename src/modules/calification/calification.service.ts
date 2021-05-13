@@ -51,6 +51,7 @@ export class CalificationService {
       const userInGruoupTwo = await this.groupService.getOneUserWithGroupInactive(currentUser, groupTwo);
       if (userInGruoupTwo) {
       for await (let integrant of groupOne.integrants) {
+        console.log(integrant);
         const calification = await this.calificationModel.findOne({fromUser: userId, toUser: integrant._id, interGroup: interGroupId});
         if (!calification && integrant._id !== userId) {
           usersWithoutCalification.push(integrant._id);
@@ -58,6 +59,7 @@ export class CalificationService {
       }
     } if (userInGruoup) {
       for await (let integrant of groupTwo.integrants) {
+        console.log(integrant);
         const calification = await this.calificationModel.findOne({fromUser: userId, toUser: integrant._id, interGroup: interGroupId});
         if (!calification && integrant._id !== userId) {
           usersWithoutCalification.push(integrant._id);
@@ -78,6 +80,7 @@ export class CalificationService {
       let interGroupsUser = [];
       const allInterGroups = await this.interGroupService.getInterGroupsInactive();
       for await (let interGroup of allInterGroups) {
+        if (interGroup.startDate && interGroup.endDate && interGroup.meetingPlaceOne) {
         const groupSender: any = interGroup.groupSender;
         const groupReceiver: any = interGroup.groupReceiver;
         const isInGroup = await this.groupService.getOneUserGroup(userId, groupSender, groupReceiver);
@@ -85,6 +88,7 @@ export class CalificationService {
           interGroupsUser.push(interGroup._id);
         }
       }
+    }
       for await (let interGroup of interGroupsUser) {
         let interGroups = {
           id: '',
@@ -93,8 +97,10 @@ export class CalificationService {
         interGroups.id = interGroup._id;
         const response = await this.getUsersWithoutCalification(interGroup._id, currentUser);
         for await (let user of response) {
-        const users = await this.userService.getUserById(user);
+        const users: any = await this.userService.getUserById(user);
+          if (users._id !== userId) {
          interGroups.integrants.push(users);
+          }
         }
         califications.push(interGroups);
       }

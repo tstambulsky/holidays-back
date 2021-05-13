@@ -38,7 +38,6 @@ export class InterGroupController {
   async getInterGroup(@Res() res, @Param('intergroupID') intergroupID) {
     try {
       const interGroup = await this.interGroupService.getInterGroupById(intergroupID);
-      if (!interGroup) throw new NotFoundException('Inter Group does not exists');
       return res.status(HttpStatus.OK).json(interGroup);
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({

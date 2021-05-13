@@ -39,6 +39,15 @@ export class GroupService {
     return groups;
   }
 
+  async getOneGroup(data: any) {
+    try {  
+      const search = await this.groupModel.findOne(data);
+      return search;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
   async getGroupChat(groupId: any, currentUser: any) {
     try {
       const group = await this.groupModel.findOne({ active: true, _id: groupId, integrants: currentUser._id });
@@ -137,7 +146,18 @@ export class GroupService {
       const valid = await this.validateGroups(currentUser, group);
       if(!valid) throw new HttpException('You have another group at the same time', 404);
       await group.save();
+      const meeting = await this.groupModel.findOne({ _id: group._id}).populate('meetingPlaceOne');
       await this.chatService.createGroupChat(group._id);
+      let hours = '' + group.startDate.getHours();
+      if (hours.length == 1) {
+         hours = '0' + hours;
+      }
+      let minutes = '' + group.startDate.getMinutes();
+       if (minutes.length == 1) {
+         minutes = '0' + minutes;
+      }
+      const time = hours+':'+minutes;
+      await this.chatService.createMeetingMessage(group.name, time, meeting.meetingPlaceOne.name);
       return group;
     } catch (err) {
       throw new Error(err.message);
@@ -296,19 +316,23 @@ export class GroupService {
     }
   }
 
-  async sendInvitationToGroup(data: RequestToGroupDTO) {
+  async sendInvitationToGroup(data: RequestToGroupDTO,currentUser: any) {
     try {
+      let integrants = [];
       const { user, group, fromAdmin } = data;
-      const groupExist = await this.groupModel.findOne({ _id: group }).populate('integrants');
+      const groupExist = await this.groupModel.findOne({ _id: group }).populate('integrants').populate('admin');
       const userExist = await this.userService.getUserById(user);
       if (!groupExist || !userExist) throw new Error('This group or user does not exist');
+      integrants.push(groupExist.integrants);
       const isIngroup = await this.groupModel.findOne({ _id: group, integrants: user });
       if (isIngroup) throw new Error('This User is already in the group');
       const alreadyInvite = await this.invitationModel.find({ user, group, active: true });
       if (alreadyInvite.length > 0) throw new Error('User already invite');
       const newInvitation = new this.invitationModel(data);
       await newInvitation.save();
+      let name = `${userExist.name} ${userExist.lastName}`;
       const chat = await this.chatService.getOneChatAdminUserWithout(user, group);
+      const chatGroup = await this.chatService.getChatbyGroup(group);
       if (!chat) {
          await this.chatService.createAdminChat(group, userExist);
       } if (chat) {
@@ -320,10 +344,19 @@ export class GroupService {
         await this.notificationService.sendInvitationGroupToUser(userExist.deviceToken, groupExist.name);
         }
       } if (fromAdmin == false) {
-        if (userExist.deviceToken) {
-        await this.notificationService.sendInvitationToAdmin(userExist.deviceToken, userExist.name, groupExist.name);
+        await this.chatService.createGroupMessage(chatGroup._id, user);
+        await this.chatService.createGroupMessageTwo(chatGroup._id, user);
+        const message = await this.chatService.createGroupMessageThree(chatGroup._id);
+        chatGroup.lastMessage = message;
+        chatGroup.save();
+        for await (let users of integrants) {
+          const user = await this.userService.findOneUser({_id: users, active: true});
+          if(user.deviceToken) {
+             await this.notificationService.sendInvitationToAdmin(user.deviceToken, name, groupExist.name);
         }
-      }
+          }
+        }
+      await this.chatService.getAllChats(currentUser);
       return newInvitation;
     } catch (error) {
       throw new Error(error.message);
@@ -335,6 +368,17 @@ export class GroupService {
       const invitations = await this.invitationModel.find({ group: groupId, active: true, fromAdmin: true }).populate('user')
         .populate('group');
       if (invitations.length < 0) throw new HttpException('The group has no invitations pending acceptance.', 404);
+      return invitations
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async getPendingInvitationsUser(currentUser: any) {
+    try {
+      const userId = currentUser._id;
+      const invitations = await this.invitationModel.find({ user: userId, active: true, fromAdmin: false }).populate('user').populate('group');
+      if (invitations.length < 0) throw new HttpException('The user has no invitations pending acceptance.', 404);
       return invitations
     } catch (error) {
       throw new Error(error.message);
@@ -386,7 +430,10 @@ export class GroupService {
       if (user.deviceToken) {
        await this.notificationService.sendAcceptGroup(user.deviceToken, group.name);
       }
-      return group;
+       await this.chatService.getAllChats(currentUser);
+      return {
+        group, 
+      response: "You have accepted the request successfully"};
     } catch (error) {
       throw new Error(error.message);
     }
@@ -406,10 +453,15 @@ export class GroupService {
       const chat = await this.chatService.getOneChatAdminWithUser(userId, invitation.user);
       chat.active = false;
       await chat.save();
-      if (invitation.user.deviceToken) {
-      await this.notificationService.sendNoAcceptGroup(invitation.user.deviceToken, group.name);
+      const user = await this.userService.findOneUser({_id: invitation.user, active: true});
+      if (user.deviceToken) {
+      await this.notificationService.sendNoAcceptGroup(user.deviceToken, group.name);
       }
-      return group;
+       await this.chatService.getAllChats(currentUser);
+      return {
+        group,
+        response: "You have successfully rejected the request"
+      };
     } catch (error) {
       throw new Error(error.message);
     }
@@ -430,6 +482,7 @@ export class GroupService {
 
   async acceptOrRefuseMyRequests(data: AceptOrRefuseDTO, currentUser: any) {
     try {
+      let integrants = [];
       const { invitationId, success } = data;
       const userId = currentUser._id;
       const user = await this.userService.getUserById(userId);
@@ -437,7 +490,9 @@ export class GroupService {
       const invitation = await this.invitationModel.findOne({ _id: invitationId, fromAdmin: true, active: true }).populate('user');
       if (!invitation) throw new Error('Bad invitation');
       const group = await this.groupModel.findOne({ _id: invitation.group }).populate('integrants');
+      integrants.push(group.integrants);
       const chat = await this.chatService.getOneChatAdminUser(userId, group._id);
+      let name = `${user.name} ${user.lastName}`;
       if (success) {
         //Validate that user does not have other
         const valid = await this.validateGroups(user, group);
@@ -453,13 +508,26 @@ export class GroupService {
         invitation.success = true;
         invitation.active = false;
         chat.active = false;
+        for await (let users of integrants){
+          const user = await this.userService.findOneUser({_id: users, active: true});
+          if (user.deviceToken) {
+        await this.notificationService.sendUserAccept(user.deviceToken, name, group.name);
+          }
+        }
       } else {
         invitation.success = false;
         invitation.active = false;
         chat.active = false;
+         for await (let users of integrants){
+          const user = await this.userService.findOneUser({_id: users, active: true});
+          if (user.deviceToken) {
+        await this.notificationService.sendUserNoAccept(user.deviceToken, name, group.name);
+          }
       }
+    }
       await invitation.save();
       await chat.save();
+      await this.chatService.getAllChats(currentUser);
       return 'The changes to your invitation have been saved.';
     } catch (error) {
       throw new Error(error.message);
@@ -471,6 +539,22 @@ export class GroupService {
       const userID = currentUser._id;
       const groups = await this.groupModel
         .find({ active: true, integrants: userID })
+        .populate('integrants')
+        .populate('meetingPlaceOne')
+        .populate('meetingPlaceTwo')
+        .populate('typeOfActivity');
+      if (groups.length < 0) throw new Error('The user does not belong to any group');
+      return groups;
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+  async getUserGroupsAll(currentUser: any) {
+     try {
+      const userID = currentUser._id;
+      const groups = await this.groupModel
+        .find({integrants: userID })
         .populate('integrants')
         .populate('meetingPlaceOne')
         .populate('meetingPlaceTwo')
@@ -517,7 +601,7 @@ export class GroupService {
       const groupId = group._id;
       const userId = currentUser._id;
       const groups = await this.groupModel
-        .findOne({ active: true, integrants: userId, _id: groupId })
+        .findOne({ integrants: userId, _id: groupId })
         .populate('integrants')
         .populate('meetingPlaceOne')
         .populate('meetingPlaceTwo')
@@ -554,7 +638,7 @@ export class GroupService {
       const groupsFiltered = allGroups.filter((element) => element.meetingPlaceOne !== null);
       for (let data of groupsFiltered) {
         const distance = distanceBetweenLocations(user, data.meetingPlaceOne);
-        if (distance < maxDistance) {
+        if (distance <= maxDistance) {
           groupsInRange.push(data);
         }
       }
@@ -639,6 +723,7 @@ export class GroupService {
       const chat = await this.chatService.getChatbyGroup(groupId);
       await chat.updateOne({ image: url });
       await removeImage(file.path);
+      await this.chatService.getAllChats(currentUser);
       return group;
     } catch (error) {
       throw new Error(error.message);
@@ -658,11 +743,11 @@ export class GroupService {
 
   async getGroupsBestCalificated() {
       try {
-        const groups = await this.groupModel.find({active: true});
+        const groups = await this.groupModel.find({active: true}).sort({calificationsAverage: 1});
           for await (let group of groups) {
             await this.getGroup(group._id);
        };
-       const allGroups = await this.groupModel.find().sort({calificationsAverage: 1}).exec();
+       const allGroups = await this.groupModel.find({ active: true }).sort({calificationsAverage: -1}).exec();
        return allGroups;
     } catch (error) {
     throw new Error(error.message)
@@ -678,5 +763,34 @@ export class GroupService {
       throw new Error(error.message)
     }
   }
+
+   async searchNearbyAndDistance(currentUser: any) {
+    try {
+      const userId = currentUser._id;
+      const user = await this.userService.getUserById(userId);
+      if (!user || !user.latitude) throw new Error('We dont have information about this user');
+      const groups = await this.groupModel.find({ active: true }).populate('meetingPlaceOne');
+      const groupsFiltered = groups.filter((element) => element.meetingPlaceOne !== null);
+      for await (let data of groupsFiltered) {
+        const distance = distanceBetweenLocations(user, data.meetingPlaceOne);
+         data.distance = distance;
+         await data.save();
+      }
+      let groupsToday = [];
+      const date = new Date();
+      const today = date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate();
+      const allGroups = await this.groupModel.find({ active: true }).sort({distance: 1});
+      for await (let groups of allGroups) {
+        const date = groups.startDate.getFullYear()+'-'+(groups.startDate.getMonth()+1)+'-'+groups.startDate.getDate();
+        if (date == today) {
+          groupsToday.push(groups)
+        }
+      };
+      return groupsToday;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
 
 }

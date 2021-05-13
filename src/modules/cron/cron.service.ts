@@ -39,7 +39,7 @@ export class CronService {
           console.log('Change to inactive intergroup: ', inter.name);
           await this.intergroupService.toInactiveInterGroup(inter);
         }
-      }
+    }
     } catch (error) {
       console.log(error);
     }

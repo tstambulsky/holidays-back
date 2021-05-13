@@ -222,9 +222,9 @@ export class GroupController {
   }
 
   @Post('/invitation/create')
-  async sendInvitation(@Res() res, @Body() data: RequestToGroupDTO) {
+  async sendInvitation(@Res() res, @Body() data: RequestToGroupDTO, @CurrentUser() user) {
     try {
-      const invitation = await this.groupService.sendInvitationToGroup(data);
+      const invitation = await this.groupService.sendInvitationToGroup(data, user);
       return res.status(HttpStatus.OK).json({
         message: 'Invitation has been send!',
         invitation
@@ -473,6 +473,34 @@ export class GroupController {
   async getPendings(@Res() res,@Param('groupid') groupid) {
      try {
       const response = await this.groupService.getPendingInvitations(groupid);
+      return res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (error) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        error: error.message
+      })
+    }
+  }
+
+  @Get('/invitations/pendings')
+  async getPendingsUser(@Res() res, @CurrentUser() user) {
+     try {
+      const response = await this.groupService.getPendingInvitationsUser(user);
+      return res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (error) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        error: error.message
+      })
+    }
+  }
+
+  @Get('/search/nearbytoday')
+   async getNearbyToday(@Res() res, @CurrentUser() user) {
+     try {
+      const response = await this.groupService.searchNearbyAndDistance(user);
       return res.status(HttpStatus.OK).json({
         response
       });

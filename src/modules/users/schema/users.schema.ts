@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { cloudinaryConfig } from '../../../config/cloudinary';
 import * as mongoose from 'mongoose';
 
 
@@ -35,7 +36,7 @@ export class User {
     }
   ];
 
-  @Prop({ required: false })
+  @Prop({ required: false, default: cloudinaryConfig.profile_photo })
   profilePhoto?: string;
 
   @Prop({ required: false })
