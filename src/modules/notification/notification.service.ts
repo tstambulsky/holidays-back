@@ -24,7 +24,7 @@ export class NotificationService {
     }
   }
 
-  async getNotifications(currentUser: any ): Promise<Notification[]> {
+  async getNotifications(currentUser: any) {
     try {
       const userId = currentUser._id;
       const notifications = await this.notificationModel.find({ to: userId, message: false });

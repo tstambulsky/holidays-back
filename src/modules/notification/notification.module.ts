@@ -10,7 +10,7 @@ import { UsersModule } from '../users/users.module';
   imports: [MongooseModule.forFeature([{ name: Notification.name, schema: NotificationSchema }]), 
 forwardRef(() => UsersModule)],
   providers: [NotificationService],
-  controllers: [],
+  controllers: [NotificationController],
   exports: [NotificationService]
 })
 export class NotificationModule {}

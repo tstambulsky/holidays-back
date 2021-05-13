@@ -501,7 +501,15 @@ export class InterGroupService {
         await this.chatService.createInterGroupMessageOne(chat._id, proposal.groupReceiver.admin);
         await this.chatService.createInterGroupMessageTwo(chat._id, proposal.groupReceiver.admin);
         await this.chatService.createInterGroupMessage(chat._id, proposal.groupReceiver.name);
-           const time = interGroup.startDate.getHours()+':'+interGroup.startDate.getMinutes();
+        let hours = '' + interGroup.startDate.getHours();
+          if (hours.length == 1) {
+            hours = '0' + hours;
+          }
+          let minutes = '' + interGroup.startDate.getMinutes();
+          if (minutes.length == 1) {
+            minutes = '0' + minutes;
+          }
+        const time = hours+':'+minutes;
            await this.chatService.createMeetingMessage(interGroup.name, time, proposal.proposalPlace.name)
         for await (let users of integrantsOne) {
           const user = await this.usersService.findOneUser({ _id: users, active: true});
@@ -537,18 +545,15 @@ export class InterGroupService {
 
       userInGroup.forEach((element) => {
         groupId.push(element._id);
-        console.log('esto funciona');
       });
 
       for await (let element of groupId) {
-        console.log('funciona 1');
         const searchInterGroups = await this.interGroupModel.find({
           confirmed: true,
           $or: [{ groupSender: element }, { groupReceiver: element }]
         }).populate('groupSender').populate('groupReceiver').populate('meetingPlaceOne');
         if (searchInterGroups !== null) {
           interGroups.push({ searchInterGroups });
-          console.log('funciona 2');
         }
       }
       return interGroups;
