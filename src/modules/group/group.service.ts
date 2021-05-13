@@ -630,7 +630,7 @@ export class GroupService {
       const groupsFiltered = allGroups.filter((element) => element.meetingPlaceOne !== null);
       for (let data of groupsFiltered) {
         const distance = distanceBetweenLocations(user, data.meetingPlaceOne);
-        if (distance < maxDistance) {
+        if (distance <= maxDistance) {
           groupsInRange.push(data);
         }
       }

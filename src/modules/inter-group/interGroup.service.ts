@@ -537,16 +537,21 @@ export class InterGroupService {
 
       userInGroup.forEach((element) => {
         groupId.push(element._id);
+        console.log('esto funciona');
       });
 
       for await (let element of groupId) {
+        console.log('funciona 1');
         const searchInterGroups = await this.interGroupModel.findOne({
-         confirmed: true, 
+          confirmed: true,
           $or: [{ groupSender: element }, { groupReceiver: element }]
         }).populate('groupSender').populate('groupReceiver').populate('meetingPlaceOne');
-        if (searchInterGroups !== null) await interGroups.push({ searchInterGroups });
+        if (searchInterGroups !== null) {
+          interGroups.push({ searchInterGroups });
+          console.log('funciona 2');
+        }
       }
-      return await interGroups;
+      return interGroups;
     } catch (error) {
       throw new Error(error.message);
     }
