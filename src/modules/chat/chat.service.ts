@@ -176,9 +176,13 @@ export class ChatService {
     }
   }
 
-  async getMeetingMessageGroup(name: any) {
+  async getMeetingMessageGroup(name: any, currentUser: any) {
     try {
-      const message = await this.messageModel.findOne({ name: name });
+      const message: any = await this.messageModel.findOne({ name: name });
+      if (message.readby !== currentUser._id) {
+      message.readBy.push(currentUser._id);
+      }
+      await message.save();
       return message;
     } catch (error) {
       throw new Error(error.message)
@@ -276,7 +280,7 @@ export class ChatService {
             chat.unreadMessages += invitations.length;
           }
           if (today == dateGroup) {
-            const message = await this.getMeetingMessageGroup(testGroup.name);
+            const message = await this.getMeetingMessageGroup(testGroup.name, currentUser);
             if (message) {
               chat.lastMessage = message;
             }
@@ -337,7 +341,7 @@ export class ChatService {
             if (interGroup.startDate) {
               const dateInterGroup = interGroup.startDate.getFullYear() + '-' + (interGroup.startDate.getMonth() + 1) + '-' + interGroup.startDate.getDate();
               if (today == dateInterGroup) {
-                const message = await this.getMeetingMessageGroup(interGroup.name);
+                const message = await this.getMeetingMessageGroup(interGroup.name, currentUser);
                 if (message) {
                   chat.lastMessage = message;
                 }
