@@ -22,6 +22,9 @@ export class Proposal {
   @Prop({type: mongoose.SchemaTypes.ObjectId, ref: 'TypeOfActivity' })
   proposalActivity: TypeOfActivity;
 
+  @Prop({})
+  proposalDescription: string;
+
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Group' })
   groupSender: Group;
 

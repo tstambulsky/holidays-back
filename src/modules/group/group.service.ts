@@ -158,7 +158,8 @@ export class GroupService {
       }
       const time = hours+':'+minutes;
       await this.chatService.createMeetingMessage(group.name, time, meeting.meetingPlaceOne.name);
-      return group;
+      const groupCreated = await this.getGroup(group._id);
+      return groupCreated;
     } catch (err) {
       throw new Error(err.message);
     }

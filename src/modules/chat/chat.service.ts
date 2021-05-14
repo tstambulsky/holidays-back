@@ -178,11 +178,13 @@ export class ChatService {
 
   async getMeetingMessageGroup(name: any, currentUser: any) {
     try {
-      const message: any = await this.messageModel.findOne({ name: name });
-      if (message.readby !== currentUser._id) {
+      const message = await this.messageModel.findOne({ name: name });
+       //@ts-ignore
+      if (message.readby != currentUser._id) {
+         //@ts-ignore
       message.readBy.push(currentUser._id);
-      }
       await message.save();
+      }
       return message;
     } catch (error) {
       throw new Error(error.message)
@@ -282,6 +284,7 @@ export class ChatService {
           }
           if (today == dateGroup) {
             const message = await this.getMeetingMessageGroup(testGroup.name, currentUser);
+            await message.save();
             if (message) {
               chat.lastMessage = message;
             }

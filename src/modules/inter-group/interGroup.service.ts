@@ -58,28 +58,22 @@ export class InterGroupService {
   async getInterGroupById(interGroupId: any) {
     try {
       let integrants = [];
-      let typeOfActivityGroupOne;
-      let typeOfActivityGroupTwo;
       const interGroup = await this.interGroupModel.findOne({ _id: interGroupId }).populate('groupSender').populate('groupReceiver').populate('meetingPlaceOne').populate('typeOfActivity');
       if (interGroup) {
         const groupOne = await this.groupService.getOneGroup({_id: interGroup.groupSender});
         if (groupOne) {
           const firstGroup = await this.groupService.getGroup(groupOne._id);
           integrants.push(firstGroup.integrants);
-          typeOfActivityGroupOne = firstGroup.typeOfActivity;
         }
         const groupTwo = await this.groupService.getOneGroup({_id: interGroup.groupReceiver});
         if (groupTwo) {
           const secondGroup = await this.groupService.getGroup(groupTwo._id);
           integrants.push(secondGroup.integrants);
-          typeOfActivityGroupTwo = secondGroup.typeOfActivity;
         }
       }
       return {
         interGroup,
-      integrants,
-      typeOfActivityGroupOne,
-      typeOfActivityGroupTwo
+      integrants
     };
     } catch (err) {
       throw new Error(err.message);
@@ -499,6 +493,8 @@ export class InterGroupService {
         interGroup.startDate = proposal.proposalStartDate;
         interGroup.endDate = proposal.proposalEndDate;
         interGroup.meetingPlaceOne = proposal.proposalPlace;
+        interGroup.tipeOfActivity = proposal.proposalActivity;
+        interGroup.description = proposal.proposalDescription;
         interGroup.active = true;
         await interGroup.save();
         const chat = await this.chatService.getInterGroup(proposal.interGroup);
