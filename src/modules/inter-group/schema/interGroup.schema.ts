@@ -3,6 +3,7 @@ import { Group } from '../../group/schema/group.schema';
 import { Meeting } from '../../meeting-place/schema/meetingPlace.schema';
 
 import * as mongoose from 'mongoose';
+import { TypeOfActivity } from 'src/modules/typeOfActivity/schema/typeOfActivity.schema';
 
 export type InterGroupDocument = InterGroup & mongoose.Document;
 
@@ -23,8 +24,8 @@ export class InterGroup {
   @Prop({ required: false })
   endDate: Date;
 
-  @Prop({})
-  tipeOfActivity: string;
+  @Prop({type: mongoose.SchemaTypes.ObjectId, ref: 'TypeOfActivity' })
+  tipeOfActivity: TypeOfActivity;
 
   @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'Meeting' })
   meetingPlaceOne: Meeting;
