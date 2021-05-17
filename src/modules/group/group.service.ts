@@ -702,11 +702,18 @@ export class GroupService {
       //const perPage = query.perpage || 50;
       //const page = query.page || 1;
       const groupsContacts = await this.userService.searchContact(users);
+      const facebookContacts = await this.userService.searchContactsFacebook(users);
       let allGroups = [];
       for await (let group of groupsContacts) {
-        const data = await this.groupModel.find({ active: true, integrants: group._id });
+        const data = await this.groupModel.find({ active: true, integrants: group._id }).populate('integrants');
         //skip: perPage * page - perPage,
         //take: perPage });
+        if (data) {
+          allGroups.push(data);
+        }
+      }
+      for await (let group of facebookContacts) {
+        const data = await this.groupModel.find({active: true, integrants: group._id}).populate('integrants');
         if (data) {
           allGroups.push(data);
         }

@@ -477,6 +477,8 @@ export class InterGroupService {
   async acceptOrRefuseProposal(data: acceptOrRefuseProposalDto, currentUser: any) {
     try {
       let integrantsOne = [];
+      let groupSender;
+      let groupReceiver;
       const { proposalId, accept } = data;
       const userId = currentUser._id;
       const proposal: any = await this.proposalModel.findOne({ _id: proposalId }).populate('groupSender').populate('groupReceiver').populate('proposalPlace');
@@ -489,7 +491,20 @@ export class InterGroupService {
       proposal.success = accept;
       await proposal.save();
       if (accept) {
-        const interGroup = await this.interGroupModel.findOne({ _id: proposal.interGroup });
+        const interGroup: any = await this.interGroupModel.findOne({ _id: proposal.interGroup }).populate('groupSender').populate('groupReceiver');
+        groupSender = await this.groupService.getGroup(interGroup.groupSender._id);
+        groupReceiver = await this.groupService.getGroup(interGroup.groupReceiver._id);
+        const proposalEndDate = proposal.proposalEndDate.getFullYear() + '-' + (proposal.proposalEndDate.getMonth() + 1) + '-' + proposal.proposalEndDate.getDate();
+        if (proposal.proposalEndDate.getFullYear() >= groupSender.endDate.getFullYear() && proposal.proposalEndDate.getMonth() >= groupSender.endDate.getMonth()
+         && proposal.proposalEndDate.getDate() >= groupSender.endDate.getDate()) {
+           groupSender.endDate = proposal.proposalEndDate;
+           await groupSender.save();
+         }
+          if (proposal.proposalEndDate.getFullYear() >= groupReceiver.endDate.getFullYear() && proposal.proposalEndDate.getMonth() >= groupReceiver.endDate.getMonth()
+         && proposal.proposalEndDate.getDate() >= groupReceiver.endDate.getDate()) {
+           groupReceiver.endDate = proposal.proposalEndDate;
+           await groupReceiver.save();
+         }
         interGroup.startDate = proposal.proposalStartDate;
         interGroup.endDate = proposal.proposalEndDate;
         interGroup.meetingPlaceOne = proposal.proposalPlace;
