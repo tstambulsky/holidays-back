@@ -278,7 +278,7 @@ export class InterGroupService {
       for await (let users of integrantsTwo) {
         const user = await this.usersService.findOneUser({ _id: users, active: true });
         if (user.deviceToken) {
-        await this.notificationService.sendInvitationToInterGroup(user.deviceToken, groupOne.name);
+        await this.notificationService.sendInvitationToInterGroup(user.deviceToken, groupOne.name, interGroupChat._id);
         }
       }
       await this.chatService.getAllChats(currentUser);
@@ -339,7 +339,7 @@ export class InterGroupService {
       for await (let users of integrantsOne) {
         const user = await this.usersService.findOneUser({ _id: users, active: true })
         if (user.deviceToken) {
-        await this.notificationService.sendAcceptInterGroup(user.deviceToken, secondGroup.name);
+        await this.notificationService.sendAcceptInterGroup(user.deviceToken, secondGroup.name, chat._id);
       }
     }
       await this.chatService.getAllChats(currentUser);
@@ -376,7 +376,7 @@ export class InterGroupService {
       for await (let users of integrantsOne) {
         const user = await this.usersService.findOneUser({ _id: users, active: true })
         if (user.deviceToken) {
-        await this.notificationService.sendNoAcceptInterGroup(user.deviceToken, invitation.groupReceiver.name);
+        await this.notificationService.sendNoAcceptInterGroup(user.deviceToken, invitation.groupReceiver.name, chat._id);
         }
       }
        await this.chatService.getAllChats(currentUser);
@@ -448,7 +448,7 @@ export class InterGroupService {
       for await (let users of integrantsTwo) {
         const user = await this.usersService.findOneUser({ _id: users, active: true })
         if (user.deviceToken) {
-        await this.notificationService.sendProposal(user.deviceToken, proposal.groupSender.name);
+        await this.notificationService.sendProposal(user.deviceToken, proposal.groupSender.name, chat._id);
       }
     }
       await this.chatService.getAllChats(currentUser);
@@ -527,11 +527,11 @@ export class InterGroupService {
             minutes = '0' + minutes;
           }
         const time = hours+':'+minutes;
-           await this.chatService.createMeetingMessage(interGroup.name, time, proposal.proposalPlace.name)
+           await this.chatService.createMeetingMessage(interGroup.name, time, proposal.proposalPlace.name, chat._id)
         for await (let users of integrantsOne) {
           const user = await this.usersService.findOneUser({ _id: users, active: true});
           if (user.deviceToken) {
-          await this.notificationService.sendAcceptProposal(user.deviceToken, proposal.groupReceiver.name);
+          await this.notificationService.sendAcceptProposal(user.deviceToken, proposal.groupReceiver.name, chat._id);
         }
       }
       } else {
@@ -542,7 +542,7 @@ export class InterGroupService {
         for await (let users of integrantsOne) {
           const user = await this.usersService.findOneUser({_id: users, active: true})
           if (user.deviceToken) {
-          await this.notificationService.sendNoAcceptPropoasl(user.deviceToken, proposal.groupReceiver.name);
+          await this.notificationService.sendNoAcceptPropoasl(user.deviceToken, proposal.groupReceiver.name, chat._id);
         }
       }
       }

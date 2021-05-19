@@ -82,7 +82,7 @@ export class NotificationService {
     }
   }
 
-  async sendAcceptGroup(token: string, name: any) {
+  async sendAcceptGroup(token: string, name: any, groupId: any) {
     try {
       const message = {
         notification: {
@@ -93,6 +93,7 @@ export class NotificationService {
         data: {
           title: 'Grupo aceptado',
           body: `Fuiste aceptado al grupo ${name}.`,
+          groupId: groupId,
           Emergency_category: 'Emergency'
         }
       };
@@ -105,7 +106,7 @@ export class NotificationService {
     }
   }
 
-  async sendNoAcceptGroup(token: string, name: any) {
+  async sendNoAcceptGroup(token: string, name: any, groupId: any) {
     try {
       const message = {
         notification: {
@@ -116,6 +117,7 @@ export class NotificationService {
         data: {
           title: 'Grupo no aceptado',
           body: `No fuiste aceptado al grupo ${name}.`,
+          groupId: groupId,
           Emergency_category: 'Emergency'
         }
       };
@@ -128,7 +130,7 @@ export class NotificationService {
     }
   }
 
-  async sendUserAccept(token: string, name: any, group: any) {
+  async sendUserAccept(token: string, name: any, group: any, groupId: any) {
     try {
       const message = {
         notification: {
@@ -139,6 +141,7 @@ export class NotificationService {
         data: {
           title: 'Solicitud de grupo aceptada',
           body: `El usuario ${name} ha aceptado la invitación al grupo ${group}.`,
+          groupId: groupId,
           Emergency_category: 'Emergency'
         }
       };
@@ -151,7 +154,7 @@ export class NotificationService {
     }
   }
 
-  async sendUserNoAccept(token: string, name: any, group: any) {
+  async sendUserNoAccept(token: string, name: any, group: any, userId: any) {
     try {
       const message = {
         notification: {
@@ -162,6 +165,7 @@ export class NotificationService {
         data: {
           title: 'Solicitud de grupo no aceptada',
           body: `El usuario ${name} no ha aceptado la invitación al grupo ${group}.`,
+          userId: userId,
           Emergency_category: 'Emergency'
         }
       };
@@ -175,7 +179,7 @@ export class NotificationService {
   }
 
 
-  async sendInvitationGroupToUser(token: string, group: any) {
+  async sendInvitationGroupToUser(token: string, group: any, groupId: any) {
     try {
       const message = {
         notification: {
@@ -186,6 +190,7 @@ export class NotificationService {
         data: {
           title: 'Invitacion de grupo',
           body:  `Has sido invitado al grupo ${group}.`,
+          groupId: groupId,
           Emergency_category: 'Emergency'
         }
       };
@@ -198,7 +203,7 @@ export class NotificationService {
     }
   }
 
-  async sendInvitationToAdmin(token: string, name: any, group: any) {
+  async sendInvitationToAdmin(token: string, name: any, group: any, groupId: any) {
     try {
       const message = {
         notification: {
@@ -209,6 +214,7 @@ export class NotificationService {
         data: {
           title: 'Solicitud de unión a grupo',
           body: `El usuario ${name} quiere unirse al grupo ${group}.`,
+          groupId: groupId,
           Emergency_category: 'Emergency'
         }
       };
@@ -221,7 +227,7 @@ export class NotificationService {
     }
   }
 
-   async sendInvitationToInterGroup(token: string, group: any) {
+   async sendInvitationToInterGroup(token: string, group: any, chatId: any) {
     try {
       const message = {
         notification: {
@@ -232,6 +238,7 @@ export class NotificationService {
         data: {
           title: 'Invitación a Inter Grupo',
           body: `El grupo ${group} quiere formar un Inter Grupo!`,
+          chatId: chatId,
           Emergency_category: 'Emergency'
         }
       };
@@ -244,7 +251,7 @@ export class NotificationService {
     }
   }
 
-   async sendAcceptInterGroup(token: string, group: any) {
+   async sendAcceptInterGroup(token: string, group: any, chatId: any) {
     try {
       const message = {
         notification: {
@@ -255,6 +262,7 @@ export class NotificationService {
         data: {
           title: 'Inter Grupo aceptado',
           body: `El grupo ${group} aceptó la invitación al inter grupo.`,
+          chatId: chatId,
           Emergency_category: 'Emergency'
         }
       };
@@ -267,7 +275,7 @@ export class NotificationService {
     }
   }
 
-   async sendNoAcceptInterGroup(token: string, group: any) {
+   async sendNoAcceptInterGroup(token: string, group: any, chatId: any) {
     try {
       const message = {
         notification: {
@@ -278,6 +286,7 @@ export class NotificationService {
         data: {
           title: 'Inter Grupo no aceptado',
           body: `El grupo ${group} no aceptó la invitación al inter grupo.`,
+          chatId: chatId,
           Emergency_category: 'Emergency'
         }
       };
@@ -290,7 +299,7 @@ export class NotificationService {
     }
   }
 
-  async sendProposal(token: string, group: any) {
+  async sendProposal(token: string, group: any, chatId: any) {
     try {
       const message = {
         notification: {
@@ -301,6 +310,7 @@ export class NotificationService {
         data: {
           title: 'Propuesta de juntada',
           body: `El grupo ${group} ha enviado una propuesta de juntada!`,
+          chatId: chatId,
           Emergency_category: 'Emergency'
         }
       };
@@ -313,7 +323,7 @@ export class NotificationService {
     }
   }
 
-  async sendAcceptProposal(token: string, group: any) {
+  async sendAcceptProposal(token: string, group: any, chatId: any) {
     try {
       const message = {
         notification: {
@@ -324,6 +334,7 @@ export class NotificationService {
         data: {
           title: 'Propuesta de juntada',
           body: `El grupo ${group} ha aceptado la propuesta de juntada!`,
+          chatId: chatId,
           Emergency_category: 'Emergency'
         }
       };
@@ -336,7 +347,7 @@ export class NotificationService {
     }
   }
 
-   async sendNoAcceptPropoasl(token: string, group: any) {
+   async sendNoAcceptPropoasl(token: string, group: any, chatId: any) {
     try {
       const message = {
         notification: {
@@ -347,6 +358,7 @@ export class NotificationService {
         data: {
           title: 'Propuesta de juntada',
           body: `El grupo ${group} no ha aceptado la propuesta de juntada.`,
+          chatId: chatId,
           Emergency_category: 'Emergency'
         }
       };
@@ -359,7 +371,7 @@ export class NotificationService {
     }
   }
 
-  async sendNewChatMessage(token: string, group: any) {
+  async sendNewChatMessage(token: string, group: any, chatId: any) {
     try {
       const message = {
         notification: {
@@ -370,6 +382,7 @@ export class NotificationService {
         data: {
           title: 'Tienes mensajes nuevos sin leer',
           body: `Nuevos mensajes en ${group}.`,
+          chatId: chatId,
           Emergency_category: 'Emergency'
         }
       };

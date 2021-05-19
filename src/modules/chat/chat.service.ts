@@ -163,13 +163,15 @@ export class ChatService {
     }
   }
 
-  async createMeetingMessage(name: any, time: any, meeting: any) {
+  async createMeetingMessage(name: any, time: any, meeting: any, chatId: any) {
     try {
       const message = new this.messageModel({
         content: `Juntada: Hoy a las ${time} en ${meeting}`,
-        name
+        name,
+        chat: chatId
       });
       await message.save();
+      console.log(message);
       return message;
     } catch (error) {
       throw new Error(error.message)
@@ -180,7 +182,7 @@ export class ChatService {
     try {
       const message = await this.messageModel.findOne({ name: name });
        //@ts-ignore
-      if (message.readby != currentUser._id) {
+      if (message.readby !== currentUser._id) {
          //@ts-ignore
       message.readBy.push(currentUser._id);
       await message.save();
@@ -498,7 +500,7 @@ export class ChatService {
     for await (let users of integrants) {
       const findUser = await this.usersService.findOneUser({ _id: users, active: true })
       if (findUser.deviceToken) {
-        await this.notificationService.sendNewChatMessage(findUser.deviceToken, group.name);
+        await this.notificationService.sendNewChatMessage(findUser.deviceToken, group.name, chat._id);
       }
     }
     return newMessage;
@@ -574,13 +576,13 @@ export class ChatService {
     for await (let users of integrantsOne) {
       const user = await this.usersService.findOneUser({ _id: users, active: true });
       if (user.deviceToken) {
-        await this.notificationService.sendNewChatMessage(user.deviceToken, chat.name);
+        await this.notificationService.sendNewChatMessage(user.deviceToken, chat.name, chat._id);
       }
     }
     for await (let users of integrantsTwo) {
       const user = await this.usersService.findOneUser({ _id: users, active: true });
       if (user.deviceToken) {
-        await this.notificationService.sendNewChatMessage(user.deviceToken, chat.name);
+        await this.notificationService.sendNewChatMessage(user.deviceToken, chat.name, chat._id);
       }
     }
     return newMessage;
@@ -643,13 +645,13 @@ export class ChatService {
     if (chat.adminUser._id == userId) {
       const user = await this.usersService.findOneUser({ _id: chat.user._id, active: true })
       if (user.deviceToken) {
-        await this.notificationService.sendNewChatMessage(user.deviceToken, chat.name);
+        await this.notificationService.sendNewChatMessage(user.deviceToken, chat.name, chat._id);
       }
     }
     if (chat.adminUser._id != userId) {
       const user = await this.usersService.findOneUser({ _id: chat.adminUser._id, active: true })
       if (user.deviceToken) {
-        await this.notificationService.sendNewChatMessage(user.deviceToken, chat.name);
+        await this.notificationService.sendNewChatMessage(user.deviceToken, chat.name, chat._id);
       }
     }
     return newMessage;
