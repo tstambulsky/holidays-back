@@ -603,6 +603,32 @@ export class InterGroupService {
     }
   }
 
+
+   async getMyPreviousInactiveInterGroups(currentUser: any) {
+    try {
+      let groupId = [];
+      let interGroups = [];
+
+      const userInGroup: any = await this.groupService.getPreviousUserGroups(currentUser);
+
+      userInGroup.forEach((element) => {
+        groupId.push(element._id);
+      });
+
+      for await (let element of groupId) {
+        const searchInterGroups = await this.interGroupModel.findOne({
+          active: false,
+          confirmed: false,
+          $or: [{ groupSender: element }, { groupReceiver: element }]
+        }).populate('groupSender').populate('groupReceiver');
+        if (searchInterGroups !== null) await interGroups.push({ searchInterGroups });
+      }
+      return await interGroups;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
   async getMyIntergroupsNoActives(currentUser: any) {
     try {
       let groupId = [];

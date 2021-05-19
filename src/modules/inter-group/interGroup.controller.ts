@@ -228,7 +228,7 @@ export class InterGroupController {
   @Get('/previous/intergroups')
   async getPreviousInterGroups (@Res() res, @CurrentUser() user) {
     try {
-      const response = await this.interGroupService.getMyPreviousIntergroups(user);
+      const response = await this.interGroupService.getMyPreviousInactiveInterGroups(user);
       return res.status(HttpStatus.OK).json({
         response
       });
