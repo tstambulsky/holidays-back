@@ -185,8 +185,8 @@ export class ChatService {
       if (message.readby !== currentUser._id) {
          //@ts-ignore
       message.readBy.push(currentUser._id);
-      await message.save();
       }
+      await message.save();
       return message;
     } catch (error) {
       throw new Error(error.message)
