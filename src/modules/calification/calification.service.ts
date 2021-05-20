@@ -51,7 +51,6 @@ export class CalificationService {
       const userInGruoupTwo = await this.groupService.getOneUserWithGroupInactive(currentUser, groupTwo);
       if (userInGruoupTwo) {
       for await (let integrant of groupOne.integrants) {
-        console.log(integrant);
         const calification = await this.calificationModel.findOne({fromUser: userId, toUser: integrant._id, interGroup: interGroupId});
         if (!calification && integrant._id !== userId) {
           usersWithoutCalification.push(integrant._id);
@@ -59,7 +58,6 @@ export class CalificationService {
       }
     } if (userInGruoup) {
       for await (let integrant of groupTwo.integrants) {
-        console.log(integrant);
         const calification = await this.calificationModel.findOne({fromUser: userId, toUser: integrant._id, interGroup: interGroupId});
         if (!calification && integrant._id !== userId) {
           usersWithoutCalification.push(integrant._id);
