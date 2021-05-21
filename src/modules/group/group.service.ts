@@ -661,12 +661,13 @@ export class GroupService {
       const userId = currentUser._id;
       const user = await this.userService.getUserById(userId);
       if (!user || !user.latitude) throw new Error('We dont have information about this user');
-      const allGroups = await this.groupModel.find({ active: true }).populate('meetingPlaceOne');
+      await this.searchNearbyAndDistance(currentUser);
+      const allGroups = await this.groupModel.find({ active: true }).sort({distance: 1}).populate('meetingPlaceOne');
       let groupsInRange = [];
       const groupsFiltered = allGroups.filter((element) => element.meetingPlaceOne !== null);
       for (let data of groupsFiltered) {
         const distance = distanceBetweenLocations(user, data.meetingPlaceOne);
-        if (distance < 100) {
+        if (distance <= 100) {
           groupsInRange.push(data);
         }
       }
