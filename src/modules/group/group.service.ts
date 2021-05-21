@@ -137,6 +137,11 @@ export class GroupService {
       const userId = currentUser._id;
       const ifExist = await this.groupModel.findOne({ active: true, name: groupDTO.name });
       if (ifExist) throw new HttpException('Name already exist', 404);
+      const date = moment().subtract(3, 'hours');
+      const dateOfGroup = new Date(groupDTO.startDate);
+      if (dateOfGroup <= date) {
+        throw new Error('You cannot enter a past date or time.');
+      };
       const group = new this.groupModel(groupDTO);
       group.admin = userId;
       group.groupCreatedBy = userId;
@@ -147,7 +152,7 @@ export class GroupService {
       if(!valid) throw new HttpException('You have another group at the same time', 404);
       await group.save();
       const meeting = await this.groupModel.findOne({ _id: group._id}).populate('meetingPlaceOne');
-      await this.chatService.createGroupChat(group._id);
+      const chat = await this.chatService.createGroupChat(group._id);
       let hours = '' + group.startDate.getHours();
       if (hours.length == 1) {
          hours = '0' + hours;
@@ -157,8 +162,9 @@ export class GroupService {
          minutes = '0' + minutes;
       }
       const time = hours+':'+minutes;
-      await this.chatService.createMeetingMessage(group.name, time, meeting.meetingPlaceOne.name);
-      return group;
+      await this.chatService.createMeetingMessage(group.name, time, meeting.meetingPlaceOne.name, chat._id);
+      const groupCreated = await this.getGroup(group._id);
+      return groupCreated;
     } catch (err) {
       throw new Error(err.message);
     }
@@ -341,7 +347,7 @@ export class GroupService {
       }
       if (fromAdmin == true) {
         if (userExist.deviceToken) {
-        await this.notificationService.sendInvitationGroupToUser(userExist.deviceToken, groupExist.name);
+        await this.notificationService.sendInvitationGroupToUser(userExist.deviceToken, groupExist.name, groupExist._id);
         }
       } if (fromAdmin == false) {
         await this.chatService.createGroupMessage(chatGroup._id, user);
@@ -352,7 +358,7 @@ export class GroupService {
         for await (let users of integrants) {
           const user = await this.userService.findOneUser({_id: users, active: true});
           if(user.deviceToken) {
-             await this.notificationService.sendInvitationToAdmin(user.deviceToken, name, groupExist.name);
+             await this.notificationService.sendInvitationToAdmin(user.deviceToken, name, groupExist.name, groupExist._id);
         }
           }
         }
@@ -428,7 +434,7 @@ export class GroupService {
       chats.active = false;
       await chats.save();
       if (user.deviceToken) {
-       await this.notificationService.sendAcceptGroup(user.deviceToken, group.name);
+       await this.notificationService.sendAcceptGroup(user.deviceToken, group.name, group._id);
       }
        await this.chatService.getAllChats(currentUser);
       return {
@@ -455,7 +461,7 @@ export class GroupService {
       await chat.save();
       const user = await this.userService.findOneUser({_id: invitation.user, active: true});
       if (user.deviceToken) {
-      await this.notificationService.sendNoAcceptGroup(user.deviceToken, group.name);
+      await this.notificationService.sendNoAcceptGroup(user.deviceToken, group.name, group._id);
       }
        await this.chatService.getAllChats(currentUser);
       return {
@@ -512,7 +518,7 @@ export class GroupService {
         for await (let users of integrants){
           const user = await this.userService.findOneUser({_id: users, active: true});
           if (user.deviceToken) {
-        await this.notificationService.sendUserAccept(user.deviceToken, name, group.name);
+        await this.notificationService.sendUserAccept(user.deviceToken, name, group.name, group._id);
           }
         }
       } else {
@@ -523,7 +529,7 @@ export class GroupService {
          for await (let users of integrants){
           const user = await this.userService.findOneUser({_id: users, active: true});
           if (user.deviceToken) {
-        await this.notificationService.sendUserNoAccept(user.deviceToken, name, group.name);
+        await this.notificationService.sendUserNoAccept(user.deviceToken, name, group.name, userId);
           }
       }
     }
@@ -655,12 +661,13 @@ export class GroupService {
       const userId = currentUser._id;
       const user = await this.userService.getUserById(userId);
       if (!user || !user.latitude) throw new Error('We dont have information about this user');
-      const allGroups = await this.groupModel.find({ active: true }).populate('meetingPlaceOne');
+      await this.searchNearbyAndDistance(currentUser);
+      const allGroups = await this.groupModel.find({ active: true }).sort({distance: 1}).populate('meetingPlaceOne');
       let groupsInRange = [];
       const groupsFiltered = allGroups.filter((element) => element.meetingPlaceOne !== null);
       for (let data of groupsFiltered) {
         const distance = distanceBetweenLocations(user, data.meetingPlaceOne);
-        if (distance < 100) {
+        if (distance <= 100) {
           groupsInRange.push(data);
         }
       }
@@ -701,15 +708,22 @@ export class GroupService {
       //const perPage = query.perpage || 50;
       //const page = query.page || 1;
       const groupsContacts = await this.userService.searchContact(users);
+      //const facebookContacts = await this.userService.searchContactsFacebook(users);
       let allGroups = [];
       for await (let group of groupsContacts) {
-        const data = await this.groupModel.find({ active: true, integrants: group._id });
+        const data = await this.groupModel.find({ active: true, integrants: group._id }).populate('integrants');
         //skip: perPage * page - perPage,
         //take: perPage });
         if (data) {
           allGroups.push(data);
         }
       }
+      /*for await (let group of facebookContacts) {
+        const data = await this.groupModel.find({active: true, integrants: group._id}).populate('integrants');
+        if (data) {
+          allGroups.push(data);
+        }
+      }*/
       return allGroups;
     } catch (error) {
       throw new Error(error.message);

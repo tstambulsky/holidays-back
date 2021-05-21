@@ -195,6 +195,22 @@ export class UsersService {
     }
   }
 
+  async searchContactsFacebook(users: any[]) {
+    try {
+      let allUsers = [];
+      const usersFiltered = users.filter((element) => element.email !== null && element.provider_id !== null);
+      for await (let user of usersFiltered) {
+        const data = await this.userModel.findOne({ active: true,  $or: [{ email: user.email }, { provider_id: user.provider._id }] });
+        if (data !== null) {
+          allUsers.push(data);
+        }
+      }
+      return allUsers;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
   async searchByName(name: queryDTO) {
     try {
       if (name.name.length === 0) throw new HttpException('Please, insert a name', 404);

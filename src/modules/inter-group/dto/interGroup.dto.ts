@@ -43,6 +43,8 @@ export class newProposalDto {
   readonly proposalStartDate: Date;
   readonly proposalEndDate: Date;
   readonly proposalPlace: Meeting;
+  readonly proposalActivity: TypeOfActivity;
+  readonly proposalDescription: string;
   groupSender?: Group;
   groupReceiver?: Group;
 }

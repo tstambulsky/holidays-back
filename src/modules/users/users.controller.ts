@@ -143,6 +143,20 @@ export class UsersController {
     }
   }
 
+  @Post('/search/contactsfb')
+  async getContactsFb(@Res() res, @Body() users: contactsDTO) {
+    try {
+      const response = await this.userService.searchContactsFacebook(users.users);
+      return res.status(HttpStatus.OK).json({
+        response
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        error: err.message
+      });
+    }
+  }
+
   @Get('/search/user')
   async getByName(@Res() res, @Query() name: queryDTO) {
     try {

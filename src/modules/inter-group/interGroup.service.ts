@@ -58,17 +58,17 @@ export class InterGroupService {
   async getInterGroupById(interGroupId: any) {
     try {
       let integrants = [];
-      const interGroup = await this.interGroupModel.findOne({ _id: interGroupId }).populate('groupSender').populate('groupReceiver').populate('meetingPlaceOne');
+      const interGroup = await this.interGroupModel.findOne({ _id: interGroupId }).populate('groupSender').populate('groupReceiver').populate('meetingPlaceOne').populate('typeOfActivity');
       if (interGroup) {
         const groupOne = await this.groupService.getOneGroup({_id: interGroup.groupSender});
         if (groupOne) {
-          const fistGroup = await this.groupService.getGroup(groupOne._id);
-          integrants.push(fistGroup.integrants)
+          const firstGroup = await this.groupService.getGroup(groupOne._id);
+          integrants.push(firstGroup.integrants);
         }
         const groupTwo = await this.groupService.getOneGroup({_id: interGroup.groupReceiver});
         if (groupTwo) {
           const secondGroup = await this.groupService.getGroup(groupTwo._id);
-          integrants.push(secondGroup.integrants)
+          integrants.push(secondGroup.integrants);
         }
       }
       return {
@@ -278,7 +278,7 @@ export class InterGroupService {
       for await (let users of integrantsTwo) {
         const user = await this.usersService.findOneUser({ _id: users, active: true });
         if (user.deviceToken) {
-        await this.notificationService.sendInvitationToInterGroup(user.deviceToken, groupOne.name);
+        await this.notificationService.sendInvitationToInterGroup(user.deviceToken, groupOne.name, interGroupChat._id);
         }
       }
       await this.chatService.getAllChats(currentUser);
@@ -339,7 +339,7 @@ export class InterGroupService {
       for await (let users of integrantsOne) {
         const user = await this.usersService.findOneUser({ _id: users, active: true })
         if (user.deviceToken) {
-        await this.notificationService.sendAcceptInterGroup(user.deviceToken, secondGroup.name);
+        await this.notificationService.sendAcceptInterGroup(user.deviceToken, secondGroup.name, chat._id);
       }
     }
       await this.chatService.getAllChats(currentUser);
@@ -376,7 +376,7 @@ export class InterGroupService {
       for await (let users of integrantsOne) {
         const user = await this.usersService.findOneUser({ _id: users, active: true })
         if (user.deviceToken) {
-        await this.notificationService.sendNoAcceptInterGroup(user.deviceToken, invitation.groupReceiver.name);
+        await this.notificationService.sendNoAcceptInterGroup(user.deviceToken, invitation.groupReceiver.name, chat._id);
         }
       }
        await this.chatService.getAllChats(currentUser);
@@ -448,7 +448,7 @@ export class InterGroupService {
       for await (let users of integrantsTwo) {
         const user = await this.usersService.findOneUser({ _id: users, active: true })
         if (user.deviceToken) {
-        await this.notificationService.sendProposal(user.deviceToken, proposal.groupSender.name);
+        await this.notificationService.sendProposal(user.deviceToken, proposal.groupSender.name, chat._id);
       }
     }
       await this.chatService.getAllChats(currentUser);
@@ -477,6 +477,8 @@ export class InterGroupService {
   async acceptOrRefuseProposal(data: acceptOrRefuseProposalDto, currentUser: any) {
     try {
       let integrantsOne = [];
+      let groupSender;
+      let groupReceiver;
       const { proposalId, accept } = data;
       const userId = currentUser._id;
       const proposal: any = await this.proposalModel.findOne({ _id: proposalId }).populate('groupSender').populate('groupReceiver').populate('proposalPlace');
@@ -489,10 +491,25 @@ export class InterGroupService {
       proposal.success = accept;
       await proposal.save();
       if (accept) {
-        const interGroup = await this.interGroupModel.findOne({ _id: proposal.interGroup });
+        const interGroup: any = await this.interGroupModel.findOne({ _id: proposal.interGroup }).populate('groupSender').populate('groupReceiver');
+        groupSender = await this.groupService.getGroup(interGroup.groupSender._id);
+        groupReceiver = await this.groupService.getGroup(interGroup.groupReceiver._id);
+        const proposalEndDate = proposal.proposalEndDate.getFullYear() + '-' + (proposal.proposalEndDate.getMonth() + 1) + '-' + proposal.proposalEndDate.getDate();
+        if (proposal.proposalEndDate.getFullYear() >= groupSender.endDate.getFullYear() && proposal.proposalEndDate.getMonth() >= groupSender.endDate.getMonth()
+         && proposal.proposalEndDate.getDate() >= groupSender.endDate.getDate()) {
+           groupSender.endDate = proposal.proposalEndDate;
+           await groupSender.save();
+         }
+          if (proposal.proposalEndDate.getFullYear() >= groupReceiver.endDate.getFullYear() && proposal.proposalEndDate.getMonth() >= groupReceiver.endDate.getMonth()
+         && proposal.proposalEndDate.getDate() >= groupReceiver.endDate.getDate()) {
+           groupReceiver.endDate = proposal.proposalEndDate;
+           await groupReceiver.save();
+         }
         interGroup.startDate = proposal.proposalStartDate;
         interGroup.endDate = proposal.proposalEndDate;
         interGroup.meetingPlaceOne = proposal.proposalPlace;
+        interGroup.tipeOfActivity = proposal.proposalActivity;
+        interGroup.description = proposal.proposalDescription;
         interGroup.active = true;
         await interGroup.save();
         const chat = await this.chatService.getInterGroup(proposal.interGroup);
@@ -510,11 +527,11 @@ export class InterGroupService {
             minutes = '0' + minutes;
           }
         const time = hours+':'+minutes;
-           await this.chatService.createMeetingMessage(interGroup.name, time, proposal.proposalPlace.name)
+           await this.chatService.createMeetingMessage(interGroup.name, time, proposal.proposalPlace.name, chat._id)
         for await (let users of integrantsOne) {
           const user = await this.usersService.findOneUser({ _id: users, active: true});
           if (user.deviceToken) {
-          await this.notificationService.sendAcceptProposal(user.deviceToken, proposal.groupReceiver.name);
+          await this.notificationService.sendAcceptProposal(user.deviceToken, proposal.groupReceiver.name, chat._id);
         }
       }
       } else {
@@ -525,7 +542,7 @@ export class InterGroupService {
         for await (let users of integrantsOne) {
           const user = await this.usersService.findOneUser({_id: users, active: true})
           if (user.deviceToken) {
-          await this.notificationService.sendNoAcceptPropoasl(user.deviceToken, proposal.groupReceiver.name);
+          await this.notificationService.sendNoAcceptPropoasl(user.deviceToken, proposal.groupReceiver.name, chat._id);
         }
       }
       }
@@ -576,6 +593,32 @@ export class InterGroupService {
         const searchInterGroups = await this.interGroupModel.findOne({
           active: false,
           confirmed: true,
+          $or: [{ groupSender: element }, { groupReceiver: element }]
+        }).populate('groupSender').populate('groupReceiver');
+        if (searchInterGroups !== null) await interGroups.push({ searchInterGroups });
+      }
+      return await interGroups;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+
+   async getMyPreviousInactiveInterGroups(currentUser: any) {
+    try {
+      let groupId = [];
+      let interGroups = [];
+
+      const userInGroup: any = await this.groupService.getPreviousUserGroups(currentUser);
+
+      userInGroup.forEach((element) => {
+        groupId.push(element._id);
+      });
+
+      for await (let element of groupId) {
+        const searchInterGroups = await this.interGroupModel.findOne({
+          active: false,
+          confirmed: false,
           $or: [{ groupSender: element }, { groupReceiver: element }]
         }).populate('groupSender').populate('groupReceiver');
         if (searchInterGroups !== null) await interGroups.push({ searchInterGroups });

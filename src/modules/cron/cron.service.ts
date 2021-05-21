@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { GroupService } from '../group/group.service';
 import { InterGroupService } from '../inter-group/interGroup.service';
+const momoent = require('moment');
+
 
 @Injectable()
 export class CronService {
@@ -15,7 +17,7 @@ export class CronService {
     try {
       const groups = await this.groupService.getGroups();
       for await (let group of groups) {
-        const endDate = group.endDate ? group.endDate.getTime() : null;
+        const endDate = group.endDate ? group.endDate.getTime()+10800000 : null;
         const now = new Date().getTime();
         if (endDate < now || !endDate) {
           console.log('Change to inactive group: ', group.name);
@@ -33,7 +35,7 @@ export class CronService {
     try {
       const intergroups = await this.intergroupService.getInterGroups();
       for await (let inter of intergroups) {
-        const endDate = inter.endDate ? inter.endDate.getTime() : null;
+        const endDate = inter.endDate ? inter.endDate.getTime()+10800000 : null;
         const now = new Date().getTime();
         if (endDate < now || !endDate) {
           console.log('Change to inactive intergroup: ', inter.name);
