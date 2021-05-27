@@ -135,7 +135,7 @@ export class GroupService {
   async createGroup(groupDTO: GroupDTO, currentUser: any): Promise<Group> {
     try {
       const userId = currentUser._id;
-      const ifExist = await this.groupModel.findOne({ active: true, name: groupDTO.name });
+      const ifExist = await this.groupModel.findOne({ name: groupDTO.name });
       if (ifExist) throw new HttpException('Name already exist', 404);
       const date = moment().subtract(3, 'hours');
       const dateOfGroup = new Date(groupDTO.startDate);

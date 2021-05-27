@@ -190,7 +190,7 @@ export class NotificationService {
         data: {
           title: 'Invitacion de grupo',
           body:  `Has sido invitado al grupo ${group}.`,
-          groupId: groupId,
+          groupId: `${groupId}`,
           Emergency_category: 'Emergency'
         }
       };
@@ -214,7 +214,7 @@ export class NotificationService {
         data: {
           title: 'Solicitud de unión a grupo',
           body: `El usuario ${name} quiere unirse al grupo ${group}.`,
-          groupId: groupId,
+          groupId: `${groupId}`,
           Emergency_category: 'Emergency'
         }
       };
@@ -238,7 +238,7 @@ export class NotificationService {
         data: {
           title: 'Invitación a Inter Grupo',
           body: `El grupo ${group} quiere formar un Inter Grupo!`,
-          chatId: chatId,
+          chatId: `${chatId}`,
           Emergency_category: 'Emergency'
         }
       };
@@ -262,7 +262,7 @@ export class NotificationService {
         data: {
           title: 'Inter Grupo aceptado',
           body: `El grupo ${group} aceptó la invitación al inter grupo.`,
-          chatId: chatId,
+          chatId: `${chatId}`,
           Emergency_category: 'Emergency'
         }
       };
@@ -286,7 +286,7 @@ export class NotificationService {
         data: {
           title: 'Inter Grupo no aceptado',
           body: `El grupo ${group} no aceptó la invitación al inter grupo.`,
-          chatId: chatId,
+          chatId: `${chatId}`,
           Emergency_category: 'Emergency'
         }
       };
@@ -310,7 +310,7 @@ export class NotificationService {
         data: {
           title: 'Propuesta de juntada',
           body: `El grupo ${group} ha enviado una propuesta de juntada!`,
-          chatId: chatId,
+          chatId: `${chatId}`,
           Emergency_category: 'Emergency'
         }
       };
@@ -334,7 +334,7 @@ export class NotificationService {
         data: {
           title: 'Propuesta de juntada',
           body: `El grupo ${group} ha aceptado la propuesta de juntada!`,
-          chatId: chatId,
+          chatId: `${chatId}`,
           Emergency_category: 'Emergency'
         }
       };
@@ -358,7 +358,7 @@ export class NotificationService {
         data: {
           title: 'Propuesta de juntada',
           body: `El grupo ${group} no ha aceptado la propuesta de juntada.`,
-          chatId: chatId,
+          chatId: `${chatId}`,
           Emergency_category: 'Emergency'
         }
       };
@@ -382,7 +382,7 @@ export class NotificationService {
         data: {
           title: 'Tienes mensajes nuevos sin leer',
           body: `Nuevos mensajes en ${group}.`,
-          chatId: chatId,
+          chatId: `${chatId}`,
           Emergency_category: 'Emergency'
         }
       };
