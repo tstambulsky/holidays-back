@@ -53,7 +53,7 @@ export class SearchByDistanceDto {
 }
 
 export class NewAdminDto {
-  readonly adminId: User;
+  readonly user: User;
   readonly groupId: Group;
 }
 

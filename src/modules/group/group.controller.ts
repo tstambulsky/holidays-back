@@ -353,7 +353,7 @@ export class GroupController {
   @Post('/new/admin')
   async newAdmin(@Res() res, @Body() data: NewAdminDto, @CurrentUser() user): Promise<string> {
     try {
-      const response = await this.groupService.setNewAdmin(data, user);
+      const response = await this.groupService.setNewAdmin(user, data);
       return res.status(HttpStatus.OK).json({
         message: 'Admin seted',
         response

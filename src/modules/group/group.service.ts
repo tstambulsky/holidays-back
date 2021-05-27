@@ -679,12 +679,12 @@ export class GroupService {
 
   async setNewAdmin(currentUser: any, data: NewAdminDto) {
     try {
-      const { adminId, groupId } = data;
+      const { user, groupId } = data;
       const userId = currentUser._id;
       const group = await this.groupModel.findOne({ _id: groupId, active: true });
       if (!group) throw new Error('This group does not exist');
       if (group.admin != userId) throw new Error('You dont have permission to set a new Admin');
-      group.admin = adminId;
+      group.admin = user;
       await group.save();
       return 'New Admin seted';
     } catch (error) {
