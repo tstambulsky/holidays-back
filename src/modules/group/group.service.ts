@@ -275,6 +275,7 @@ export class GroupService {
 
   async searchGroupByName(name: string): Promise<Group[]> {
     try {
+      let groups = [];
       const searchGroup = await this.groupModel
         .find({ name: new RegExp(name, 'i') }, { active: true, name: 1, description: 1, typeOfActivity: 1 })
         .populate('integrants')
@@ -282,8 +283,19 @@ export class GroupService {
         .populate('meetingPlaceTwo')
         .populate('typeOfActivity')
         .exec();
-      if (!searchGroup) throw new HttpException('Not Found', 404);
-      return searchGroup;
+      if (!searchGroup) throw new Error('No have results');
+          else {
+        groups.push(searchGroup)
+      }
+      const groupsDescription = await this.groupModel.find({ description: new RegExp(name, 'i') }, { active: true, name: 1, description: 1, typeOfActivity: 1 }).populate('integrants')
+        .populate('meetingPlaceOne')
+        .populate('meetingPlaceTwo')
+        .populate('typeOfActivity')
+          if (!groupsDescription) throw new Error('No have results');
+          else {
+        groups.push(groupsDescription)
+      }
+      return groups;
     } catch (err) {
       throw new Error(err.message);
     }
@@ -805,6 +817,24 @@ export class GroupService {
       return groupsToday;
     } catch (error) {
       throw new Error(error.message);
+    }
+  }
+
+  async searchByIntergrants(integrants: any) {
+    try {
+      let allGroups = [];
+      const groups: any = await this.groupModel.find({ active: true }).populate('integrants')
+        .populate('meetingPlaceOne')
+        .populate('admin')
+        .populate('typeOfActivity');
+      for await (let group of groups) {
+        if (group.integrants.length <= integrants) {
+          allGroups.push(group);
+        }
+      }
+      return allGroups;
+    } catch (error) {
+      throw new Error(error.message)
     }
   }
 

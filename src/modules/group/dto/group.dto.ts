@@ -52,6 +52,10 @@ export class SearchByDistanceDto {
   readonly distance: number;
 }
 
+export class searchByIntegrants {
+  readonly integrants: number;
+}
+
 export class NewAdminDto {
   readonly user: User;
   readonly groupId: Group;

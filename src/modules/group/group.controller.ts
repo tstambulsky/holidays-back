@@ -25,6 +25,7 @@ import {
   AceptOrRefuseDTO,
   SearchByDistanceDto,
   NewAdminDto,
+  searchByIntegrants
 } from './dto/group.dto';
 import { CurrentUser } from '../users/decorators/currentUser';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -510,4 +511,21 @@ export class GroupController {
       })
     }
   }
+  @Get('/search/integrants')
+  async searchByIntegrants(@Res() res, @Query() integrants: searchByIntegrants): Promise<Group[]> {
+    try {
+      const getGroup = await this.groupService.searchByIntergrants(integrants.integrants);
+      return res.status(HttpStatus.OK).json({
+        message: 'List of groups',
+        groups: getGroup
+      });
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'An error has ocurred',
+        err: err.message
+      });
+    }
+  }
+
+
 }
