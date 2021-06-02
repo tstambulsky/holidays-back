@@ -93,10 +93,9 @@ export class NotificationService {
         data: {
           title: 'Grupo aceptado',
           body: `Fuiste aceptado al grupo ${name}.`,
-          Emergency_category: 'Emergency'
-        },
-        groupId: groupId,
-
+          Emergency_category: 'Emergency',
+          groupId: `Here is the groupId ${groupId}`
+        }
       };
       await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
@@ -118,9 +117,9 @@ export class NotificationService {
         data: {
           title: 'Grupo no aceptado',
           body: `No fuiste aceptado al grupo ${name}.`,
-          Emergency_category: 'Emergency'
-        },
-         groupId: groupId,
+          Emergency_category: 'Emergency',
+          groupId: `Here is the groupId ${groupId}`
+        }
       };
       await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
@@ -142,9 +141,9 @@ export class NotificationService {
         data: {
           title: 'Solicitud de grupo aceptada',
           body: `El usuario ${name} ha aceptado la invitación al grupo ${group}.`,
-          Emergency_category: 'Emergency'
-        },
-        groupId: groupId,
+          Emergency_category: 'Emergency',
+          groupId: `Here is the groupId ${groupId}`
+        }
       };
       await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
@@ -166,9 +165,9 @@ export class NotificationService {
         data: {
           title: 'Solicitud de grupo no aceptada',
           body: `El usuario ${name} no ha aceptado la invitación al grupo ${group}.`,
-          Emergency_category: 'Emergency'
-        },
-        userId: userId,
+          Emergency_category: 'Emergency',
+          userId: `Here is the userId ${userId}`
+        }
       };
       await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
@@ -191,9 +190,9 @@ export class NotificationService {
         data: {
           title: 'Invitacion de grupo',
           body:  `Has sido invitado al grupo ${group}.`,
-          Emergency_category: 'Emergency'
-        },
-        groupId: groupId,
+          Emergency_category: 'Emergency',
+          groupId: `Here is the groupId ${groupId}`
+        }
       };
       await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
@@ -215,9 +214,9 @@ export class NotificationService {
         data: {
           title: 'Solicitud de unión a grupo',
           body: `El usuario ${name} quiere unirse al grupo ${group}.`,
-          Emergency_category: 'Emergency'
-        },
-        groupId: groupId,
+          Emergency_category: 'Emergency',
+          groupId: `Here is the groupId ${groupId}`
+        }
       };
       await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
@@ -239,9 +238,9 @@ export class NotificationService {
         data: {
           title: 'Invitación a Inter Grupo',
           body: `El grupo ${group} quiere formar un Inter Grupo!`,
-          Emergency_category: 'Emergency'
+          Emergency_category: 'Emergency',
+          chatId: `Here is the chatId ${chatId}`
         },
-        chatId: chatId,
       };
       await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
@@ -263,9 +262,9 @@ export class NotificationService {
         data: {
           title: 'Inter Grupo aceptado',
           body: `El grupo ${group} aceptó la invitación al inter grupo.`,
-          Emergency_category: 'Emergency'
-        },
-        chatId: chatId,
+          Emergency_category: 'Emergency',
+          chatId: ` Here is the chatId ${chatId}`
+        }
       };
       await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
@@ -287,10 +286,10 @@ export class NotificationService {
         data: {
           title: 'Inter Grupo no aceptado',
           body: `El grupo ${group} no aceptó la invitación al inter grupo.`,
-          Emergency_category: 'Emergency'
-        },
-        chatId: chatId,
-      };
+          Emergency_category: 'Emergency',
+          chatId: ` Here is the chatId ${chatId}`
+        }
+            };
       await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
       await this.createNotification(notification);
@@ -311,10 +310,10 @@ export class NotificationService {
         data: {
           title: 'Propuesta de juntada',
           body: `El grupo ${group} ha enviado una propuesta de juntada!`,
-          Emergency_category: 'Emergency'
-        },
-        chatId: chatId,
-      };
+          Emergency_category: 'Emergency',
+          chatId: ` Here is the chatId ${chatId}`
+        }
+            };
       await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
       await this.createNotification(notification);
@@ -335,10 +334,10 @@ export class NotificationService {
         data: {
           title: 'Propuesta de juntada',
           body: `El grupo ${group} ha aceptado la propuesta de juntada!`,
-          Emergency_category: 'Emergency'
-        },
-        chatId: chatId,
-      };
+          Emergency_category: 'Emergency',
+          chatId: ` Here is the chatId ${chatId}`
+        }
+            };
       await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
       await this.createNotification(notification);
@@ -359,10 +358,10 @@ export class NotificationService {
         data: {
           title: 'Propuesta de juntada',
           body: `El grupo ${group} no ha aceptado la propuesta de juntada.`,
-          Emergency_category: 'Emergency'
-        },
-        chatId: chatId
-      };
+          Emergency_category: 'Emergency',
+          chatId: ` Here is the chatId ${chatId}`
+        }   
+        };
       await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
       await this.createNotification(notification);
@@ -383,10 +382,10 @@ export class NotificationService {
         data: {
           title: 'Tienes mensajes nuevos sin leer',
           body: `Nuevos mensajes en ${group}.`,
-          Emergency_category: 'Emergency'
-        },
-         chatId: chatId,
-      };
+          Emergency_category: 'Emergency',
+          chatId: ` Here is the chatId ${chatId}`
+        }
+          };
       await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
       const msg = await this.createNotification(notification);

@@ -171,7 +171,6 @@ export class ChatService {
         chat: chatId
       });
       await message.save();
-      console.log(message);
       return message;
     } catch (error) {
       throw new Error(error.message)
