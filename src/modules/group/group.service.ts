@@ -7,7 +7,7 @@ import { GroupDTO, UpdateGroupDTO, RequestToGroupDTO, AceptOrRefuseDTO, NewAdmin
 import { Invitation, InvitationDocument } from './schema/invitation.schema';
 import { distanceBetweenLocations } from './utils/getDistance';
 import { getYearOfPerson } from './utils/getYearByDate';
-import { checkPromedio } from './utils/checkPromedio';
+import { averageAge } from './utils/checkPromedio';
 import { ChatService } from '../chat/chat.service';
 import { getAvailability } from './utils/getAvailability';
 import { removeImage } from '../users/utils/deleteImage';
@@ -230,7 +230,8 @@ export class GroupService {
     }
   }
 
-  async ageFilter(averageAge: number) {
+  
+async ageFilter(from: number, to: number) {
     try {
       const groups: any[] = await this.groupModel.find({ active: true }).populate('integrants');
 
@@ -245,7 +246,7 @@ export class GroupService {
         element.average = averages;
       });
 
-      const finalGroups = groups.filter((group) => checkPromedio(group.average, averageAge));
+      const finalGroups = groups.filter((group) => averageAge(from, to, group.average));
       return finalGroups;
     } catch (error) {
       throw new Error(error.message);

@@ -35,6 +35,8 @@ export class QueryDTO {
   readonly age: number;
   readonly name: string;
   readonly activity: string;
+  readonly from: number;
+  readonly to: number;
 }
 
 export class RequestToGroupDTO {

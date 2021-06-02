@@ -86,7 +86,7 @@ export class GroupController {
   @Get('/search/age')
   async filterAge(@Res() res, @Query() filters: QueryDTO): Promise<Group[]> {
     try {
-      const groups = await this.groupService.ageFilter(filters.age);
+      const groups = await this.groupService.ageFilter(filters.from, filters.to);
       return res.status(HttpStatus.OK).json({
         groups: groups
       });
