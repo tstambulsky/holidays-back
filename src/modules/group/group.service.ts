@@ -829,7 +829,7 @@ async ageFilter(from: number, to: number) {
         .populate('admin')
         .populate('typeOfActivity');
       for await (let group of groups) {
-        if (group.integrants.length <= integrants) {
+        if (group.integrants.length == integrants) {
           allGroups.push(group);
         }
       }

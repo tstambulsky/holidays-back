@@ -73,3 +73,4 @@ export class FiltersDTO {
   readonly gender: any;
   readonly distance: any;
 }
+
