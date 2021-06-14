@@ -518,7 +518,7 @@ export class InterGroupService {
         await this.chatService.createInterGroupMessageOne(chat._id, proposal.groupReceiver.admin);
         await this.chatService.createInterGroupMessageTwo(chat._id, proposal.groupReceiver.admin);
         await this.chatService.createInterGroupMessage(chat._id, proposal.groupReceiver.name);
-        let hours = '' + interGroup.startDate.getHours();
+        let hours = '' + interGroup.startDate.getHours() +3;
           if (hours.length == 1) {
             hours = '0' + hours;
           }

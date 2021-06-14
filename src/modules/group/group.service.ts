@@ -153,7 +153,7 @@ export class GroupService {
       await group.save();
       const meeting = await this.groupModel.findOne({ _id: group._id}).populate('meetingPlaceOne');
       const chat = await this.chatService.createGroupChat(group._id);
-      let hours = '' + group.startDate.getHours();
+      let hours = '' + group.startDate.getHours() +3;
       if (hours.length == 1) {
          hours = '0' + hours;
       }
