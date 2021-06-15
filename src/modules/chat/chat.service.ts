@@ -283,7 +283,7 @@ export class ChatService {
           if (invitations.length > 0) {
             chat.unreadMessages += invitations.length;
           }
-          if (today == dateGroup) {
+          if (today === dateGroup) {
             const message = await this.getMeetingMessageGroup(testGroup.name, currentUser);
             await message.save();
             if (message) {
@@ -345,7 +345,7 @@ export class ChatService {
             }
             if (interGroup.startDate) {
               const dateInterGroup = interGroup.startDate.getFullYear() + '-' + (interGroup.startDate.getMonth() + 1) + '-' + interGroup.startDate.getDate();
-              if (today == dateInterGroup) {
+              if (today === dateInterGroup) {
                 const message = await this.getMeetingMessageGroup(interGroup.name, currentUser);
                 if (message) {
                   chat.lastMessage = message;
