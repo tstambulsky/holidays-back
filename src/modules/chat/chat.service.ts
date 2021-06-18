@@ -818,4 +818,13 @@ export class ChatService {
       throw new Error(error);
     }
   }
+
+  async getChatById(chatId: any) {
+    try {
+      const chat = await this.chatModel.findOne({ _id: chatId });
+      return chat;
+    } catch (e) {
+      throw new Error(e)
+    }
+  }
 }

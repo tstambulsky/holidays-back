@@ -1,4 +1,4 @@
-import { Controller, Get, Res, HttpStatus, Body, Post, UseGuards} from '@nestjs/common';
+import { Controller, Get, Res, HttpStatus, Body, Post, UseGuards, Param} from '@nestjs/common';
 import { CurrentUser } from 'src/modules/users/decorators/currentUser';
 import { MessageDTO } from './dto/message.dto'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -201,6 +201,19 @@ export class ChatController {
     } catch (err) {
       res.status(HttpStatus.BAD_REQUEST).json({
         error: err.message
+      });
+    }
+  }
+
+  @Get('/:id')
+  async getChat(@Res() res, @Param('chatId') chatId) {
+    try {
+      const chat = await this.chatService.getChatById(chatId);
+      return res.status(HttpStatus.OK).json(chat);
+    } catch (err) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'An error has ocurred',
+        err: err.message
       });
     }
   }
