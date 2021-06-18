@@ -58,22 +58,29 @@ export class InterGroupService {
   async getInterGroupById(interGroupId: any) {
     try {
       let integrants = [];
+      let typeOfactivityGroupOne;
+      let typeOfactivityGroupTwo;
       const interGroup = await this.interGroupModel.findOne({ _id: interGroupId }).populate('groupSender').populate('groupReceiver').populate('meetingPlaceOne').populate('typeOfActivity');
       if (interGroup) {
         const groupOne = await this.groupService.getOneGroup({_id: interGroup.groupSender});
         if (groupOne) {
           const firstGroup = await this.groupService.getGroup(groupOne._id);
           integrants.push(firstGroup.integrants);
+          typeOfactivityGroupOne = firstGroup.typeOfActivity;
         }
         const groupTwo = await this.groupService.getOneGroup({_id: interGroup.groupReceiver});
         if (groupTwo) {
           const secondGroup = await this.groupService.getGroup(groupTwo._id);
           integrants.push(secondGroup.integrants);
+          typeOfactivityGroupTwo = secondGroup.typeOfActivity;
+
         }
       }
       return {
         interGroup,
-      integrants
+      integrants,
+      typeOfactivityGroupOne,
+      typeOfactivityGroupTwo
     };
     } catch (err) {
       throw new Error(err.message);

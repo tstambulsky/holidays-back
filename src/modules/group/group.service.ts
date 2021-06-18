@@ -360,7 +360,7 @@ async ageFilter(from: number, to: number) {
       }
       if (fromAdmin == true) {
         if (userExist.deviceToken) {
-        await this.notificationService.sendInvitationGroupToUser(userExist.deviceToken, groupExist.name, groupExist._id);
+        await this.notificationService.sendInvitationGroupToUser(userExist.deviceToken, groupExist.name);
         }
       } if (fromAdmin == false) {
         await this.chatService.createGroupMessage(chatGroup._id, user);
@@ -371,7 +371,7 @@ async ageFilter(from: number, to: number) {
         for await (let users of integrants) {
           const user = await this.userService.findOneUser({_id: users, active: true});
           if(user.deviceToken) {
-             await this.notificationService.sendInvitationToAdmin(user.deviceToken, name, groupExist.name, groupExist._id);
+             await this.notificationService.sendInvitationToAdmin(user.deviceToken, name, groupExist.name);
         }
           }
         }

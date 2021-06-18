@@ -179,7 +179,7 @@ export class NotificationService {
   }
 
 
-  async sendInvitationGroupToUser(token: string, group: any, groupId: any) {
+  async sendInvitationGroupToUser(token: string, group: any) {
     try {
       const message = {
         notification: {
@@ -191,7 +191,7 @@ export class NotificationService {
           title: 'Invitacion de grupo',
           body:  `Has sido invitado al grupo ${group}.`,
           Emergency_category: 'Emergency',
-          groupId: `Here is the groupId ${groupId}`
+          goToInvitationsUser: 'Push de invitacion a usuario'
         }
       };
       await this.sendNotification(token, message);
@@ -203,7 +203,7 @@ export class NotificationService {
     }
   }
 
-  async sendInvitationToAdmin(token: string, name: any, group: any, groupId: any) {
+  async sendInvitationToAdmin(token: string, name: any, group: any) {
     try {
       const message = {
         notification: {
@@ -215,7 +215,7 @@ export class NotificationService {
           title: 'Solicitud de unión a grupo',
           body: `El usuario ${name} quiere unirse al grupo ${group}.`,
           Emergency_category: 'Emergency',
-          groupId: `Here is the groupId ${groupId}`
+          goToInvitationsGroup: 'Solicitudes q recibe el grupo, ir a solicitudes del grupo'
         }
       };
       await this.sendNotification(token, message);
