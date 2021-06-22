@@ -364,7 +364,7 @@ export class InterGroupService {
       let integrantsOne = [];
       const { invitationId } = data;
       const userID = currentUser._id;
-      const invitation = await this.invitationModel.findOne({ _id: invitationId }).populate('groupSender');
+      const invitation = await this.invitationModel.findOne({ _id: invitationId }).populate('groupSender').populate('groupReceiver');
       if (!invitation) throw new HttpException('This invitation does not exist', 404);
       if (!invitation.active) throw new HttpException('This invitation was canceled', 404);
       const group = await this.groupService.getGroup({ _id: invitation.groupReceiver });
