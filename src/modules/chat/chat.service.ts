@@ -166,7 +166,7 @@ export class ChatService {
   async createMeetingMessage(name: any, time: any, meeting: any, chatId: any) {
     try {
       const message = new this.messageModel({
-        content: `Juntada: Hoy a las ${time} en ${meeting}`,
+        content: `Hoy a las ${time} en ${meeting}`,
         name,
         chat: chatId
       });
