@@ -278,7 +278,7 @@ async ageFilter(from: number, to: number) {
     try {
       let groups = [];
       const searchGroup = await this.groupModel
-        .find({ name: new RegExp(name, 'i') }, { active: true, name: 1, description: 1, typeOfActivity: 1 })
+        .find({ name: new RegExp(name, 'i') }, { active: true, name: 1, description: 1, typeOfActivity: 1, photo: 1, admin: 1, averageAge: 1, calificationsAverage: 1, percentageOfMale: 1, percentageOfFemale: 1, percentageOfNoGender: 1, startDate: 1, endDate: 1  })
         .populate('integrants')
         .populate('meetingPlaceOne')
         .populate('meetingPlaceTwo')
@@ -288,7 +288,7 @@ async ageFilter(from: number, to: number) {
           else {
         groups.push(searchGroup)
       }
-      const groupsDescription = await this.groupModel.find({ description: new RegExp(name, 'i') }, { active: true, name: 1, description: 1, typeOfActivity: 1 }).populate('integrants')
+      const groupsDescription = await this.groupModel.find({ description: new RegExp(name, 'i') }, { active: true, name: 1, description: 1, typeOfActivity: 1, photo: 1, admin: 1, averageAge: 1, calificationsAverage: 1, percentageOfMale: 1, percentageOfFemale: 1, percentageOfNoGender: 1, startDate: 1, endDate: 1  }).populate('integrants')
         .populate('meetingPlaceOne')
         .populate('meetingPlaceTwo')
         .populate('typeOfActivity')
