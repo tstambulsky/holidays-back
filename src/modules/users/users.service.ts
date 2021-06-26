@@ -6,6 +6,7 @@ import { UpdateUserDTO, queryDTO, PhotoDTO } from './dto/data.dto';
 import { User, UserDocument } from './schema/users.schema';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { removeImage } from './utils/deleteImage';
+import { birthDate } from './utils/ageOfUser';
 import { NotificationService } from '../notification/notification.service';
 import { AuthService } from '../auth/auth.service';
 
@@ -38,9 +39,12 @@ export class UsersService {
 
   async getUserById(userId: any): Promise<User> {
     try {
+      let age;
       const user = await this.userModel.findById({ _id: userId });
       //if (user.deviceToken) await this.notificationService.testNotification(user.deviceToken); 
       //console.log('devicetoken', user.deviceToken);
+      const ageUser = birthDate(user.birthDate);
+      user.age = ageUser;
       return user;
     } catch (err) {
       console.log(err);
