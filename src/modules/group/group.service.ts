@@ -411,12 +411,27 @@ async ageFilter(from: number, to: number) {
         .populate('user')
         .populate('group')
         .populate('typeOfActivity');
+      if (invitations.length < 1) throw new Error('This group does not has requests');
+      return invitations;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async getInvitationToGroupChat(groupId: any) {
+    try {
+      const invitations = await this.invitationModel
+        .find({ group: groupId, success: false, active: true, fromAdmin: false })
+        .populate('user')
+        .populate('group')
+        .populate('typeOfActivity');
       if (invitations.length < 0) throw new Error('This group does not has requests');
       return invitations;
     } catch (error) {
       throw new Error(error.message);
     }
   }
+
 
   async acceptInvitationToGroup(data: AceptOrRefuseDTO, currentUser: any) {
     try {

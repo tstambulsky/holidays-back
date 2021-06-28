@@ -301,7 +301,7 @@ export class InterGroupService {
         .find({ groupReceiver, success: false, active: true })
         .populate('adminSender')
         .populate('groupSender');
-      if (invitations.length < 0) throw new Error('This group does not has requests');
+      if (invitations.length < 1) throw new Error('This group does not has requests');
       return invitations;
     } catch (error) {
       throw new Error(error.message);

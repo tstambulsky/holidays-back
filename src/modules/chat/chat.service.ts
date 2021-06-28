@@ -276,7 +276,7 @@ export class ChatService {
         const testGroup = await this.groupService.getGroup(group);
         const dateGroup = testGroup.startDate.getFullYear() + '-' + (testGroup.startDate.getMonth() + 1) + '-' + testGroup.startDate.getDate();
         await this.getUnreadGroup(group._id, currentUser);
-        const invitations = await this.groupService.getInvitationToGroup(group);
+        const invitations = await this.groupService.getInvitationToGroupChat(group);
         const chat = await this.chatModel.findOne({ group: group._id, active: true }).populate('lastMessage');
         if (!chat.adminUser) {
           chat.invitations = invitations.length;
