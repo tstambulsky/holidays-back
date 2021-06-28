@@ -112,7 +112,7 @@ export class GroupService {
       };
       let totalCalifications = 0;
       group.integrants.forEach((people) => {
-        const califications = people.points;
+        const califications = people.pointsPositive - people.pointsNegative;
         totalCalifications += califications;
       });
       const averageAge = totalyAge / totalyPeople;
