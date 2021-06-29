@@ -213,6 +213,7 @@ export class ChatService {
       const group = await this.chatModel.findOne({ invitation: invitationId, active: true });
       if (group) {
         const invitation = await this.interGroupService.getInvitationId(invitationId);
+        if (invitation) {
         const isInGroup = await this.groupService.getOneUserGroup(userId, invitation.groupSender, invitation.groupReceiver);
         if (!isInGroup) throw new WsException('Your does not belong to any group');
         const existGroup = await this.groupService.getOneGroup({ _id: invitation.groupSender});
@@ -229,6 +230,7 @@ export class ChatService {
           groupWithoutUserLogged = groupUserOne;
         }
       }
+    }
       return groupWithoutUserLogged;
     } catch (error) {
       throw new Error(error.message)
