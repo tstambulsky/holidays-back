@@ -95,6 +95,7 @@ export class GroupService {
       let totalyFemale = 0;
       let totalyNoGender = 0;
 
+      if(group.integrants.length > 0) {
       group.integrants.forEach((people) => {
         personsSex.push(people.sex);
         const ageFilter = getYearOfPerson(people.birthDate);
@@ -126,6 +127,7 @@ export class GroupService {
       group.percentageOfFemale = percentlyFemale;
       group.percentageOfNoGender = percentlyNoGender;
       await group.save();
+    }
       return group;
     } catch (err) {
       throw new Error(err.message);
