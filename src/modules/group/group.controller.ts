@@ -192,7 +192,7 @@ export class GroupController {
     }
   }
 
-  @Delete('/delete/:groupId')
+  /*@Delete('/delete/:groupId')
   async deleteGroup(@Res() res, @Param('groupId') groupId): Promise<string> {
     try {
       await this.groupService.deleteGroup(groupId);
@@ -205,7 +205,7 @@ export class GroupController {
         err: err.message
       });
     }
-  }
+  }*/
 
   @Put('/remove/:groupId')
   async inactiveGroup(@Res() res, @Param('groupId') groupId): Promise<string> {

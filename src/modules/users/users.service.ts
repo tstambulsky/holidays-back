@@ -157,14 +157,14 @@ export class UsersService {
     }
   }
 
-  async deleteUser(userId: any): Promise<string> {
+  /*async deleteUser(userId: any): Promise<string> {
     try {
       await this.userModel.deleteOne({ _id: userId });
       return 'User deleted';
     } catch (err) {
       throw new Error(err.message);
     }
-  }
+  }*/
 
   async changeUserCalifications(userId: any, sum: boolean): Promise<User> {
     try {

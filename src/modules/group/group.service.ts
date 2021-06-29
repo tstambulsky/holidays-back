@@ -200,14 +200,14 @@ export class GroupService {
     }
   }
 
-  async deleteGroup(groupId: any): Promise<string> {
+  /*async deleteGroup(groupId: any): Promise<string> {
     try {
       await this.groupModel.deleteOne({ _id: groupId });
       return 'Group deleted';
     } catch (err) {
       throw new Error(err.message);
     }
-  }
+  }*/
 
   async genderFilter(gender: string) {
     try {

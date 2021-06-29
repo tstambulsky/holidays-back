@@ -114,7 +114,7 @@ export class UsersController {
     }
   }
 
-  @Delete('/delete/:userID')
+  /*@Delete('/delete/:userID')
   async deleteMeeting(@Res() res, @Param('userID') userID): Promise<string> {
     try {
       await this.userService.deleteUser(userID);
@@ -127,7 +127,7 @@ export class UsersController {
         err: err.message
       });
     }
-  }
+  }*/
 
   @Post('/search/contacts')
   async getContacts(@Res() res, @Body() users: contactsDTO) {

@@ -321,19 +321,26 @@ export class ChatService {
       interGroups.forEach((element) => {
         invitationsId.push(element);
       });
+      console.log('invitationsss', invitationsId);
       for await (let element of invitationsId) {
         await this.getUnreadInterGroup(currentUser, element._id);
+        console.log('aca llega man');
         const interGroup = await this.interGroupService.getInterGroupByGroups(element.groupSender, element.groupReceiver);
+        console.log('aca llega tambien 1 man');
         const chat = await this.chatModel.findOne({ invitation: element._id, active: true }).populate('lastMessage');
+        console.log('aca llega tambien 2 man');
         if (chat) {
           const invitation = await this.interGroupService.getInvitationId(element._id);
-          const group = await this.getChatPopulateGroup(element._id, currentUser);
+           console.log('aca llega tambien 3e man');
+          const group = await this.getChatPopulateGroup(element._id, currentUser)
+           console.log('aca llega tambien 4 man');;
           chat.otherGroup = group;
           if (invitation) {
             chat.unreadMessages = + 1;
           }
           if (interGroup) {
             const proposal = await this.interGroupService.getProposalsInterGroup(interGroup._id);
+             console.log('aca llega tambien 5 man');
             if (proposal) {
               if (proposal.groupReceiver.admin == currentUser._id) {
                 chat.isAdmin = true;
