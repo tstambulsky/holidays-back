@@ -213,12 +213,10 @@ export class ChatService {
       const group = await this.chatModel.findOne({ invitation: invitationId, active: true });
       if (group) {
         const invitation = await this.interGroupService.getInvitationId(invitationId);
-         console.log('llega 1');
         if (invitation) {
         const isInGroup = await this.groupService.getOneUserGroup(userId, invitation.groupSender, invitation.groupReceiver);
         if (!isInGroup) throw new WsException('Your does not belong to any group');
         const existGroup = await this.groupService.getOneGroup({ _id: invitation.groupSender});
-         console.log('aca llega tambien 2 man');
         if (existGroup) {
         groupUserOne = await this.groupService.getGroup(invitation.groupSender);
         }
@@ -331,16 +329,13 @@ export class ChatService {
         const chat = await this.chatModel.findOne({ invitation: element._id, active: true }).populate('lastMessage');
         if (chat) {
           const invitation = await this.interGroupService.getInvitationId(element._id);
-           console.log('aca llega tambien 3e man');
           const group = await this.getChatPopulateGroup(element._id, currentUser)
-           console.log('aca llega tambien 4 man');;
           chat.otherGroup = group;
           if (invitation) {
             chat.unreadMessages = + 1;
           }
           if (interGroup) {
             const proposal = await this.interGroupService.getProposalsInterGroup(interGroup._id);
-             console.log('aca llega tambien 5 man');
             if (proposal) {
               if (proposal.groupReceiver.admin == currentUser._id) {
                 chat.isAdmin = true;
