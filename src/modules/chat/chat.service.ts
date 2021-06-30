@@ -284,6 +284,7 @@ export class ChatService {
           chat.invitations = invitations.length;
           if (invitations.length > 0) {
             chat.unreadMessages += invitations.length;
+            await chat.save();
           }
           if (today === dateGroup) {
             const message = await this.getMeetingMessageGroup(testGroup.name, currentUser);
@@ -333,6 +334,7 @@ export class ChatService {
           chat.otherGroup = group;
           if (invitation) {
             chat.unreadMessages = + 1;
+            await chat.save();
           }
           if (interGroup) {
             const proposal = await this.interGroupService.getProposalsInterGroup(interGroup._id);
@@ -523,7 +525,7 @@ export class ChatService {
         allUnread.push(mesg);
         //@ts-ignore
         mesg.readBy.push(currentUser._id);
-        mesg.save();
+        await mesg.save();
       }
     }
     if (allUnread.length < 1) {
@@ -614,7 +616,7 @@ export class ChatService {
       if (mesg) {
         allUnread.push(mesg);
         mesg.readBy.push(userId);
-        mesg.save();
+        await mesg.save();
       }
     }
     if (allUnread.length < 1) {
@@ -673,7 +675,7 @@ export class ChatService {
         allUnread.push(mesg);
         //@ts-ignore
         mesg.readBy.push(currentUser._id);
-        mesg.save();
+        await mesg.save();
       }
     }
     if (allUnread.length < 1) {
