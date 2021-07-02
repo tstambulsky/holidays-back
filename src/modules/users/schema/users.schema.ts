@@ -93,6 +93,9 @@ export class User {
   @Prop({ type: Number, default: 0 })
   pointsPositive: number;
 
+  @Prop({ type: Number, default: 0 })
+  totalyCalifications: number;
+
   @Prop({ default: true })
   active: boolean;
 

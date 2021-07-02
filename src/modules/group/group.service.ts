@@ -113,13 +113,18 @@ export class GroupService {
       };
       let totalCalifications = 0;
       group.integrants.forEach((people) => {
-        const califications = people.pointsPositive - people.pointsNegative;
-        totalCalifications += califications;
+        const totaly = people.pointsPositive + people.pointsNegative;
+        if (totaly > 0) {
+          const percentlyCalifications = (people.pointsPositive / totaly) * 100;
+           totalCalifications = totalCalifications + percentlyCalifications;
+        }
       });
       const averageAge = totalyAge / totalyPeople;
-      const averageCalifications = totalCalifications / totalyPeople;
+      if (totalCalifications > 0) {
+      const averageCalifications = totalCalifications / totalyPeople * 100;
+      group.calificationsAverage = Math.round(averageCalifications);
+      }
       group.averageAge = averageAge;
-      group.calificationsAverage = averageCalifications;
       const percentlyMale = (totalyMale * 100) / totalyPeople;
       const percentlyFemale = (totalyFemale * 100) / totalyPeople;
       const percentlyNoGender = (totalyNoGender * 100) / totalyPeople;
