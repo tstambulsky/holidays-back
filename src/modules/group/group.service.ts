@@ -121,7 +121,7 @@ export class GroupService {
       });
       const averageAge = totalyAge / totalyPeople;
       if (totalCalifications > 0) {
-      const averageCalifications = totalCalifications / totalyPeople * 100;
+      const averageCalifications = totalCalifications / totalyPeople;
       group.calificationsAverage = Math.round(averageCalifications);
       }
       group.averageAge = averageAge;
