@@ -2,10 +2,12 @@ import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer, OnGat
 import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
 import { MessageDTO } from './dto/message.dto'
-@WebSocketGateway({cors : {
-  origin: process.env.URL,
-  credentials: true
-}})
+@WebSocketGateway({
+  cors: {
+    origin: process.env.URL,
+    credentials: true
+  }
+})
 export class ChatGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
@@ -31,7 +33,7 @@ export class ChatGateway implements OnGatewayConnection {
     const author = await this.chatService.getUserFromSocket(socket);
     await this.chatService.getUnreadGroup(group, author);
     const messages = await this.chatService.getAllMessagesGroup(group, author);
-    
+
     await socket.emit('send_all_mesages_group', messages);
   }
 
@@ -49,6 +51,7 @@ export class ChatGateway implements OnGatewayConnection {
     const { invitation } = data;
     const author = await this.chatService.getUserFromSocket(socket);
     await this.chatService.getUnreadInterGroup(author, invitation);
+    await this.chatService.getChatInterGroupsUser(author);
     const messages = await this.chatService.getAllMessagesInterGroup(author, invitation);
 
     await socket.emit('send_all_mesages_inter_group', messages);
