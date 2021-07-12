@@ -41,6 +41,9 @@ export class Chat {
   @Prop({})
   dateProposal: Date;
 
+  @Prop({})
+  dateProposalEnd: Date;
+
   @Prop({ default: false })
   pending: boolean;
 

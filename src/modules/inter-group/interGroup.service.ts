@@ -451,6 +451,7 @@ export class InterGroupService {
       chat.proposal = proposal._id;
       chat.meeting = proposal.proposalPlace;
       chat.dateProposal = proposal.proposalStartDate;
+      chat.dateProposalEnd = proposal.proposalEndDate;
       await chat.save();
       for await (let users of integrantsTwo) {
         const user = await this.usersService.findOneUser({ _id: users, active: true })
