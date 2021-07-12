@@ -1,6 +1,7 @@
 import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer, OnGatewayConnection, ConnectedSocket } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
+import { InterGroupService } from '../inter-group/interGroup.service';
 import { MessageDTO } from './dto/message.dto'
 @WebSocketGateway({
   cors: {
@@ -12,7 +13,7 @@ export class ChatGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
 
-  constructor(private readonly chatService: ChatService) { }
+  constructor(private readonly chatService: ChatService, private readonly interGroupService: InterGroupService) { }
 
   async handleConnection(socket: Socket) {
     await this.chatService.getUserFromSocket(socket);
@@ -51,14 +52,9 @@ export class ChatGateway implements OnGatewayConnection {
     const { invitation } = data;
     const author = await this.chatService.getUserFromSocket(socket);
     await this.chatService.getUnreadInterGroup(author, invitation);
-    await this.chatService.getChatInterGroupsUser(author);
-    const proposal = await this.chatService.getProposal(invitation);
+    const chat = await this.chatService.getInterGroupByInvitation(invitation);
     const messages = await this.chatService.getAllMessagesInterGroup(author, invitation);
-    if (proposal) {
-    await socket.emit('send_all_mesages_inter_group', messages, proposal);
-    } else {
-          await socket.emit('send_all_mesages_inter_group', messages);
-    }
+    await socket.emit('send_all_mesages_inter_group', messages, chat);
   }
 
   @SubscribeMessage('send_message_admin')
