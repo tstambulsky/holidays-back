@@ -52,9 +52,13 @@ export class ChatGateway implements OnGatewayConnection {
     const author = await this.chatService.getUserFromSocket(socket);
     await this.chatService.getUnreadInterGroup(author, invitation);
     await this.chatService.getChatInterGroupsUser(author);
+    const proposal = await this.chatService.getProposal(invitation);
     const messages = await this.chatService.getAllMessagesInterGroup(author, invitation);
-
-    await socket.emit('send_all_mesages_inter_group', messages);
+    if (proposal) {
+    await socket.emit('send_all_mesages_inter_group', messages, proposal);
+    } else {
+          await socket.emit('send_all_mesages_inter_group', messages);
+    }
   }
 
   @SubscribeMessage('send_message_admin')

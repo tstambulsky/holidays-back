@@ -277,7 +277,6 @@ export class ChatService {
       for await (let group of groups) {
         const testGroup = await this.groupService.getGroup(group);
         const dateGroup = testGroup.startDate.getFullYear() + '-' + (testGroup.startDate.getMonth() + 1) + '-' + testGroup.startDate.getDate();
-        await this.getUnreadGroup(group._id, currentUser);
         const invitations = await this.groupService.getInvitationToGroupChat(group);
         const chat = await this.chatModel.findOne({ group: group._id, active: true }).populate('lastMessage');
         if (!chat.adminUser) {
@@ -325,7 +324,6 @@ export class ChatService {
         invitationsId.push(element);
       });
       for await (let element of invitationsId) {
-        await this.getUnreadInterGroup(currentUser, element._id);
         const interGroup = await this.interGroupService.getInterGroupByGroups(element.groupSender, element.groupReceiver);
         const chat = await this.chatModel.findOne({ invitation: element._id, active: true }).populate('lastMessage');
         if (chat) {
@@ -436,9 +434,6 @@ export class ChatService {
     try {
       const chats = await this.chatModel.find({ adminUser: currentUser._id, active: true }).populate('lastMessage');;
       if (!chats) throw new WsException('You are not the admin or the user does not exist.');
-      for await (let chat of chats) {
-        await this.getUnreadAdmin(chat._id, currentUser);
-      }
       return chats;
     } catch (error) {
       throw new Error(error);
@@ -827,6 +822,17 @@ export class ChatService {
     try {
       const chat = await this.chatModel.findOne({ _id: chatId });
       return chat;
+    } catch (e) {
+      throw new Error(e)
+    }
+  }
+
+  async getProposal(invitation: any) {
+    try {
+      const interGroup: any = await this.getInterGroupByInvitation(invitation);
+      const proposal = await this.interGroupService.getProposalsInterGroup(interGroup.interGroup._id);
+      if (!proposal) throw new WsException('This intergroup does not have proposal')
+      return proposal;
     } catch (e) {
       throw new Error(e)
     }
