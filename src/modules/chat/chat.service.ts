@@ -22,8 +22,8 @@ export class ChatService {
     @InjectModel(Chat.name) private chatModel: Model<ChatDocument>,
     @Inject(forwardRef(() => GroupService)) private readonly groupService: GroupService,
     private readonly interGroupService: InterGroupService,
-    private readonly usersService: UsersService,
-    private readonly notificationService: NotificationService
+    @Inject(forwardRef(() => UsersService)) private readonly usersService: UsersService,
+    @Inject(forwardRef(() => NotificationService)) private readonly notificationService: NotificationService
   ) { }
 
   async getUserFromSocket(socket: Socket) {

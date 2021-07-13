@@ -26,9 +26,9 @@ export class InterGroupService {
     @InjectModel(InterGroup.name) private readonly interGroupModel: Model<InterGroupDocument>,
     @InjectModel(InvitationInterGroup.name) private readonly invitationModel: Model<InvitationInterGroupDocument>,
     @InjectModel(Proposal.name) private readonly proposalModel: Model<ProposalDocument>,
-    private readonly groupService: GroupService,
+    @Inject(forwardRef(() => GroupService)) private readonly groupService: GroupService,
     @Inject(forwardRef(() => ChatService)) private chatService: ChatService,
-    private readonly notificationService: NotificationService,
+    @Inject(forwardRef(() => NotificationService)) private readonly notificationService: NotificationService,
     @Inject(forwardRef(() => UsersService)) private usersService: UsersService,
   ) {}
 

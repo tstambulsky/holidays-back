@@ -5,12 +5,14 @@ import { Model } from 'mongoose';
 import admin from './config';
 import { NotificationDto } from './dto/notification.dto';
 import { UsersService } from '../users/users.service';
+import { GroupService } from '../group/group.service';
 
 @Injectable()
 export class NotificationService {
   constructor(
     @InjectModel(Notification.name) private readonly notificationModel: Model<NotificationDocument>,
-    @Inject(forwardRef(() => UsersService)) private readonly userService: UsersService
+    @Inject(forwardRef(() => UsersService)) private readonly userService: UsersService,
+     @Inject(forwardRef(() => GroupService)) private readonly groupService: GroupService
   ) {}
 
   async sendNotification(token: string, message: any) {
@@ -26,8 +28,16 @@ export class NotificationService {
 
   async getNotifications(currentUser: any) {
     try {
+      let notifications = [];
       const userId = currentUser._id;
-      const notifications = await this.notificationModel.find({ to: userId, message: false });
+      const notificationsUser = await this.notificationModel.find({ to: userId, message: false });
+      if (notificationsUser) {
+        notifications.push(notificationsUser)
+      }
+      const notificationsAdmin = await this.notificationModel.find({ toAdmin: userId, message: false});
+      if (notificationsAdmin) {
+        notifications.push(notificationsAdmin)
+      }
       return notifications;
     } catch (error) {
       console.log(error);
@@ -49,10 +59,12 @@ export class NotificationService {
   async cleanData(token: string, message: any) {
     try {
       const user = await this.userService.getByDeviceToken(token);
+      const group = await this.groupService.getGroup(message.data.groupId);
       return {
         title: message.data.title,
         body: message.data.body,
-        to: user
+        to: user,
+        toAdmin: group.admin
       };
     } catch (error) {
       throw new Error(error.message);

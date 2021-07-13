@@ -18,11 +18,11 @@ import { NotificationModule } from '../notification/notification.module';
       { name: Chat.name, schema: ChatSchema }
     ]),
     AuthModule,
-    UsersModule,
+    forwardRef(() => UsersModule),
     forwardRef(() => GroupModule),
-    InterGroupModule,
+    forwardRef(() => InterGroupModule),
     HttpModule,
-    NotificationModule
+    forwardRef(() => NotificationModule)
   ],
   providers: [ChatGateway, ChatService],
   controllers: [ChatController],

@@ -18,7 +18,7 @@ import { NotificationModule } from '../notification/notification.module';
     forwardRef(() => UsersModule),
     CloudinaryModule,
     forwardRef(() => ChatModule),
-    NotificationModule
+    forwardRef(() => NotificationModule)
   ],
   controllers: [GroupController],
   providers: [GroupService],

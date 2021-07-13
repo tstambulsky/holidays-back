@@ -22,7 +22,7 @@ export class GroupService {
     @InjectModel(Invitation.name) private readonly invitationModel: Model<InvitationDocument>,
     @Inject(forwardRef(() => UsersService)) private userService: UsersService,
     @Inject(forwardRef(() => ChatService)) private chatService: ChatService,
-    private readonly notificationService: NotificationService
+     @Inject(forwardRef(() => NotificationService))private readonly notificationService: NotificationService
   ) {}
 
   async getGroups(): Promise<Group[]> {

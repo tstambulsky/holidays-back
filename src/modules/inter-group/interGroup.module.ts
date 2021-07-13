@@ -19,7 +19,7 @@ import { UsersModule } from '../users/users.module';
     ]),
     forwardRef(() => GroupModule),
     forwardRef(() => ChatModule),
-    NotificationModule,
+    forwardRef(() => NotificationModule),
     forwardRef(() => UsersModule)
   ],
   controllers: [InterGroupController],
