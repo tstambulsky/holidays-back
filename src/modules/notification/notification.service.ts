@@ -12,8 +12,8 @@ export class NotificationService {
   constructor(
     @InjectModel(Notification.name) private readonly notificationModel: Model<NotificationDocument>,
     @Inject(forwardRef(() => UsersService)) private readonly userService: UsersService,
-     @Inject(forwardRef(() => GroupService)) private readonly groupService: GroupService
-  ) {}
+    @Inject(forwardRef(() => GroupService)) private readonly groupService: GroupService
+  ) { }
 
   async sendNotification(token: string, message: any) {
     try {
@@ -28,15 +28,15 @@ export class NotificationService {
 
   async getNotifications(currentUser: any) {
     try {
-      let notifications = [];
+      let notifications;
       const userId = currentUser._id;
       const notificationsUser = await this.notificationModel.find({ to: userId, message: false });
       if (notificationsUser) {
-        notifications.push(notificationsUser)
+        notifications = notificationsUser;
       }
-      const notificationsAdmin = await this.notificationModel.find({ toAdmin: userId, message: false});
+      const notificationsAdmin = await this.notificationModel.find({ toAdmin: userId, message: false });
       if (notificationsAdmin) {
-        notifications.push(notificationsAdmin)
+        notifications.concat(notificationsAdmin)
       }
       return notifications;
     } catch (error) {
@@ -60,11 +60,12 @@ export class NotificationService {
     try {
       const user = await this.userService.getByDeviceToken(token);
       const group = await this.groupService.getGroup(message.data.groupId);
+      const admin = await this.userService.getUserById(group.admin);
       return {
         title: message.data.title,
         body: message.data.body,
         to: user,
-        toAdmin: group.admin
+        toAdmin: admin
       };
     } catch (error) {
       throw new Error(error.message);
@@ -201,7 +202,7 @@ export class NotificationService {
         },
         data: {
           title: 'Invitacion de grupo',
-          body:  `Has sido invitado al grupo ${group}.`,
+          body: `Has sido invitado al grupo ${group}.`,
           Emergency_category: 'Emergency',
           goToInvitationsUser: 'Push de invitacion a usuario'
         }
@@ -220,7 +221,7 @@ export class NotificationService {
       const message = {
         notification: {
           title: 'Solicitud de unión a grupo',
-          body:  `El usuario ${name} quiere unirse al grupo ${group}.`,
+          body: `El usuario ${name} quiere unirse al grupo ${group}.`,
           sound: 'default'
         },
         data: {
@@ -239,7 +240,7 @@ export class NotificationService {
     }
   }
 
-   async sendInvitationToInterGroup(token: string, group: any, chatId: any) {
+  async sendInvitationToInterGroup(token: string, group: any, chatId: any) {
     try {
       const message = {
         notification: {
@@ -263,7 +264,7 @@ export class NotificationService {
     }
   }
 
-   async sendAcceptInterGroup(token: string, group: any, chatId: any) {
+  async sendAcceptInterGroup(token: string, group: any, chatId: any) {
     try {
       const message = {
         notification: {
@@ -287,7 +288,7 @@ export class NotificationService {
     }
   }
 
-   async sendNoAcceptInterGroup(token: string, group: any, chatId: any) {
+  async sendNoAcceptInterGroup(token: string, group: any, chatId: any) {
     try {
       const message = {
         notification: {
@@ -301,7 +302,7 @@ export class NotificationService {
           Emergency_category: 'Emergency',
           chatId: ` Here is the chatId ${chatId}`
         }
-            };
+      };
       await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
       await this.createNotification(notification);
@@ -325,7 +326,7 @@ export class NotificationService {
           Emergency_category: 'Emergency',
           chatId: ` Here is the chatId ${chatId}`
         }
-            };
+      };
       await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
       await this.createNotification(notification);
@@ -349,7 +350,7 @@ export class NotificationService {
           Emergency_category: 'Emergency',
           chatId: ` Here is the chatId ${chatId}`
         }
-            };
+      };
       await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
       await this.createNotification(notification);
@@ -359,7 +360,7 @@ export class NotificationService {
     }
   }
 
-   async sendNoAcceptPropoasl(token: string, group: any, chatId: any) {
+  async sendNoAcceptPropoasl(token: string, group: any, chatId: any) {
     try {
       const message = {
         notification: {
@@ -372,8 +373,8 @@ export class NotificationService {
           body: `El grupo ${group} no ha aceptado la propuesta de juntada.`,
           Emergency_category: 'Emergency',
           chatId: ` Here is the chatId ${chatId}`
-        }   
-        };
+        }
+      };
       await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
       await this.createNotification(notification);
@@ -397,7 +398,7 @@ export class NotificationService {
           Emergency_category: 'Emergency',
           chatId: ` Here is the chatId ${chatId}`
         }
-          };
+      };
       await this.sendNotification(token, message);
       const notification = await this.cleanData(token, message);
       const msg = await this.createNotification(notification);
